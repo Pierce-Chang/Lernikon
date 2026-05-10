@@ -13,8 +13,7 @@ export default async function GeneratorPage() {
   const [child, userRow] = await Promise.all([getChildProfile(), getCurrentUserRow()]);
   if (!child) redirect("/onboarding");
 
-  const status = userRow?.subscription_status ?? "none",
-    quota = await getQuota(user.id, status);
+  const quota = await getQuota(user.id, userRow);
 
   return (
     <main className="mx-auto w-full max-w-2xl px-6 py-10">
@@ -25,7 +24,6 @@ export default async function GeneratorPage() {
       </p>
 
       <GeneratorForm
-        childName={child.name}
         quota={{
           isPaid: quota.isPaid,
           used: quota.used,

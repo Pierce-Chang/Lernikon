@@ -2,164 +2,189 @@ import {
   Document,
   Page,
   StyleSheet,
-  Svg,
   Text,
   View,
-  Circle,
-  Path,
   renderToStream,
 } from "@react-pdf/renderer";
 import type { ReactElement } from "react";
 import type { Problem } from "./generate";
+import { operationLabel, type Operation } from "./config";
 import type { ThemeId } from "@/lib/themes";
 
 export interface WorksheetPdfProps {
   childName: string;
   date: string;
-  operation: "addition" | "subtraktion";
+  operation: Operation;
   rangeLabel: string;
   problems: Problem[];
   theme: ThemeId;
   showWatermark: boolean;
 }
 
+// ── Brand palette ─────────────────────────────────────────────────────────
+const COLOR = {
+  brand: "#6366F1",
+  brandSoft: "#EEF2FF",
+  brandLine: "#C7D2FE",
+  textDark: "#1F2937",
+  textMuted: "#6B7280",
+  line: "#E5E7EB",
+  writeLine: "#D1D5DB",
+  answerBg: "#F9FAFB",
+  answerBorder: "#E5E7EB",
+} as const;
+
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 48,
-    paddingBottom: 56,
-    paddingHorizontal: 48,
+    paddingTop: 56,
+    paddingBottom: 64,
+    paddingLeft: 56,
+    paddingRight: 56,
     fontFamily: "Helvetica",
-    color: "#111827",
-    position: "relative",
+    color: COLOR.textDark,
+    backgroundColor: "#FFFFFF",
+  },
+  topAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 6,
+    backgroundColor: COLOR.brand,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    marginBottom: 28,
+    marginBottom: 32,
+    paddingBottom: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    paddingBottom: 14,
+    borderBottomColor: COLOR.line,
+  },
+  brand: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    marginBottom: 6,
   },
   title: {
-    fontSize: 22,
+    fontSize: 28,
     fontFamily: "Helvetica-Bold",
+    color: COLOR.textDark,
   },
   subtitle: {
-    fontSize: 11,
-    color: "#6B7280",
-    marginTop: 4,
+    fontSize: 12,
+    color: COLOR.brand,
+    fontFamily: "Helvetica-Bold",
+    marginTop: 6,
   },
-  metaRight: {
-    fontSize: 10,
-    color: "#374151",
-    textAlign: "right",
+  metaCol: {
+    alignItems: "flex-end",
   },
-  metaRow: {
-    fontSize: 11,
-    color: "#374151",
-    marginBottom: 18,
+  metaLabel: {
+    fontSize: 9,
+    color: COLOR.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
+  metaValue: {
+    fontSize: 12,
+    color: COLOR.textDark,
+    fontFamily: "Helvetica-Bold",
+    marginTop: 2,
+    marginBottom: 8,
+  },
+  // ── problem grid (page 1) ──────────────────────────────────────────────
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
   cell: {
     width: "50%",
-    paddingVertical: 14,
-    paddingRight: 12,
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingRight: 16,
   },
   problemRow: {
     flexDirection: "row",
-    alignItems: "baseline",
-    gap: 8,
+    alignItems: "center",
   },
-  problemNumber: {
-    fontSize: 11,
-    color: "#9CA3AF",
+  numberBadge: {
     width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: COLOR.brandSoft,
+    color: COLOR.brand,
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    textAlign: "center",
+    paddingTop: 5,
+    marginRight: 10,
   },
   problemText: {
     fontSize: 18,
     fontFamily: "Helvetica-Bold",
+    color: COLOR.textDark,
   },
   writeLine: {
-    marginTop: 12,
-    height: 28,
+    marginTop: 14,
+    marginLeft: 32,
+    height: 26,
     borderBottomWidth: 1,
-    borderBottomColor: "#9CA3AF",
-    borderStyle: "dashed",
+    borderBottomColor: COLOR.writeLine,
   },
-  answerKeyTitle: {
-    fontSize: 18,
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 18,
+  // ── answer key (page 2) ────────────────────────────────────────────────
+  answerKeyHeader: {
+    marginBottom: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLOR.line,
   },
   answerCell: {
-    width: "33.3333%",
-    paddingVertical: 8,
+    width: "33%",
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingRight: 8,
+  },
+  answerInner: {
     flexDirection: "row",
-    gap: 8,
+    alignItems: "center",
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderWidth: 1,
+    borderColor: COLOR.answerBorder,
+    borderRadius: 6,
+    backgroundColor: COLOR.answerBg,
   },
   answerNumber: {
-    fontSize: 11,
-    color: "#9CA3AF",
-    width: 22,
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    width: 14,
   },
   answerText: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
-    color: "#1F2937",
+    color: COLOR.textDark,
   },
+  // ── footer ─────────────────────────────────────────────────────────────
   footer: {
     position: "absolute",
-    bottom: 24,
-    left: 48,
-    right: 48,
+    bottom: 28,
+    left: 56,
+    right: 56,
     textAlign: "center",
-    fontSize: 9,
-    color: "#9CA3AF",
+    fontSize: 8,
+    color: COLOR.textMuted,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: COLOR.line,
   },
-  decoTL: { position: "absolute", top: 18, left: 18 },
-  decoBR: { position: "absolute", bottom: 28, right: 18 },
 });
-
-const Planet = () => (
-  <Svg width={64} height={64} viewBox="0 0 64 64">
-    <Circle cx="32" cy="34" r="18" fill="#E0E7FF" />
-    <Path
-      d="M10 40 Q32 22 54 40"
-      stroke="#A5B4FC"
-      strokeWidth={2}
-      fill="none"
-    />
-    <Circle cx="20" cy="14" r="2" fill="#A5B4FC" />
-    <Circle cx="50" cy="20" r="1.5" fill="#A5B4FC" />
-  </Svg>
-);
-
-const Stars = () => (
-  <Svg width={72} height={72} viewBox="0 0 72 72">
-    <Circle cx="10" cy="10" r="1.5" fill="#C7D2FE" />
-    <Circle cx="30" cy="22" r="2" fill="#A5B4FC" />
-    <Circle cx="55" cy="14" r="1.5" fill="#C7D2FE" />
-    <Circle cx="48" cy="48" r="2" fill="#A5B4FC" />
-    <Circle cx="20" cy="60" r="1.5" fill="#C7D2FE" />
-  </Svg>
-);
-
-const ThemeDecorations = ({ theme }: { theme: ThemeId }) => {
-  if (theme !== "weltraum") return null;
-  return (
-    <>
-      <View style={styles.decoTL} render={() => <Stars />} fixed />
-      <View style={styles.decoBR} render={() => <Planet />} fixed />
-    </>
-  );
-};
-
-const operationLabel = (op: "addition" | "subtraktion") =>
-  op === "addition" ? "Addition" : "Subtraktion";
 
 const WorksheetDocument = ({
   childName,
@@ -167,7 +192,6 @@ const WorksheetDocument = ({
   operation,
   rangeLabel,
   problems,
-  theme,
   showWatermark,
 }: WorksheetPdfProps): ReactElement => (
   <Document
@@ -178,17 +202,21 @@ const WorksheetDocument = ({
   >
     {/* page 1 — worksheet */}
     <Page size="A4" style={styles.page}>
-      <ThemeDecorations theme={theme} />
+      <View style={styles.topAccent} fixed />
+
       <View style={styles.header}>
         <View>
+          <Text style={styles.brand}>Lernikon</Text>
           <Text style={styles.title}>Übungsblatt</Text>
           <Text style={styles.subtitle}>
             {operationLabel(operation)} · Zahlenraum {rangeLabel}
           </Text>
         </View>
-        <View>
-          <Text style={styles.metaRight}>Name: {childName}</Text>
-          <Text style={styles.metaRight}>Datum: {date}</Text>
+        <View style={styles.metaCol}>
+          <Text style={styles.metaLabel}>Name</Text>
+          <Text style={styles.metaValue}>{childName}</Text>
+          <Text style={styles.metaLabel}>Datum</Text>
+          <Text style={styles.metaValue}>{date}</Text>
         </View>
       </View>
 
@@ -196,7 +224,7 @@ const WorksheetDocument = ({
         {problems.map((problem, i) => (
           <View key={i} style={styles.cell} wrap={false}>
             <View style={styles.problemRow}>
-              <Text style={styles.problemNumber}>{i + 1}.</Text>
+              <Text style={styles.numberBadge}>{i + 1}</Text>
               <Text style={styles.problemText}>{problem.question}</Text>
             </View>
             <View style={styles.writeLine} />
@@ -206,28 +234,39 @@ const WorksheetDocument = ({
 
       {showWatermark && (
         <Text style={styles.footer} fixed>
-          Erstellt mit Lernikon — lernikon.de
+          Erstellt mit Lernikon · lernikon.de
         </Text>
       )}
     </Page>
 
     {/* page 2 — answer key */}
     <Page size="A4" style={styles.page}>
-      <ThemeDecorations theme={theme} />
-      <Text style={styles.answerKeyTitle}>Lösungen</Text>
+      <View style={styles.topAccent} fixed />
+
+      <View style={styles.answerKeyHeader}>
+        <Text style={styles.brand}>Lernikon</Text>
+        <Text style={styles.title}>Lösungen</Text>
+        <Text style={styles.subtitle}>
+          {operationLabel(operation)} · Zahlenraum {rangeLabel}
+        </Text>
+      </View>
+
       <View style={styles.grid}>
         {problems.map((problem, i) => (
           <View key={i} style={styles.answerCell} wrap={false}>
-            <Text style={styles.answerNumber}>{i + 1}.</Text>
-            <Text style={styles.answerText}>
-              {problem.question} {problem.answer}
-            </Text>
+            <View style={styles.answerInner}>
+              <Text style={styles.answerNumber}>{i + 1}</Text>
+              <Text style={styles.answerText}>
+                {problem.question} {problem.answer}
+              </Text>
+            </View>
           </View>
         ))}
       </View>
+
       {showWatermark && (
         <Text style={styles.footer} fixed>
-          Erstellt mit Lernikon — lernikon.de
+          Erstellt mit Lernikon · lernikon.de
         </Text>
       )}
     </Page>

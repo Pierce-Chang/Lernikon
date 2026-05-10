@@ -21,8 +21,7 @@ export const POST = async (request: NextRequest) => {
   const [child, userRow] = await Promise.all([getChildProfile(), getCurrentUserRow()]);
   if (!child) return NextResponse.json({ error: "no_profile" }, { status: 400 });
 
-  const status = userRow?.subscription_status ?? "none",
-    quota = await getQuota(user.id, status);
+  const quota = await getQuota(user.id, userRow);
   if (!quota.isPaid && quota.remaining <= 0) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
@@ -79,11 +78,20 @@ export const POST = async (request: NextRequest) => {
     },
   });
 
+  const opLabel =
+    config.operation === "addition"
+      ? "Addition"
+      : config.operation === "subtraktion"
+        ? "Subtraktion"
+        : "Gemischt";
+
+  const filename = `Lernikon - Mathe - ${opLabel} ${config.rangeMin}-${config.rangeMax}.pdf`;
+
   return new NextResponse(webStream, {
     status: 200,
     headers: {
       "content-type": "application/pdf",
-      "content-disposition": `attachment; filename="lernikon.pdf"`,
+      "content-disposition": `attachment; filename="${filename}"`,
       "cache-control": "no-store",
     },
   });

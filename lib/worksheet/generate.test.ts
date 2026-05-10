@@ -74,4 +74,31 @@ describe("generateProblems", () => {
       } as WorksheetConfig),
     ).toThrow();
   });
+
+  it("gemischt mode mixes both operators and stays correct", () => {
+    const result = generateProblems({
+      ...baseConfig,
+      operation: "gemischt",
+      count: 20,
+      rangeMin: 1,
+      rangeMax: 50,
+    });
+    let plus = 0,
+      minus = 0;
+    for (const problem of result) {
+      if (problem.question.includes("+")) {
+        plus += 1;
+        const [a, b] = problem.question.replace("=", "").split("+").map((s) => Number(s.trim()));
+        expect(a + b).toBe(problem.answer);
+      } else {
+        minus += 1;
+        const [a, b] = problem.question.replace("=", "").split("−").map((s) => Number(s.trim()));
+        expect(a - b).toBe(problem.answer);
+        expect(problem.answer).toBeGreaterThanOrEqual(0);
+      }
+    }
+    // With 20 draws on a 50/50 RNG split, both should appear at least once.
+    expect(plus).toBeGreaterThan(0);
+    expect(minus).toBeGreaterThan(0);
+  });
 });

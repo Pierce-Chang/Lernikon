@@ -1,5 +1,5 @@
 import { countWorksheetsLast24h } from "@/lib/db/queries";
-import type { SubscriptionStatus } from "@/lib/db/types";
+import type { SubscriptionStatus, UserRow } from "@/lib/db/types";
 
 export const FREE_DAILY_LIMIT = 3;
 
@@ -11,6 +11,13 @@ const PAID_STATUSES: ReadonlySet<SubscriptionStatus> = new Set([
 export const isPaid = (status: SubscriptionStatus): boolean =>
   PAID_STATUSES.has(status);
 
+/**
+ * True for paying customers AND admins (founders / staff).
+ * Both bypass the free-tier daily cap.
+ */
+export const hasUnlimited = (user: Pick<UserRow, "subscription_status" | "is_admin">) =>
+  user.is_admin || isPaid(user.subscription_status);
+
 export interface QuotaSnapshot {
   isPaid: boolean;
   used: number;
@@ -20,10 +27,9 @@ export interface QuotaSnapshot {
 
 export const getQuota = async (
   userId: string,
-  status: SubscriptionStatus,
+  user: Pick<UserRow, "subscription_status" | "is_admin"> | null,
 ): Promise<QuotaSnapshot> => {
-  const paid = isPaid(status);
-  if (paid) {
+  if (user && hasUnlimited(user)) {
     return { isPaid: true, used: 0, remaining: Infinity, limit: Infinity };
   }
   const used = await countWorksheetsLast24h(userId);

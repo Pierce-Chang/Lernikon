@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lernikon
 
-## Getting Started
+> Druckfertige, personalisierte Übungsblätter für die Grundschule (DACH) — in 30 Sekunden, mit Lösungen.
 
-First, run the development server:
+Brand & domain: **lernikon.de** (Lernen + Lexikon). Working title in code paths is still `Aufgabenblatt`. Single source of truth for product scope: [`VISION.md`](./VISION.md).
+
+## Stack
+
+- Next.js 16 (App Router, Turbopack) · React 19 · TypeScript
+- Tailwind v4 + shadcn/ui (Base UI, not Radix)
+- Supabase (Postgres + Auth, EU)
+- Stripe (Subscriptions, EU VAT)
+- React-PDF for worksheet PDFs
+- PostHog (analytics, EU cloud, consent-gated)
+- Vitest
+
+## Quick start
+
+Prereqs: **Node 20+**, **Docker Desktop running**.
 
 ```bash
+# Install deps
+npm install
+
+# Boot the local Supabase stack (Postgres, Auth, Studio, Mailpit) via Docker
+npx supabase start
+
+# Copy + fill env vars (anon/service keys come from `npx supabase status`)
+cp .env.example .env.local
+
+# Run the app
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Outgoing mails (signup confirmation, password reset) land in **Mailpit** at http://127.0.0.1:54324, not in real inboxes. DB is browsable in **Studio** at http://127.0.0.1:54323.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Useful commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev          # Next dev server (Turbopack)
+npm run build        # Prod build (set SKIP_ENV_VALIDATION=1 to build without env)
+npm run typecheck    # tsc --noEmit
+npm run lint         # ESLint
+npm run format       # Prettier write
+npm test             # Vitest run
+npx supabase start   # Boot local Supabase
+npx supabase stop    # Stop local Supabase (data preserved)
+npx supabase db reset      # Wipe + reapply all migrations + seed
+npx supabase migration up  # Apply pending migrations only
+npx supabase status        # Print local URLs + auth keys
+```
 
-## Learn More
+## Project layout
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+  (marketing)               landing, legal, marketing-shell
+  app/                      authenticated app — generator, account
+  api/                      API routes (Stripe webhook, worksheet PDF)
+  auth/                     OAuth-style callback + sign-out
+  login/, signup/, forgot-password/, reset-password/
+  onboarding/
+components/                 shadcn/ui + app-level components
+lib/
+  analytics/                PostHog client + event types
+  db/                       Supabase types + queries
+  supabase/                 client/server/middleware factories
+  worksheet/                generation logic + React-PDF doc
+proxy.ts                    Next 16 middleware (was middleware.ts)
+supabase/
+  migrations/               SQL migrations
+  config.toml               local Supabase config
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Pending — see VISION §11 Task 14. Vercel + Supabase EU + Stripe live keys + PostHog cloud.
 
-## Deploy on Vercel
+## Auth & admin
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Email + password (signup → email confirmation → onboarding → app)
+- Founder email `pierce@mailbox.org` is auto-flagged `is_admin = true` by the signup trigger; admins bypass the free-tier rate limit
+- Add admins by editing `admin_emails` in `supabase/migrations/20260510130000_add_admin.sql` and shipping a new migration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+Private. © Lernikon.

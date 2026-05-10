@@ -7,6 +7,29 @@
 
 ---
 
+## 0. Status — 2026-05-10
+
+Phase 1 code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabase start` + `npm run dev`. Task 14 (production deploy) pending founder action.
+
+- [x] Task 1 — Project Init (Next.js 16, React 19, Tailwind v4, shadcn/ui on Base UI)
+- [x] Task 2 — DB Schema + RLS, plus `is_admin` migration
+- [x] Task 3 — Auth — **deviation: email+password** instead of magic link per founder request (signup, signin, forgot/reset)
+- [x] Task 4 — Onboarding (single child profile, theme picker)
+- [x] Task 5 — Generator UI (Addition / Subtraktion / Gemischt; range 1–100; 5/10/15/20 problems)
+- [x] Task 6 — Generation Logic (8 vitests passing, seedable PRNG, no negative subtractions)
+- [x] Task 7 — PDF Rendering (rebuilt minimal after yoga `unsupported number` crash; SVG decoration removed for stability — re-add with numeric attrs only)
+- [x] Task 8 — Rate Limit (3/24h free; admins + paid bypass)
+- [x] Task 9 — Stripe (Checkout + Webhook + Billing Portal; **TODO**: server-side PostHog capture for `subscription_started/canceled`)
+- [x] Task 10 — Account Page (status, child editor, portal/sign-out)
+- [x] Task 11 — Landing Page (hero, features, pricing, FAQ, JSON-LD)
+- [x] Task 12 — Legal Templates (`/impressum`, `/datenschutz`, `/agb` with `[TODO:]` markers — **needs lawyer review before launch**)
+- [x] Task 13 — Analytics (PostHog client-side, consent-gated)
+- [ ] Task 14 — Deployment (Vercel + Supabase Cloud + Stripe live keys + custom domain + Lighthouse)
+
+Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
+
+---
+
 ## 1. Mission
 
 Build a web-first SaaS that lets parents in the DACH region generate beautiful, printable, personalized worksheets for their children (ages 6–12) in under 30 seconds. The product fills a clear market gap: existing free generators look outdated and ad-supported; professional tools (Worksheet Crafter, tutory.de) are built for teachers and far too complex for casual parental use. Nobody serves the parent who just wants to hand their kid a nice-looking math sheet on a Saturday morning.
@@ -280,14 +303,14 @@ Create Supabase migrations:
 
 ## 13. Open Questions for the Founder
 
-Before MVP launch, these need resolution:
+Status as of 2026-05-10:
 
-1. **Final project name and domain.** Suggestions: `LernZettel`, `Übungsheft`, `Aufgabenblatt`, `Klassenheft`, `Schulpilot`. Founder picks one, confirms .de availability.
-2. **Brand identity.** Minimal logo. No Comic Sans. Two-color palette.
-3. **First theme depth.** How elaborate should "Weltraum" be? Full illustrated borders, or subtle corner decorations only? Recommendation: subtle, low cognitive load.
-4. **DSGVO posture.** Confirm children's data never leaves the EU. If OpenAI API is used for word problems, confirm OpenAI EU data residency is configured.
-5. **Refund policy text.** Standard 14-day EU right of withdrawal, but explicit text needed.
-6. **Pricing test.** Should free tier be 3/day or 5/week? Recommendation: ship with 3/day, A/B-test later.
+1. **Final project name and domain.** ✅ **Resolved: Lernikon, lernikon.de** (Lernen + Lexikon). `aufgabenblatt.de` was taken. Repo: github.com/Pierce-Chang/Lernikon.
+2. **Brand identity.** ⚠️ **Pending.** No logo yet. Working palette: indigo/violet (`#6366F1` brand, `#EEF2FF` soft) used in PDF accent strip. Font: Lexend (web) + Helvetica (PDF). Decide before public launch.
+3. **First theme depth.** ⚠️ **Subtle by default**, but currently **disabled**: SVG corner decorations triggered a yoga `unsupported number: 8.51.5` parse error and were removed. To re-enable: pass numeric attrs only (`r={2}`, not `r="2"`), avoid `gap` on parent.
+4. **DSGVO posture.** ✅ **Hosting EU**: Supabase EU (Frankfurt), Vercel EU, PostHog EU cloud, Stripe EU. ⚠️ **OpenAI** integration not yet shipped — when adding, confirm EU data residency contract.
+5. **Refund policy text.** ⚠️ **Draft in `/agb`** (14-day right of withdrawal with explicit waiver clause for digital goods per §356 BGB). Needs lawyer review before launch.
+6. **Pricing test.** ✅ **Shipped with 3/day** per recommendation. Track conversion with PostHog `paywall_hit` → A/B-test later.
 
 ---
 

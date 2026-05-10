@@ -17,6 +17,7 @@ export interface UserRow {
   stripe_customer_id: string | null;
   subscription_status: SubscriptionStatus;
   subscription_period_end: string | null;
+  is_admin: boolean;
   created_at: string;
 }
 
@@ -26,6 +27,7 @@ export interface UserInsert {
   stripe_customer_id?: string | null;
   subscription_status?: SubscriptionStatus;
   subscription_period_end?: string | null;
+  is_admin?: boolean;
   created_at?: string;
 }
 

@@ -5,6 +5,8 @@ export interface Problem {
   answer: number;
 }
 
+type ConcreteOp = Exclude<Operation, "gemischt">;
+
 /**
  * Tiny seedable PRNG (mulberry32). Avoids non-determinism in tests
  * and lets us regenerate the same sheet from a stored seed.
@@ -23,7 +25,7 @@ const mulberry32 = (seed: number) => {
 const randInt = (rng: () => number, min: number, max: number): number =>
   Math.floor(rng() * (max - min + 1)) + min;
 
-const renderQuestion = (operation: Operation, a: number, b: number): string => {
+const renderQuestion = (operation: ConcreteOp, a: number, b: number): string => {
   switch (operation) {
     case "addition":
       return `${a} + ${b} =`;
@@ -32,7 +34,7 @@ const renderQuestion = (operation: Operation, a: number, b: number): string => {
   }
 };
 
-const computeAnswer = (operation: Operation, a: number, b: number): number => {
+const computeAnswer = (operation: ConcreteOp, a: number, b: number): number => {
   switch (operation) {
     case "addition":
       return a + b;
@@ -43,7 +45,7 @@ const computeAnswer = (operation: Operation, a: number, b: number): number => {
 
 const draw = (
   rng: () => number,
-  operation: Operation,
+  operation: ConcreteOp,
   rangeMin: number,
   rangeMax: number,
 ): { a: number; b: number } => {
@@ -54,6 +56,17 @@ const draw = (
     return { a: b, b: a };
   }
   return { a, b };
+};
+
+// In "gemischt" mode pick a concrete op per problem so add/sub interleave.
+const concreteOpFor = (
+  configOp: Operation,
+  rng: () => number,
+): ConcreteOp => {
+  if (configOp === "gemischt") {
+    return rng() < 0.5 ? "addition" : "subtraktion";
+  }
+  return configOp;
 };
 
 /**
@@ -74,22 +87,25 @@ export const generateProblems = (rawConfig: WorksheetConfig): Problem[] => {
 
   while (problems.length < config.count && attempts < maxAttempts) {
     attempts += 1;
-    const { a, b } = draw(rng, config.operation, config.rangeMin, config.rangeMax),
-      key = `${a}|${b}`;
+    const op = concreteOpFor(config.operation, rng),
+      { a, b } = draw(rng, op, config.rangeMin, config.rangeMax),
+      // Operator is part of the dedup key so 5+3 and 5−3 don't collide.
+      key = `${op}|${a}|${b}`;
     if (seen.has(key)) continue;
     seen.add(key);
     problems.push({
-      question: renderQuestion(config.operation, a, b),
-      answer: computeAnswer(config.operation, a, b),
+      question: renderQuestion(op, a, b),
+      answer: computeAnswer(op, a, b),
     });
   }
 
   // Pad with potentially-duplicate problems if the unique space was tiny.
   while (problems.length < config.count) {
-    const { a, b } = draw(rng, config.operation, config.rangeMin, config.rangeMax);
+    const op = concreteOpFor(config.operation, rng),
+      { a, b } = draw(rng, op, config.rangeMin, config.rangeMax);
     problems.push({
-      question: renderQuestion(config.operation, a, b),
-      answer: computeAnswer(config.operation, a, b),
+      question: renderQuestion(op, a, b),
+      answer: computeAnswer(op, a, b),
     });
   }
 

@@ -20,18 +20,21 @@ export interface QuotaProps {
 const OPERATION_LABELS: Record<Operation, string> = {
   addition: "Addition (+)",
   subtraktion: "Subtraktion (−)",
+  gemischt: "Gemischt (+/−)",
 };
 
-const todaySlug = (childName: string) => {
-  const date = new Date().toISOString().slice(0, 10);
-  return `lernikon-${childName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${date}.pdf`;
+const OPERATION_FILENAME: Record<Operation, string> = {
+  addition: "Addition",
+  subtraktion: "Subtraktion",
+  gemischt: "Gemischt",
 };
+
+const buildFilename = (operation: Operation, rangeMin: number, rangeMax: number) =>
+  `Lernikon - Mathe - ${OPERATION_FILENAME[operation]} ${rangeMin}-${rangeMax}.pdf`;
 
 export const GeneratorForm = ({
-  childName,
   quota,
 }: {
-  childName: string;
   quota: QuotaProps;
 }) => {
   const [operation, setOperation] = useState<Operation>("addition"),
@@ -79,7 +82,7 @@ export const GeneratorForm = ({
         url = URL.createObjectURL(blob),
         a = document.createElement("a");
       a.href = url;
-      a.download = todaySlug(childName);
+      a.download = buildFilename(operation, range[0], range[1]);
       document.body.appendChild(a);
       a.click();
       a.remove();

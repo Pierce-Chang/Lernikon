@@ -1,7 +1,18 @@
 import { z } from "zod";
 
-export const OPERATIONS = ["addition", "subtraktion"] as const;
+export const OPERATIONS = ["addition", "subtraktion", "gemischt"] as const;
 export type Operation = (typeof OPERATIONS)[number];
+
+export const operationLabel = (op: Operation): string => {
+  switch (op) {
+    case "addition":
+      return "Addition";
+    case "subtraktion":
+      return "Subtraktion";
+    case "gemischt":
+      return "Addition + Subtraktion";
+  }
+};
 
 export const EXERCISE_COUNTS = [5, 10, 15, 20] as const;
 export type ExerciseCount = (typeof EXERCISE_COUNTS)[number];
