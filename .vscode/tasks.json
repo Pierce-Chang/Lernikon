@@ -1,0 +1,100 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lernikon: Check Docker",
+      "detail": "Verifies Docker Desktop is running before booting Supabase.",
+      "type": "shell",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": ["-NoLogo", "-NonInteractive", "-Command"]
+        }
+      },
+      "command": "docker version --format '{{.Server.Version}}' > $null 2>&1; if ($LASTEXITCODE -ne 0) { Write-Host ''; Write-Host 'Docker Desktop laeuft nicht.' -ForegroundColor Red; Write-Host 'Bitte starte Docker Desktop und fuehre dann den Task \"Lernikon: Start All\" erneut aus (F1 -> Tasks: Run Task).' -ForegroundColor Yellow; exit 1 } else { Write-Host 'Docker OK' -ForegroundColor Green }",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lernikon: Supabase Start",
+      "detail": "Boots local Supabase stack (Postgres, Auth, Studio, Mailpit) in Docker.",
+      "type": "shell",
+      "command": "npx supabase start",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "lernikon",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lernikon: Dev Server",
+      "detail": "Next.js dev server with Turbopack on http://localhost:3000.",
+      "type": "npm",
+      "script": "dev",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "lernikon",
+        "showReuseMessage": false
+      },
+      "problemMatcher": {
+        "owner": "next-dev",
+        "pattern": [
+          {
+            "regexp": "^.*$",
+            "file": 1,
+            "line": 1,
+            "column": 1,
+            "message": 1
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "(Starting|Compiling|Compiled)",
+          "endsPattern": "Ready in"
+        }
+      }
+    },
+    {
+      "label": "Lernikon: Start All",
+      "detail": "Check Docker -> Supabase -> Next dev server. Runs automatically when the folder opens.",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Lernikon: Check Docker",
+        "Lernikon: Supabase Start",
+        "Lernikon: Dev Server"
+      ],
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lernikon: Stop All",
+      "detail": "Kill Next dev (port 3000) and stop the Supabase containers (data preserved).",
+      "type": "shell",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": ["-NoLogo", "-NonInteractive", "-Command"]
+        }
+      },
+      "command": "npx --yes kill-port 3000 2>&1 | Out-Null; Write-Host 'Next dev gestoppt.' -ForegroundColor Green; npx supabase stop; Write-Host 'Supabase gestoppt.' -ForegroundColor Green",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}
