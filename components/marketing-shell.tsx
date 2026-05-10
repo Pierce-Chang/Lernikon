@@ -9,7 +9,7 @@ export const MarketingShell = ({ children }: { children: React.ReactNode }) => (
     <header className="border-b">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
         <Link href="/" className="font-semibold tracking-tight">
-          Aufgabenblatt
+          Lernikon
         </Link>
         <nav className="flex items-center gap-2">
           <Button variant="ghost" size="sm" render={<Link href="/login" />}>
@@ -24,7 +24,7 @@ export const MarketingShell = ({ children }: { children: React.ReactNode }) => (
     <main className="flex-1">{children}</main>
     <footer className="border-t">
       <div className="text-muted-foreground mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs sm:flex-row">
-        <span>© {new Date().getFullYear()} Aufgabenblatt</span>
+        <span>© {new Date().getFullYear()} Lernikon</span>
         <nav className="flex gap-4">
           <Link href="/impressum" className="hover:text-foreground">
             Impressum

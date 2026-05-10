@@ -24,7 +24,7 @@ const OPERATION_LABELS: Record<Operation, string> = {
 
 const todaySlug = (childName: string) => {
   const date = new Date().toISOString().slice(0, 10);
-  return `aufgabenblatt-${childName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${date}.pdf`;
+  return `lernikon-${childName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${date}.pdf`;
 };
 
 export const GeneratorForm = ({

@@ -17,8 +17,8 @@ export const AnalyticsProvider = () => {
       const detail = (event as CustomEvent<string>).detail;
       if (detail === "accepted") initPostHog();
     };
-    window.addEventListener("aufgabenblatt:consent", onConsent);
-    return () => window.removeEventListener("aufgabenblatt:consent", onConsent);
+    window.addEventListener("lernikon:consent", onConsent);
+    return () => window.removeEventListener("lernikon:consent", onConsent);
   }, []);
 
   return null;

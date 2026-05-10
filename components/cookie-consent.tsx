@@ -4,7 +4,7 @@ import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const STORAGE_KEY = "aufgabenblatt:cookie-consent";
+const STORAGE_KEY = "lernikon:cookie-consent";
 
 export type ConsentChoice = "accepted" | "declined";
 
@@ -16,14 +16,14 @@ export const getStoredConsent = (): ConsentChoice | null => {
 
 const setStoredConsent = (choice: ConsentChoice) => {
   window.localStorage.setItem(STORAGE_KEY, choice);
-  window.dispatchEvent(new CustomEvent("aufgabenblatt:consent", { detail: choice }));
+  window.dispatchEvent(new CustomEvent("lernikon:consent", { detail: choice }));
 };
 
 const subscribeConsent = (notify: () => void) => {
-  window.addEventListener("aufgabenblatt:consent", notify);
+  window.addEventListener("lernikon:consent", notify);
   window.addEventListener("storage", notify);
   return () => {
-    window.removeEventListener("aufgabenblatt:consent", notify);
+    window.removeEventListener("lernikon:consent", notify);
     window.removeEventListener("storage", notify);
   };
 };
@@ -31,7 +31,7 @@ const subscribeConsent = (notify: () => void) => {
 /**
  * Bottom-anchored consent banner. Sits hidden until the visitor has
  * not yet expressed a preference. Choice is mirrored to localStorage
- * and broadcast on `aufgabenblatt:consent`.
+ * and broadcast on `lernikon:consent`.
  */
 export const CookieConsent = () => {
   const stored = useSyncExternalStore(

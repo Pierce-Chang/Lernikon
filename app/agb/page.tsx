@@ -16,7 +16,7 @@ export default function AgbPage() {
 
         <h2 className="mt-8 font-semibold">1. Geltungsbereich</h2>
         <p>
-          Diese AGB regeln die Nutzung des Dienstes „Aufgabenblatt“ (im Folgenden:
+          Diese AGB regeln die Nutzung des Dienstes „Lernikon“ (im Folgenden:
           „Dienst“) durch Verbraucher in Deutschland, Österreich und der Schweiz.
         </p>
 

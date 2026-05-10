@@ -1,5 +1,5 @@
 -- ===========================================================================
--- Aufgabenblatt — initial schema
+-- Lernikon — initial schema
 -- Tables: users, children_profiles, worksheets_log
 -- All tables use Row Level Security; users can only access their own rows.
 -- ===========================================================================

@@ -1,6 +1,6 @@
 # VISION.md — Worksheet Generator for Parents (DACH)
 
-> Working title: `LernZettel` (placeholder — final name TBD by founder)
+> Brand: `Lernikon` (lernikon.de — Lernen + Lexikon)
 > Target market: Germany, Austria, Switzerland
 > Target MRR: €5k+ within 12–18 months
 > Build philosophy: Ship fast, stay narrow, no scope creep until 100+ active users

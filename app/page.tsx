@@ -6,10 +6,10 @@ import { clientEnv } from "@/lib/env";
 export const metadata = {
   title: "Schöne Übungsblätter für dein Kind — in 30 Sekunden",
   description:
-    "Aufgabenblatt erstellt druckfertige, personalisierte Mathe-Arbeitsblätter für die Grundschule (Klasse 1–4). Mit Lösungen. Ohne Anmeldung testen.",
+    "Lernikon erstellt druckfertige, personalisierte Mathe-Arbeitsblätter für die Grundschule (Klasse 1–4). Mit Lösungen. Ohne Anmeldung testen.",
   alternates: { canonical: clientEnv.NEXT_PUBLIC_APP_URL },
   openGraph: {
-    title: "Aufgabenblatt — Schöne Übungsblätter für dein Kind",
+    title: "Lernikon — Schöne Übungsblätter für dein Kind",
     description:
       "Druckfertige Mathe-Arbeitsblätter für Klasse 1–4. Personalisiert. Mit Lösungen. In 30 Sekunden.",
     locale: "de_DE",
@@ -37,7 +37,7 @@ const FEATURES = [
 
 const FAQS = [
   {
-    q: "Für welche Klassenstufen ist Aufgabenblatt gedacht?",
+    q: "Für welche Klassenstufen ist Lernikon gedacht?",
     a: "Aktuell unterstützen wir Mathematik für die Klassen 1 bis 4 — also Grundschule. Weitere Fächer (Deutsch) folgen.",
   },
   {
@@ -57,7 +57,7 @@ const FAQS = [
     a: "Ja. Family Pro ist monatlich oder jährlich kündbar — direkt im Konto-Bereich über das Stripe-Portal.",
   },
   {
-    q: "Auf welchen Geräten funktioniert Aufgabenblatt?",
+    q: "Auf welchen Geräten funktioniert Lernikon?",
     a: "Im Browser auf Laptop, Tablet und Smartphone. Eine native App ist nicht nötig.",
   },
 ] as const;
@@ -65,7 +65,7 @@ const FAQS = [
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "Aufgabenblatt",
+  name: "Lernikon",
   operatingSystem: "Web",
   applicationCategory: "EducationalApplication",
   offers: [
@@ -97,7 +97,7 @@ export default function LandingPage() {
       <header className="border-b">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="font-semibold tracking-tight">
-            Aufgabenblatt
+            Lernikon
           </Link>
           <nav className="flex items-center gap-2">
             <Button variant="ghost" size="sm" render={<Link href="/login" />}>
@@ -229,7 +229,7 @@ export default function LandingPage() {
 
       <footer className="border-t">
         <div className="text-muted-foreground mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs sm:flex-row">
-          <span>© {new Date().getFullYear()} Aufgabenblatt</span>
+          <span>© {new Date().getFullYear()} Lernikon</span>
           <nav className="flex gap-4">
             <Link href="/impressum" className="hover:text-foreground">
               Impressum

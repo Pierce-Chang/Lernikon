@@ -72,8 +72,8 @@ export default function DatenschutzPage() {
           Du hast das Recht auf Auskunft, Berichtigung, Löschung,
           Einschränkung der Verarbeitung und Datenübertragbarkeit. Dein Konto
           (inkl. Kind-Profil und Verlauf) kannst du jederzeit unter{" "}
-          <a href="mailto:[TODO: kontakt@aufgabenblatt.de]">
-            [TODO: kontakt@aufgabenblatt.de]
+          <a href="mailto:[TODO: kontakt@lernikon.de]">
+            [TODO: kontakt@lernikon.de]
           </a>{" "}
           löschen lassen.
         </p>

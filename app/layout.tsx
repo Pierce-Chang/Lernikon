@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Aufgabenblatt — Schöne Übungsblätter für dein Kind",
-    template: "%s · Aufgabenblatt",
+    default: "Lernikon — Schöne Übungsblätter für dein Kind",
+    template: "%s · Lernikon",
   },
   description:
     "Druckfertige, personalisierte Übungsblätter für die Grundschule — in 30 Sekunden. Mit Lösungen.",

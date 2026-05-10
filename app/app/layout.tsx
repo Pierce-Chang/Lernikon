@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="border-b">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/app/generator" className="font-semibold tracking-tight">
-            Aufgabenblatt
+            Lernikon
           </Link>
           <nav className="flex items-center gap-2 text-sm">
             <Button variant="ghost" size="sm" render={<Link href="/app/generator" />}>

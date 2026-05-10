@@ -25,7 +25,7 @@ export default function ImpressumPage() {
 
           <h2 className="mt-6 font-semibold">Kontakt</h2>
           <p>
-            E-Mail: [TODO: kontakt@aufgabenblatt.de]
+            E-Mail: [TODO: kontakt@lernikon.de]
             <br />
             Telefon: [TODO: +49 …]
           </p>

@@ -1,5 +1,5 @@
 # Supabase local config — see https://supabase.com/docs/guides/local-development/cli/config
-project_id = "aufgabenblatt"
+project_id = "lernikon"
 
 [api]
 enabled = true
@@ -31,4 +31,4 @@ double_confirm_changes = true
 
 # Magic-link is the primary auth method per VISION.
 [auth.email.template.magic_link]
-subject = "Dein Login-Link für Aufgabenblatt"
+subject = "Dein Login-Link für Lernikon"

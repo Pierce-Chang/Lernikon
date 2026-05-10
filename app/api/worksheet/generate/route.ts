@@ -83,7 +83,7 @@ export const POST = async (request: NextRequest) => {
     status: 200,
     headers: {
       "content-type": "application/pdf",
-      "content-disposition": `attachment; filename="aufgabenblatt.pdf"`,
+      "content-disposition": `attachment; filename="lernikon.pdf"`,
       "cache-control": "no-store",
     },
   });

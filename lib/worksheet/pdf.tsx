@@ -172,9 +172,9 @@ const WorksheetDocument = ({
 }: WorksheetPdfProps): ReactElement => (
   <Document
     title={`Übungsblatt — ${childName}`}
-    author="Aufgabenblatt"
-    creator="Aufgabenblatt"
-    producer="Aufgabenblatt"
+    author="Lernikon"
+    creator="Lernikon"
+    producer="Lernikon"
   >
     {/* page 1 — worksheet */}
     <Page size="A4" style={styles.page}>
@@ -206,7 +206,7 @@ const WorksheetDocument = ({
 
       {showWatermark && (
         <Text style={styles.footer} fixed>
-          Erstellt mit Aufgabenblatt — aufgabenblatt.de
+          Erstellt mit Lernikon — lernikon.de
         </Text>
       )}
     </Page>
@@ -227,7 +227,7 @@ const WorksheetDocument = ({
       </View>
       {showWatermark && (
         <Text style={styles.footer} fixed>
-          Erstellt mit Aufgabenblatt — aufgabenblatt.de
+          Erstellt mit Lernikon — lernikon.de
         </Text>
       )}
     </Page>
