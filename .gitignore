@@ -40,6 +40,15 @@ yarn-error.log*
 /supabase/.branches/
 /supabase/.temp/
 
+# .vscode startup script log (local diagnostic)
+/.vscode/startup.log
+
+# Letter-tracing preview output (regenerated via scripts/preview-letter-pdf.ts)
+/scripts/output/
+
+# Theme PNG originals (backup of pre-alpha-strip pipeline input — not shipped)
+/public/themes/_originals/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

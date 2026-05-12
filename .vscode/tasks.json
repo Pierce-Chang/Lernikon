@@ -2,48 +2,53 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Lernikon: Check Docker",
-      "detail": "Verifies Docker Desktop is running before booting Supabase.",
+      "label": "Lernikon: Boot Stack",
+      "detail": "Docker -> Supabase. Idempotent; ueberspringt was schon laeuft. Laeuft automatisch beim Oeffnen des Folders.",
       "type": "shell",
       "options": {
         "shell": {
-          "executable": "powershell.exe",
-          "args": ["-NoLogo", "-NonInteractive", "-Command"]
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
         }
       },
-      "command": "docker version --format '{{.Server.Version}}' > $null 2>&1; if ($LASTEXITCODE -ne 0) { Write-Host ''; Write-Host 'Docker Desktop laeuft nicht.' -ForegroundColor Red; Write-Host 'Bitte starte Docker Desktop und fuehre dann den Task \"Lernikon: Start All\" erneut aus (F1 -> Tasks: Run Task).' -ForegroundColor Yellow; exit 1 } else { Write-Host 'Docker OK' -ForegroundColor Green }",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true,
-        "showReuseMessage": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Lernikon: Supabase Start",
-      "detail": "Boots local Supabase stack (Postgres, Auth, Studio, Mailpit) in Docker.",
-      "type": "shell",
-      "command": "npx supabase start",
+      "command": "powershell.exe -NoLogo -ExecutionPolicy Bypass -File \"${workspaceFolder}\\.vscode\\start-stack.ps1\"",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
         "group": "lernikon",
-        "showReuseMessage": false
+        "clear": false,
+        "showReuseMessage": false,
+        "close": false
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
       },
       "problemMatcher": []
     },
     {
       "label": "Lernikon: Dev Server",
-      "detail": "Next.js dev server with Turbopack on http://localhost:3000.",
-      "type": "npm",
-      "script": "dev",
+      "detail": "Next.js dev server (Turbopack) auf http://localhost:3000. Ueberspringt Start, wenn :3000 bereits belegt. Laeuft automatisch beim Oeffnen des Folders nach Boot Stack.",
+      "type": "shell",
       "isBackground": true,
+      "options": {
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
+        }
+      },
+      "command": "powershell.exe -NoLogo -ExecutionPolicy Bypass -File \"${workspaceFolder}\\.vscode\\ensure-dev-server.ps1\"",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Lernikon: Boot Stack"],
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
         "group": "lernikon",
-        "showReuseMessage": false
+        "clear": false,
+        "showReuseMessage": false,
+        "close": false
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
       },
       "problemMatcher": {
         "owner": "next-dev",
@@ -58,20 +63,36 @@
         ],
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "(Starting|Compiling|Compiled)",
-          "endsPattern": "Ready in"
+          "beginsPattern": "(Starting|Compiling|Compiled|Dev-Server)",
+          "endsPattern": "(Ready in|laeuft bereits|beendet)"
         }
       }
     },
     {
       "label": "Lernikon: Start All",
-      "detail": "Check Docker -> Supabase -> Next dev server. Runs automatically when the folder opens.",
+      "detail": "Manueller Re-Boot: Docker -> Supabase -> Dev Server. (Auto-Start passiert ueber die einzelnen Tasks.)",
       "dependsOrder": "sequence",
-      "dependsOn": [
-        "Lernikon: Check Docker",
-        "Lernikon: Supabase Start",
-        "Lernikon: Dev Server"
-      ],
+      "dependsOn": ["Lernikon: Boot Stack", "Lernikon: Dev Server"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Lernikon: Claude",
+      "detail": "Startet Claude Code mit --dangerously-skip-permissions (cmd). Laeuft automatisch beim Oeffnen des Folders, parallel zum Boot.",
+      "type": "shell",
+      "options": {
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
+        }
+      },
+      "command": "claude --dangerously-skip-permissions",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": false,
+        "showReuseMessage": false,
+        "close": false
+      },
       "runOptions": {
         "runOn": "folderOpen"
       },
@@ -79,20 +100,41 @@
     },
     {
       "label": "Lernikon: Stop All",
-      "detail": "Kill Next dev (port 3000) and stop the Supabase containers (data preserved).",
+      "detail": "Kill Next dev (port 3000) und stop Supabase-Container (Daten bleiben).",
       "type": "shell",
       "options": {
         "shell": {
-          "executable": "powershell.exe",
-          "args": ["-NoLogo", "-NonInteractive", "-Command"]
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
         }
       },
-      "command": "npx --yes kill-port 3000 2>&1 | Out-Null; Write-Host 'Next dev gestoppt.' -ForegroundColor Green; npx supabase stop; Write-Host 'Supabase gestoppt.' -ForegroundColor Green",
+      "command": "powershell.exe -NoLogo -ExecutionPolicy Bypass -Command \"npx --yes kill-port 3000 2>&1 | Out-Null; Write-Host 'Next dev gestoppt.' -ForegroundColor Green; npx supabase stop; Write-Host 'Supabase gestoppt.' -ForegroundColor Green\"",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
         "clear": true,
-        "showReuseMessage": false
+        "showReuseMessage": false,
+        "close": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lernikon: Status",
+      "detail": "Zeigt den aktuellen Stack-Status (Docker / Supabase / Dev-Server).",
+      "type": "shell",
+      "options": {
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
+        }
+      },
+      "command": "powershell.exe -NoLogo -ExecutionPolicy Bypass -File \"${workspaceFolder}\\.vscode\\status.ps1\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true,
+        "showReuseMessage": false,
+        "close": false
       },
       "problemMatcher": []
     }

@@ -1,6 +1,19 @@
 @AGENTS.md
 @VISION.md
 
+## Org chart — route through the CEO
+
+The founder talks only to the **CEO** agent. The CEO scopes the request, splits it across specialists, runs them (often in parallel) and reports back. Specialists never talk to the founder directly.
+
+- **ceo** — orchestrator, the founder's single point of contact
+- **dev** — TS / React / Next 16 / Supabase implementation
+- **designer** — Tailwind / shadcn-on-Base-UI / brand / PDF visual
+- **marketing** — German copy / SEO / PostHog event taxonomy
+- **legal** — Impressum / Datenschutz / AGB / DSGVO
+- **devops** — Supabase migrations / Stripe / Vercel / env / Docker
+
+Definitions live in `.claude/agents/*.md`. When the founder sends any non-trivial request, the main session takes the **CEO** role and delegates via the `Agent` tool — it does not write production code itself.
+
 ## Lernikon — what to read first
 
 - **`VISION.md`** is the single source of truth for product scope, MVP tasks, code conventions (§9), non-goals (§7).
