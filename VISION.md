@@ -29,8 +29,9 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [ ] Task 14 — Deployment (Vercel + Supabase Cloud + Stripe live keys + custom domain + Lighthouse)
 - [x] Task 15 — Dashboard + IA (Phase 1b) — `/app` Dashboard, Math gewandert nach `/app/mathe/rechnen`, topic-discriminator-Dispatcher
 - [x] Task 16 — Grade enum erweitern: Vorschule + Klasse 1–4 (Phase 1b) — Migration + `formatGrade` Helper
-- [x] Task 17 — Deutsch Vorschule: Buchstaben schreiben (Spurschrift) (Phase 1b) — neuer Generator + 4-Linien-PDF
+- [x] Task 17 — Deutsch Vorschule: Buchstaben schreiben (Spurschrift) (Phase 1b) — neuer Generator + 3-Linien-Schreiblernlineatur, Druck + Schreibschrift (Playwrite DE Grund / SAS)
 - [x] Task 18 — Multi-Kind (Phase 1c) — Free=1 / Pro=3, Kind-Selector im Dashboard, Add/Edit/Delete im Account
+- [x] Task 19 — Mathe Vorschule: Zahlen schreiben (Phase 1c) — Ziffern 0–9 Spurschrift, Wiederverwendung des 3-Linien-Layouts
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -174,8 +175,8 @@ Built and working end-to-end:
 3. Onboarding: one child profile (Name + Klasse 1–4 + Theme „Weltraum")
 4. Math generator UI: Addition / Subtraktion / Gemischt, Zahlenraum 1–100, 5 / 10 / 15 / 20 Aufgaben, Theme „Weltraum"
 5. PDF generation (Aufgabenblatt + separates Lösungsblatt)
-6. Free tier: 3 worksheets per 24 h window, watermark in footer
-7. Family Pro via Stripe Checkout (€7,99/Monat oder €59/Jahr): unbegrenzt, kein Watermark
+6. Free tier: 3 worksheets per 24 h window, Footer-Tag „Kostenfreie Version von lernikon.de · Family Pro entsperrt alle Themes"
+7. Family Pro via Stripe Checkout (€7,99/Monat oder €59/Jahr): unbegrenzt, kein Footer-Tag
 8. Account page (Abo verwalten, Kindprofil editieren)
 9. Legal pages: Impressum, Datenschutz, AGB (with `[TODO: lawyer-review]` markers)
 10. Analytics: PostHog client-side, consent-gated
@@ -187,17 +188,22 @@ Built and working end-to-end:
 3. Math generator wandert nach `/app/mathe/[topic]`; Generator-Architektur generalisiert für mehrere Übungstypen (Math word problems vs. Spurschrift sind grundlegend verschiedene PDF-Layouts und Configs)
 4. Grade enum erweitert von `1–4` auf `Vorschule, 1, 2, 3, 4` (DB: `children_profiles.grade` als `int` mit `0` = Vorschule, CHECK `0..10` für spätere Phase 2)
 5. **Neuer Übungstyp: Deutsch Vorschule — Buchstaben schreiben (Spurschrift)**
-   - Konfig: Buchstaben-Multiselect (A–Z), Groß/Klein/Beides, Zeilen pro Buchstabe (2 / 3 / 4)
-   - PDF: 4-Linien-Schreiblernlineatur, gepunktetes Buchstaben-Outline links pro Zeile, Rest zum Nachschreiben leer
+   - Konfig: Buchstaben-Multiselect (A–Z), Groß/Klein/Beides, Zeilen pro Buchstabe (1 / 2 / 3 / 4), Schrift (Druck Playwrite DE Grund / Schreib Playwrite DE SAS)
+   - PDF: 3-Linien-Schreiblernlineatur (Oberlinie, Mittellinie, Grundlinie), ghost-glyph links pro Zeile, Rest zum Nachschreiben leer
    - Kein Lösungsblatt
+   - Server sortiert die Auswahl in kanonische A→Z-Reihenfolge, unabhängig von Client-State
    - Brand-Presence wie Mathe (lernikon.de oben + Footer-Lockup)
 
-### Phase 1c — Multi-Kind + Content-Tiefe + Conversion-Mechanik (next)
+### Phase 1c — Multi-Kind + Content-Tiefe + Conversion-Mechanik (in progress)
 
 1. ✅ Multi-Kind-Support (Task 18 erledigt): Free = 1 Kind, Family Pro = bis zu 3 Kinder. Kind-Selector im Dashboard. Account-Liste statt Single-Editor.
-2. Mehr Mathe-Topics: Vorschule (Mengen, Zahlen 1–10), Klasse 3 (Einmaleins), Klasse 4 (schriftliche Verfahren, einfache Brüche)
-3. Mehr Deutsch-Topics: Klasse 1 (ABC, einfache Wörter), Klasse 2 (Diktate, Wortarten), Klasse 3 (Rechtschreibung, Leseverstehen), Klasse 4 (Aufsatz-Bausteine, Grammatik)
-4. **Theme-Expansion + Theme-Paywall**: 3 neue Themes (Einhorn / Pferde / Autos) deckt Mädchen-/Jungen-/neutral-Tier-Fall. Sobald Assets da sind: Free behält „Weltraum", Pro entsperrt alle Themes. Stärkster kid-driven Conversion-Hebel. Asset-Commission ist Founder-Job (Designer external).
+2. ✅ Theme-Expansion + Theme-Paywall (geshippt): 4 Themes (Weltraum, Einhorn, Pferde, Autos). Free behält „Weltraum", Pro entsperrt alle Themes. Stärkster kid-driven Conversion-Hebel.
+3. Mehr Mathe-Topics:
+   - ✅ Vorschule — Zahlen schreiben 0–9 (Task 19, geshippt)
+   - ⏳ Vorschule — Mengen 1–10 (nächster Topic)
+   - ⏳ Klasse 3 — Einmaleins
+   - ⏳ Klasse 4 — schriftliche Verfahren, einfache Brüche
+4. Mehr Deutsch-Topics: Klasse 1 (ABC, einfache Wörter), Klasse 2 (Diktate, Wortarten), Klasse 3 (Rechtschreibung, Leseverstehen), Klasse 4 (Aufsatz-Bausteine, Grammatik)
 
 ### Conversion-Strategie (Stand 2026-05-12, vom CEO entschieden)
 
@@ -208,6 +214,7 @@ Pre-Launch-Posture: **wenig restrictivity, viel Daten sammeln**. Reasoning: ohne
 - **Theme-Paywall** ist der primäre Conversion-Hebel, kommt mit Theme-Expansion (Bullet 4 oben).
 - **Lösungen-Blatt bleibt für Free verfügbar** — table stakes für Eltern. Nicht hinter Paywall stecken.
 - **AI-Sachaufgaben** (gpt-4o-mini) sind Pro-only **wenn** sie kommen. Phase 2.
+- **Watermark = dezenter Footer-Tag, kein diagonales Wasserzeichen** (CEO-Entscheidung 2026-05-12). Pre-Launch ist freundlicher besser; aggressives Watermark riskiert Bouncing bevor wir Funnel-Daten haben. Wording: „Kostenfreie Version von lernikon.de · Family Pro entsperrt alle Themes" — koppelt Brand + den primären Theme-Hebel.
 - Paywall-Event-Taxonomie (`paywall_hit{trigger}`) ist auf `rate_limit | child_slot_locked | theme_locked | subject_locked | feature` typisiert — siehe `lib/analytics/events.ts`. Trigger-Werte feuern erst sobald die jeweilige Paywall geshippt ist.
 
 ### Phase 2 — Klasse 5–10 + weitere Fächer
@@ -335,19 +342,31 @@ Create Supabase migrations:
 
 ### Task 17 — Deutsch Vorschule: Buchstaben schreiben (Spurschrift) (Phase 1b)
 - Route: `/app/deutsch/buchstaben-schreiben`
-- Konfig-UI: Buchstaben-Multiselect (A–Z), Case-Select (Großbuchstaben / Kleinbuchstaben / Beides), Zeilen pro Buchstabe (2 / 3 / 4)
-- Pure function `generateLetterTracing(config) → { letters: { char, case, lines }[] }`; Zod schema; vitest für Konfig-Validierung
-- PDF: Schreiblernlineatur (4 Linien: Oberlänge, Mittelband oben/unten, Unterlänge), gepunktetes Buchstaben-Outline links pro Zeile, Rest leer zum Nachfahren
+- Konfig-UI: Buchstaben-Multiselect (A–Z), Case-Select (Großbuchstaben / Kleinbuchstaben / Beides), Zeilen pro Buchstabe (1 / 2 / 3 / 4), Schrift (Druck Playwrite DE Grund / Schreib Playwrite DE SAS)
+- Pure function `generateLetterTracing(config) → { blocks: { char, displayCase, lines }[] }`; Zod schema; vitest für Konfig-Validierung
+- PDF: 3-Linien-Schreiblernlineatur (Oberlinie, Mittellinie, Grundlinie); ghost-glyph links pro Zeile, Rest leer zum Nachfahren
+- Server sortiert die Buchstaben-Auswahl in kanonische A→Z-Reihenfolge (defensiv gegen stale Client-State)
 - Kein Lösungsblatt
 - Brand-Presence wie Mathe (lernikon.de Top + Footer-Lockup)
 - Rate-Limit-Eintrag analog Mathe (zählt gegen das Free-Tier-Tageslimit)
 
-### Task 18 — Multi-Kind (Phase 1c, paused behind Tasks 15–17)
+### Task 18 — Multi-Kind (Phase 1c)
 - Free = 1 Kind, Family Pro = bis zu 3 Kinder. App-Layer-Cap; Schema unterstützt bereits N Kinder.
 - Kind-Selector im Dashboard-Header (nicht im Generator)
 - Account-Seite: Liste aller Kinder mit Add / Edit / Delete (Free-User: Add zeigt Paywall-CTA)
 - API + Zod nehmen `childId`; Server validiert Ownership
 - Default-Kind: zuletzt benutztes (aus `worksheets_log`), fallback erstes nach `created_at`
+
+### Task 19 — Mathe Vorschule: Zahlen schreiben (Spurschrift) (Phase 1c)
+- Route: `/app/mathe/zahlen-schreiben`
+- Topic-ID: `mathe-zahlen-schreiben`; im Topic-Registry unter `subject: "mathe"`, `grades: [0]`
+- Konfig-UI: Ziffern-Multiselect (0–9, alle vorausgewählt), Zeilen pro Ziffer (1 / 2 / 3 / 4)
+- Pure function `generateNumberTracing(config) → { blocks: { digit, lines }[] }`; Zod schema; vitest für Konfig-Validierung
+- PDF: identisches 3-Linien-Layout wie Task 17, nur Playwrite DE Grund (Schreibschrift macht für Ziffern keinen Sinn); ghost-digit links pro Zeile
+- Generator wiederverwendet die Tuning-Konstanten der Großbuchstaben (`fontSize 42`, `top -16`)
+- Server sortiert die Ziffer-Auswahl in kanonische 0→9-Reihenfolge (defensiv gegen stale Client-State)
+- Kein Lösungsblatt
+- Rate-Limit-Eintrag analog Mathe
 
 ---
 
