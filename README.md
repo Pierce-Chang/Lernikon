@@ -1,8 +1,10 @@
 # Lernikon
 
-> Druckfertige, personalisierte Übungsblätter für die Grundschule (DACH) — in 30 Sekunden, mit Lösungen.
+> Druckfertige, personalisierte Übungsblätter für Vorschule bis Klasse 10 (DACH) — in 30 Sekunden, mit Lösungen. Mehrere Fächer (Mathe, Deutsch, …).
 
 Brand & domain: **lernikon.de** (Lernen + Lexikon). Working title in code paths is still `Aufgabenblatt`. Single source of truth for product scope: [`VISION.md`](./VISION.md).
+
+**Current implementation phase:** Vorschule bis Klasse 4, Fächer Mathe (vorhanden) + Deutsch (Vorschule erst). Klasse 5–10 + weitere Fächer = Phase 2.
 
 ## Stack
 

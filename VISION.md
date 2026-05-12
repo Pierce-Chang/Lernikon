@@ -7,16 +7,18 @@
 
 ---
 
-## 0. Status — 2026-05-10
+## 0. Status — 2026-05-12
 
-Phase 1 code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabase start` + `npm run dev`. Task 14 (production deploy) pending founder action.
+**Scope pivot 2026-05-12 (founder decision):** Long-term goal expanded from "Grundschul-Mathe only" to **Vorschule bis Klasse 10, mehrere Fächer**. Current implementation phase narrows that to **Vorschule bis Klasse 4** with two subjects: Mathe (done) und Deutsch (Vorschule first). Klasse 5–10 plus weitere Fächer = Phase 2. Previous "Phase 1 = Math only" is now renamed Phase 1a; new in-flight work is Phase 1b (Dashboard + Deutsch Vorschule).
+
+Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabase start` + `npm run dev`. Task 14 (production deploy) pending. Phase 1b begins now.
 
 - [x] Task 1 — Project Init (Next.js 16, React 19, Tailwind v4, shadcn/ui on Base UI)
 - [x] Task 2 — DB Schema + RLS, plus `is_admin` migration
 - [x] Task 3 — Auth — **deviation: email+password** instead of magic link per founder request (signup, signin, forgot/reset)
 - [x] Task 4 — Onboarding (single child profile, theme picker)
-- [x] Task 5 — Generator UI (Addition / Subtraktion / Gemischt; range 1–100; 5/10/15/20 problems)
-- [x] Task 6 — Generation Logic (8 vitests passing, seedable PRNG, no negative subtractions)
+- [x] Task 5 — Math Generator UI (Addition / Subtraktion / Gemischt; range 1–100; 5/10/15/20 problems)
+- [x] Task 6 — Math Generation Logic (8 vitests passing, seedable PRNG, no negative subtractions)
 - [x] Task 7 — PDF Rendering (rebuilt minimal after yoga `unsupported number` crash; SVG decoration removed for stability — re-add with numeric attrs only)
 - [x] Task 8 — Rate Limit (3/24h free; admins + paid bypass)
 - [x] Task 9 — Stripe (Checkout + Webhook + Billing Portal; **TODO**: server-side PostHog capture for `subscription_started/canceled`)
@@ -25,6 +27,10 @@ Phase 1 code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabase
 - [x] Task 12 — Legal Templates (`/impressum`, `/datenschutz`, `/agb` with `[TODO:]` markers — **needs lawyer review before launch**)
 - [x] Task 13 — Analytics (PostHog client-side, consent-gated)
 - [ ] Task 14 — Deployment (Vercel + Supabase Cloud + Stripe live keys + custom domain + Lighthouse)
+- [x] Task 15 — Dashboard + IA (Phase 1b) — `/app` Dashboard, Math gewandert nach `/app/mathe/rechnen`, topic-discriminator-Dispatcher
+- [x] Task 16 — Grade enum erweitern: Vorschule + Klasse 1–4 (Phase 1b) — Migration + `formatGrade` Helper
+- [x] Task 17 — Deutsch Vorschule: Buchstaben schreiben (Spurschrift) (Phase 1b) — neuer Generator + 4-Linien-PDF
+- [x] Task 18 — Multi-Kind (Phase 1c) — Free=1 / Pro=3, Kind-Selector im Dashboard, Add/Edit/Delete im Account
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -32,13 +38,13 @@ Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
 ## 1. Mission
 
-Build a web-first SaaS that lets parents in the DACH region generate beautiful, printable, personalized worksheets for their children (ages 6–12) in under 30 seconds. The product fills a clear market gap: existing free generators look outdated and ad-supported; professional tools (Worksheet Crafter, tutory.de) are built for teachers and far too complex for casual parental use. Nobody serves the parent who just wants to hand their kid a nice-looking math sheet on a Saturday morning.
+Build a web-first SaaS that lets parents in the DACH region generate beautiful, printable, personalized Übungsblätter for their children (Vorschule bis Klasse 10, ca. 5–16 Jahre) in under 30 seconds — across multiple subjects (Mathe, Deutsch, …). The product fills a clear market gap: existing free generators look outdated and ad-supported; professional tools (Worksheet Crafter, tutory.de) are built for teachers and far too complex for casual parental use. Nobody serves the parent who just wants to hand their kid a nice-looking sheet on a Saturday morning.
 
 ---
 
 ## 2. Target User
 
-**Primary persona:** German-speaking parent, 30–45 years old, with one or more elementary-school-age children. Tech-comfortable but time-poor. Currently prints worksheets from random Google search results. Frustrated by inconsistent quality, irrelevant content, and zero personalization. Willing to pay €5–10/month for a tool that saves time and motivates the kid.
+**Primary persona:** German-speaking parent, 30–45 years old, with one or more children in Vorschule, Grundschule or Sekundarstufe I (ca. 5–16 Jahre). Tech-comfortable but time-poor. Currently prints worksheets from random Google search results. Frustrated by inconsistent quality, irrelevant content, and zero personalization. Willing to pay €5–10/month for a tool that saves time and motivates the kid.
 
 **Secondary personas:** Grandparents, tutors, homeschool parents.
 
@@ -60,13 +66,13 @@ Build a web-first SaaS that lets parents in the DACH region generate beautiful, 
 
 A web-based generator (PWA-ready) with this user flow:
 
-1. Parent picks child's grade and (optionally) Bundesland
-2. Picks subject → topic → difficulty (e.g., Math → Addition → Range 1–20)
-3. Picks a theme (Dinosaurs, Unicorns, Space, Horses, Cars, etc.)
-4. Picks number of exercises (5 / 10 / 15 / 20)
-5. Clicks "Generate" → receives a beautifully designed PDF + separate answer key
+1. Dashboard zeigt Tiles: Fach → Klasse → Thema (z. B. Mathe → Klasse 2 → Addition, oder Deutsch → Vorschule → Buchstaben schreiben)
+2. Parent picks the topic (and child profile if multiple)
+3. Picks topic-specific configuration (Mathe: range + count; Deutsch Buchstaben: welche Buchstaben, Groß/Klein, Zeilen pro Buchstabe; …)
+4. Optional: theme (Dinosaurs, Unicorns, Space, Horses, Cars, …) für visuelle Personalisierung wo es passt
+5. Clicks "Erstellen" → receives a beautifully designed PDF (mit Lösungsblatt wo sinnvoll)
 
-Behind the scenes: AI personalizes word problems using the child's name and chosen theme. PDFs are pixel-perfect A4, print-ready, modern typography, theme illustrations that decorate without distracting.
+Behind the scenes: AI personalizes word problems / story sentences using the child's name and chosen theme where appropriate. PDFs are pixel-perfect A4, print-ready, modern typography, theme illustrations that decorate without distracting.
 
 ---
 
@@ -86,13 +92,14 @@ Behind the scenes: AI personalizes word problems using the child's name and chos
 
 ## 6. Core Differentiators
 
-1. **Theme-based personalization** — the kid picks the visual world; the math is the same but framed in dinosaurs, unicorns, space, etc.
-2. **AI-personalized word problems** — `gpt-4o-mini` generates word problems featuring the child's name and theme preferences
-3. **DACH curriculum awareness** — topics auto-match official Lehrpläne for the selected grade and Bundesland (Phase 3, not MVP)
-4. **Multi-child support** — Family Pro plan supports up to 3 child profiles
-5. **Auto-generated answer keys** — always a separate page, ready to grade
-6. **Modern PDF design** — print-ready, kid-friendly typography, NOT Times New Roman from 1998
-7. **Weekly bundles** — "generate 5 sheets for the coming week" as a single action (Phase 2)
+1. **Theme-based personalization** — the kid picks the visual world; the exercises stay the same but get framed in dinosaurs, unicorns, space, etc. (wo es Sinn ergibt — bei reinen Schreibübungen z. B. nicht).
+2. **AI-personalized word problems / story sentences** — `gpt-4o-mini` generates content featuring the child's name and theme preferences (Mathe-Sachaufgaben, Deutsch-Lückentexte usw.)
+3. **Vorschule bis Klasse 10, mehrere Fächer** — ein Tool für die ganze Schullaufbahn (Phase 1b: Vorschule–Klasse 4 in Mathe + Deutsch; danach iterativ erweitert)
+4. **DACH curriculum awareness** — topics auto-match official Lehrpläne for the selected grade and Bundesland (Phase 3, not MVP)
+5. **Multi-child support** — Family Pro plan supports up to 3 child profiles
+6. **Auto-generated answer keys** — als separates Blatt wo sinnvoll (Mathe ja, Buchstaben-Spurschrift nein)
+7. **Modern PDF design** — print-ready, kid-friendly typography, NOT Times New Roman from 1998
+8. **Weekly bundles** — "generate 5 sheets for the coming week" as a single action (Phase 2)
 
 ---
 
@@ -108,8 +115,9 @@ To stay focused, the MVP explicitly does NOT include:
 - Gamification with avatars, points, leveling (theme system carries enough motivation in Phase 1)
 - Photo scan + auto-correction (Phase 4)
 - Sharing worksheets between parents / community library
-- More than one theme (Phase 1 ships with "Weltraum" only)
-- More than one subject (Phase 1 ships with Math only)
+- Klasse 5–10 content (Phase 2 — current implementation phase is Vorschule bis Klasse 4)
+- Weitere Fächer jenseits von Mathe + Deutsch (Englisch, Sachunterricht etc. = Phase 2)
+- Weitere Themes über Weltraum hinaus (kommt in Phase 1c/2, nicht jetzt)
 
 If the founder requests any of these during MVP build, the agent should respond with: "This is out of MVP scope per VISION.md. Adding to Phase 2 backlog. Continuing with current task."
 
@@ -151,25 +159,62 @@ The agent MUST follow these conventions in all generated code:
 
 ---
 
-## 10. MVP Scope (Phase 1 — ship within 4–6 weeks)
+## 10. MVP Scope
 
-Build exactly this, nothing more:
+**Long-term reach:** Übungsblätter für **Vorschule bis Klasse 10**, mehrere Fächer (Mathe, Deutsch, später Englisch / Sachunterricht / …).
+
+**Current implementation phase:** **Vorschule bis Klasse 4**, zwei Fächer (Mathe — vorhanden, Deutsch — Vorschule first). Klasse 5–10 und weitere Fächer sind Phase 2.
+
+### Phase 1a — Math foundation (✅ done 2026-05)
+
+Built and working end-to-end:
 
 1. Landing page (one route, SEO-optimized)
-2. Email magic-link signup via Supabase
-3. Onboarding: capture one child profile (name + grade 1–4)
-4. Generator UI for **Math only**:
-   - Operations: Addition, Subtraktion
-   - Number range slider (1–100)
-   - Exercise count: 5 / 10 / 15 / 20
-   - Single theme: "Weltraum"
-5. PDF generation (worksheet + separate answer key page)
-6. Free tier: 3 worksheets per 24-hour window, watermark in footer
-7. Paid tier via Stripe Checkout: unlimited, no watermark
-8. Basic account page (manage subscription, edit child profile)
-9. Legal pages: Impressum, Datenschutz, AGB (German legal compliance is non-negotiable)
+2. Email + password signup via Supabase (deviation from original magic-link plan — see §13)
+3. Onboarding: one child profile (Name + Klasse 1–4 + Theme „Weltraum")
+4. Math generator UI: Addition / Subtraktion / Gemischt, Zahlenraum 1–100, 5 / 10 / 15 / 20 Aufgaben, Theme „Weltraum"
+5. PDF generation (Aufgabenblatt + separates Lösungsblatt)
+6. Free tier: 3 worksheets per 24 h window, watermark in footer
+7. Family Pro via Stripe Checkout (€7,99/Monat oder €59/Jahr): unbegrenzt, kein Watermark
+8. Account page (Abo verwalten, Kindprofil editieren)
+9. Legal pages: Impressum, Datenschutz, AGB (with `[TODO: lawyer-review]` markers)
+10. Analytics: PostHog client-side, consent-gated
 
-That is the entire Phase 1. The agent must refuse scope additions until the success metrics below are hit.
+### Phase 1b — Dashboard + first non-math subject (in progress)
+
+1. Dashboard at `/app` replaces the single `Generator` page: tile grid `Fach → Klasse → Thema`, History der letzten Arbeitsblätter
+2. Header-Nav: „Übersicht" / „Mein Konto" / „Abmelden" (kein „Generator"-Eintrag mehr)
+3. Math generator wandert nach `/app/mathe/[topic]`; Generator-Architektur generalisiert für mehrere Übungstypen (Math word problems vs. Spurschrift sind grundlegend verschiedene PDF-Layouts und Configs)
+4. Grade enum erweitert von `1–4` auf `Vorschule, 1, 2, 3, 4` (DB: `children_profiles.grade` als `int` mit `0` = Vorschule, CHECK `0..10` für spätere Phase 2)
+5. **Neuer Übungstyp: Deutsch Vorschule — Buchstaben schreiben (Spurschrift)**
+   - Konfig: Buchstaben-Multiselect (A–Z), Groß/Klein/Beides, Zeilen pro Buchstabe (2 / 3 / 4)
+   - PDF: 4-Linien-Schreiblernlineatur, gepunktetes Buchstaben-Outline links pro Zeile, Rest zum Nachschreiben leer
+   - Kein Lösungsblatt
+   - Brand-Presence wie Mathe (lernikon.de oben + Footer-Lockup)
+
+### Phase 1c — Multi-Kind + Content-Tiefe + Conversion-Mechanik (next)
+
+1. ✅ Multi-Kind-Support (Task 18 erledigt): Free = 1 Kind, Family Pro = bis zu 3 Kinder. Kind-Selector im Dashboard. Account-Liste statt Single-Editor.
+2. Mehr Mathe-Topics: Vorschule (Mengen, Zahlen 1–10), Klasse 3 (Einmaleins), Klasse 4 (schriftliche Verfahren, einfache Brüche)
+3. Mehr Deutsch-Topics: Klasse 1 (ABC, einfache Wörter), Klasse 2 (Diktate, Wortarten), Klasse 3 (Rechtschreibung, Leseverstehen), Klasse 4 (Aufsatz-Bausteine, Grammatik)
+4. **Theme-Expansion + Theme-Paywall**: 3 neue Themes (Einhorn / Pferde / Autos) deckt Mädchen-/Jungen-/neutral-Tier-Fall. Sobald Assets da sind: Free behält „Weltraum", Pro entsperrt alle Themes. Stärkster kid-driven Conversion-Hebel. Asset-Commission ist Founder-Job (Designer external).
+
+### Conversion-Strategie (Stand 2026-05-12, vom CEO entschieden)
+
+Pre-Launch-Posture: **wenig restrictivity, viel Daten sammeln**. Reasoning: ohne aktive User ist jede Paywall-Härtegrad-Entscheidung Spekulation. Erst Funnel-Daten, dann tunen.
+
+- **Quota bleibt bei 3/Tag** (nicht 2). Reduktion erst wenn `paywall_hit{trigger:rate_limit}` zeigt dass aktive User regelmäßig dran scheitern.
+- **Deutsch bleibt komplett free** (nicht ab Klasse 1 Pro). Top-of-Funnel-Schutz für die frische Multi-Subject-Botschaft. Re-evaluate in Phase 2 mit 50+ aktiven Konten.
+- **Theme-Paywall** ist der primäre Conversion-Hebel, kommt mit Theme-Expansion (Bullet 4 oben).
+- **Lösungen-Blatt bleibt für Free verfügbar** — table stakes für Eltern. Nicht hinter Paywall stecken.
+- **AI-Sachaufgaben** (gpt-4o-mini) sind Pro-only **wenn** sie kommen. Phase 2.
+- Paywall-Event-Taxonomie (`paywall_hit{trigger}`) ist auf `rate_limit | child_slot_locked | theme_locked | subject_locked | feature` typisiert — siehe `lib/analytics/events.ts`. Trigger-Werte feuern erst sobald die jeweilige Paywall geshippt ist.
+
+### Phase 2 — Klasse 5–10 + weitere Fächer
+
+Sobald 1c stabil ist und ≥ 50 aktive Konten erreicht sind: Klasse 5–10 in Mathe + Deutsch, dann neue Fächer (Englisch, Sachunterricht, …).
+
+The agent must refuse scope additions außerhalb des aktuellen Phase-1b/1c-Plans, bis Phase 1b im Produktiv-Deploy ist (Task 14).
 
 ---
 
@@ -223,6 +268,7 @@ Create Supabase migrations:
 - Page 2: answer key with same layout
 - Theme "Weltraum": subtle background graphics (small planet/star SVG decorations in corners) — must NOT distract from problems
 - Footer with watermark for free users ("Erstellt mit LernZettel — lernzettel.de")
+- **Brand presence on every worksheet (free + paid, every page):** small + discreet `lernikon.de` mark near the top of the page, and a more prominent "Lernikon" wordmark + logo in the footer. Logo asset is TBD — leave a sized placeholder slot until the founder commissions one. This is distinct from the free-tier watermark above; paid users still get the brand presence, just without the watermark line.
 - Stream the PDF as a download (`Content-Disposition: attachment`)
 
 ### Task 8 — Free Tier Rate Limit
@@ -273,6 +319,36 @@ Create Supabase migrations:
 - Generate `sitemap.xml` and `robots.txt`
 - Lighthouse audit, target >90 on Performance and SEO
 
+### Task 15 — Dashboard + IA (Phase 1b)
+- `/app` wird Dashboard (heute leitet es nur weiter zu `/app/generator`)
+- Tile-Grid: Fächer (Mathe, Deutsch) → klick → Klassen-Tiles (Vorschule, 1, 2, 3, 4) → klick → Themen-Liste → klick → topic-spezifischer Generator
+- History-Block: letzte 5 Arbeitsblätter mit „Neu generieren"-Aktion (Source: `worksheets_log`)
+- Header-Nav: „Übersicht" (→ `/app`) / „Mein Konto" (→ `/app/account`) / „Abmelden". Kein „Generator"-Link mehr.
+- Math generator wandert von `/app/generator` nach `/app/mathe/[topic]` (z. B. `/app/mathe/addition`, `/app/mathe/subtraktion`, `/app/mathe/gemischt`). Alte Route 301-redirect oder neu mappen.
+- Übungstyp-Abstraktion: Server-seitig einen `WorksheetKind`-Discriminator, der die Generator-Konfig + PDF-Renderer auswählt.
+
+### Task 16 — Grade enum erweitern (Phase 1b)
+- Migration: CHECK-Constraint auf `children_profiles.grade` (jetzt `int`) auf `0..10` setzen; `0` bedeutet Vorschule
+- Onboarding-Form + Account-Editor: Dropdown listet „Vorschule, 1. Klasse, 2. Klasse, 3. Klasse, 4. Klasse" (Phase 1b); Klasse 5–10 erst in Phase 2 freischalten
+- Label-Helper `formatGrade(n: number): string` in `lib/format/grade.ts` für UI-Display
+- Existing rows (Klasse 1–4) bleiben unverändert
+
+### Task 17 — Deutsch Vorschule: Buchstaben schreiben (Spurschrift) (Phase 1b)
+- Route: `/app/deutsch/buchstaben-schreiben`
+- Konfig-UI: Buchstaben-Multiselect (A–Z), Case-Select (Großbuchstaben / Kleinbuchstaben / Beides), Zeilen pro Buchstabe (2 / 3 / 4)
+- Pure function `generateLetterTracing(config) → { letters: { char, case, lines }[] }`; Zod schema; vitest für Konfig-Validierung
+- PDF: Schreiblernlineatur (4 Linien: Oberlänge, Mittelband oben/unten, Unterlänge), gepunktetes Buchstaben-Outline links pro Zeile, Rest leer zum Nachfahren
+- Kein Lösungsblatt
+- Brand-Presence wie Mathe (lernikon.de Top + Footer-Lockup)
+- Rate-Limit-Eintrag analog Mathe (zählt gegen das Free-Tier-Tageslimit)
+
+### Task 18 — Multi-Kind (Phase 1c, paused behind Tasks 15–17)
+- Free = 1 Kind, Family Pro = bis zu 3 Kinder. App-Layer-Cap; Schema unterstützt bereits N Kinder.
+- Kind-Selector im Dashboard-Header (nicht im Generator)
+- Account-Seite: Liste aller Kinder mit Add / Edit / Delete (Free-User: Add zeigt Paywall-CTA)
+- API + Zod nehmen `childId`; Server validiert Ownership
+- Default-Kind: zuletzt benutztes (aus `worksheets_log`), fallback erstes nach `created_at`
+
 ---
 
 ## 12. Success Metrics
@@ -303,10 +379,12 @@ Create Supabase migrations:
 
 ## 13. Open Questions for the Founder
 
-Status as of 2026-05-10:
+Status as of 2026-05-12:
+
+0. **Product scope.** ✅ **Resolved 2026-05-12: Vorschule–Klasse 10 als Nordstern, aktuelle Phase Vorschule–Klasse 4 mit Mathe + Deutsch.** Math-only-Beschränkung der Original-VISION wurde aufgehoben. Phase 1b liefert Dashboard + Deutsch Vorschule (Buchstaben-Spurschrift), Phase 1c liefert Multi-Kind + mehr Topics, Phase 2 öffnet Klasse 5–10 und weitere Fächer. Siehe §10.
 
 1. **Final project name and domain.** ✅ **Resolved: Lernikon, lernikon.de** (Lernen + Lexikon). `aufgabenblatt.de` was taken. Repo: github.com/Pierce-Chang/Lernikon.
-2. **Brand identity.** ⚠️ **Pending.** No logo yet. Working palette: indigo/violet (`#6366F1` brand, `#EEF2FF` soft) used in PDF accent strip. Font: Lexend (web) + Helvetica (PDF). Decide before public launch.
+2. **Brand identity.** ✅ **Logo + palette landed 2026-05-11.** Selected design: `public/logos/paperplane/` — paper-plane motif with navy body + gold fold detail (replaced the earlier geometric-L draft). Full asset set: mark variants (`icon-primary`, `icon-app-tile`, `icon-inverse`, `icon-mono-{navy,black,white}`, `icon-outline`), horizontal + stacked lockups in navy/accent/white, plus `wordmark`, `social-avatar`, `og-image`. SVG + PNG (32/64/128/256/512/1024/2048). Palette: **navy `#1E4A7C`** as primary brand color, **gold `#F4B942`** as playful accent, cream `#FAFAF7` for inversions (carried into PDF: navy on the accent strip / headlines, gold on the number badge). Buttons (web) use gold as primary fill for visibility. Previous indigo `#6366F1` palette is retired. Font: Lexend (web) + Helvetica (PDF). **PDF branding placement (founder spec, 2026-05-11):** `lernikon.de` small + discreet near top of every worksheet page; "Lernikon" wordmark + logo more prominently in the footer — see Task 7.
 3. **First theme depth.** ⚠️ **Subtle by default**, but currently **disabled**: SVG corner decorations triggered a yoga `unsupported number: 8.51.5` parse error and were removed. To re-enable: pass numeric attrs only (`r={2}`, not `r="2"`), avoid `gap` on parent.
 4. **DSGVO posture.** ✅ **Hosting EU**: Supabase EU (Frankfurt), Vercel EU, PostHog EU cloud, Stripe EU. ⚠️ **OpenAI** integration not yet shipped — when adding, confirm EU data residency contract.
 5. **Refund policy text.** ⚠️ **Draft in `/agb`** (14-day right of withdrawal with explicit waiver clause for digital goods per §356 BGB). Needs lawyer review before launch.
