@@ -11,17 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { THEMES } from "@/lib/themes";
+import { ThemePicker } from "@/components/theme-picker";
+import { DEFAULT_THEME, type ThemeId } from "@/lib/themes";
+import { SUPPORTED_GRADES, formatGrade } from "@/lib/format/grade";
 import { capture } from "@/lib/analytics/client";
 import { createChildProfile } from "./actions";
 
-const GRADES = [1, 2, 3, 4] as const;
-
-export const OnboardingForm = () => {
+export const OnboardingForm = ({ isPaid }: { isPaid: boolean }) => {
   const [name, setName] = useState(""),
-    [grade, setGrade] = useState<string>("2"),
-    [theme, setTheme] = useState<string>("weltraum"),
+    [grade, setGrade] = useState<string>("1"),
+    [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME),
     [pending, startTransition] = useTransition(),
     [error, setError] = useState<string | null>(null);
 
@@ -55,14 +54,14 @@ export const OnboardingForm = () => {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="grade">Klasse</Label>
-        <Select value={grade} onValueChange={(value) => setGrade(value ?? "2")}>
+        <Select value={grade} onValueChange={(value) => setGrade(value ?? "1")}>
           <SelectTrigger id="grade">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {GRADES.map((g) => (
+            {SUPPORTED_GRADES.map((g) => (
               <SelectItem key={g} value={String(g)}>
-                Klasse {g}
+                {formatGrade(g)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -71,22 +70,7 @@ export const OnboardingForm = () => {
 
       <div className="flex flex-col gap-2">
         <Label>Lieblingsthema</Label>
-        <RadioGroup value={theme} onValueChange={setTheme} className="gap-2">
-          {THEMES.map((t) => (
-            <Label
-              key={t.id}
-              htmlFor={`theme-${t.id}`}
-              className="border-border hover:bg-accent flex cursor-pointer items-center gap-3 rounded-md border p-3"
-            >
-              <RadioGroupItem id={`theme-${t.id}`} value={t.id} />
-              <span className="text-xl">{t.emoji}</span>
-              <span className="flex flex-col">
-                <span className="font-medium">{t.label}</span>
-                <span className="text-muted-foreground text-xs">{t.description}</span>
-              </span>
-            </Label>
-          ))}
-        </RadioGroup>
+        <ThemePicker value={theme} onChange={setTheme} isPaid={isPaid} />
       </div>
 
       <Button type="submit" disabled={pending || name.trim().length === 0}>

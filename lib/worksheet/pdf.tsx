@@ -1,5 +1,8 @@
+import fs from "node:fs";
+import path from "node:path";
 import {
   Document,
+  Image,
   Page,
   StyleSheet,
   Text,
@@ -9,7 +12,22 @@ import {
 import type { ReactElement } from "react";
 import type { Problem } from "./generate";
 import { operationLabel, type Operation } from "./config";
-import type { ThemeId } from "@/lib/themes";
+import { getTheme, type ThemeId } from "@/lib/themes";
+import { ThemeDecoration } from "./theme-decoration";
+
+// React-PDF tries to fetch any string passed to `<Image src>` as a URL, so a
+// local filesystem path silently fails. Load the bytes once at module-init
+// and reuse the buffer for every render.
+const LOGO_LOCKUP_BUFFER = fs.readFileSync(
+  path.join(
+    process.cwd(),
+    "public",
+    "logos",
+    "paperplane",
+    "png",
+    "lockup-horizontal-navy-800.png",
+  ),
+);
 
 export interface WorksheetPdfProps {
   childName: string;
@@ -19,13 +37,16 @@ export interface WorksheetPdfProps {
   problems: Problem[];
   theme: ThemeId;
   showWatermark: boolean;
+  includeSolutions: boolean;
 }
 
 // ── Brand palette ─────────────────────────────────────────────────────────
+// Derived from the logo: blue `#1E4A7C` as the primary brand color, gold
+// `#F4B942` as the playful accent (used on the number badge to mirror the
+// yellow square in the mark).
 const COLOR = {
-  brand: "#6366F1",
-  brandSoft: "#EEF2FF",
-  brandLine: "#C7D2FE",
+  brand: "#1E4A7C",
+  accent: "#F4B942",
   textDark: "#1F2937",
   textMuted: "#6B7280",
   line: "#E5E7EB",
@@ -67,6 +88,11 @@ const styles = StyleSheet.create({
     color: COLOR.brand,
     letterSpacing: 1.5,
     textTransform: "uppercase",
+  },
+  brandDomain: {
+    fontSize: 8,
+    color: COLOR.textMuted,
+    marginTop: 2,
     marginBottom: 6,
   },
   title: {
@@ -101,52 +127,65 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  cell: {
+  cellHalf: {
     width: "50%",
-    paddingTop: 12,
-    paddingBottom: 12,
-    paddingRight: 16,
+    padding: 5,
+  },
+  cellThird: {
+    width: "33.333%",
+    padding: 4,
+  },
+  cellInner: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 10,
+    paddingRight: 12,
+    borderWidth: 0.75,
+    borderStyle: "dotted",
+    borderColor: COLOR.line,
+    borderRadius: 6,
   },
   problemRow: {
     flexDirection: "row",
     alignItems: "center",
   },
   numberBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: COLOR.brandSoft,
+    width: 17,
+    height: 17,
+    borderRadius: 8.5,
+    backgroundColor: COLOR.accent,
     color: COLOR.brand,
-    fontSize: 10,
+    fontSize: 7.5,
     fontFamily: "Helvetica-Bold",
     textAlign: "center",
-    paddingTop: 5,
-    marginRight: 10,
+    paddingTop: 4,
+    marginRight: 8,
   },
   problemText: {
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: "Helvetica-Bold",
     color: COLOR.textDark,
   },
-  writeLine: {
-    marginTop: 14,
-    marginLeft: 32,
-    height: 26,
+  problemTextSmall: {
+    fontSize: 13,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.textDark,
+  },
+  answerLine: {
+    flexGrow: 1,
+    marginLeft: 6,
+    // Sit on the text baseline instead of floating mid-row.
+    alignSelf: "flex-end",
+    marginBottom: 3,
     borderBottomWidth: 1,
     borderBottomColor: COLOR.writeLine,
   },
-  // ── answer key (page 2) ────────────────────────────────────────────────
+  // ── answer key (page 2) — same grid as page 1 ─────────────────────────
   answerKeyHeader: {
-    marginBottom: 24,
+    marginBottom: 22,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLOR.line,
-  },
-  answerCell: {
-    width: "33%",
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingRight: 8,
   },
   answerInner: {
     flexDirection: "row",
@@ -160,13 +199,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: COLOR.answerBg,
   },
-  answerNumber: {
-    fontSize: 9,
-    fontFamily: "Helvetica-Bold",
-    color: COLOR.brand,
-    width: 14,
-  },
   answerText: {
+    fontSize: 13,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.textDark,
+  },
+  answerTextSmall: {
     fontSize: 11,
     fontFamily: "Helvetica-Bold",
     color: COLOR.textDark,
@@ -174,15 +212,25 @@ const styles = StyleSheet.create({
   // ── footer ─────────────────────────────────────────────────────────────
   footer: {
     position: "absolute",
-    bottom: 28,
+    bottom: 22,
     left: 56,
     right: 56,
-    textAlign: "center",
-    fontSize: 8,
-    color: COLOR.textMuted,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: COLOR.line,
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  footerLogo: {
+    width: 92,
+    // 92 / (1500/360) ≈ 22pt — matches the lockup's aspect ratio.
+    height: 22,
+  },
+  footerWatermark: {
+    fontSize: 7,
+    color: COLOR.textMuted,
+    letterSpacing: 0.5,
+    marginTop: 6,
   },
 });
 
@@ -192,10 +240,23 @@ const WorksheetDocument = ({
   operation,
   rangeLabel,
   problems,
+  theme,
   showWatermark,
-}: WorksheetPdfProps): ReactElement => (
+  includeSolutions,
+}: WorksheetPdfProps): ReactElement => {
+  const themeMeta = getTheme(theme),
+    // > 20 problems → 3 columns (slightly smaller text). ≤ 20 → 2 columns.
+    threeColumns = problems.length > 20,
+    cellStyle = threeColumns ? styles.cellThird : styles.cellHalf,
+    problemTextStyle = threeColumns
+      ? styles.problemTextSmall
+      : styles.problemText,
+    answerTextStyle = threeColumns
+      ? styles.answerTextSmall
+      : styles.answerText;
+  return (
   <Document
-    title={`Übungsblatt — ${childName}`}
+    title={`Übungsblatt für ${childName}`}
     author="Lernikon"
     creator="Lernikon"
     producer="Lernikon"
@@ -203,10 +264,12 @@ const WorksheetDocument = ({
     {/* page 1 — worksheet */}
     <Page size="A4" style={styles.page}>
       <View style={styles.topAccent} fixed />
+      <ThemeDecoration theme={themeMeta} />
 
       <View style={styles.header}>
         <View>
           <Text style={styles.brand}>Lernikon</Text>
+          <Text style={styles.brandDomain}>lernikon.de</Text>
           <Text style={styles.title}>Übungsblatt</Text>
           <Text style={styles.subtitle}>
             {operationLabel(operation)} · Zahlenraum {rangeLabel}
@@ -222,56 +285,65 @@ const WorksheetDocument = ({
 
       <View style={styles.grid}>
         {problems.map((problem, i) => (
-          <View key={i} style={styles.cell} wrap={false}>
-            <View style={styles.problemRow}>
-              <Text style={styles.numberBadge}>{i + 1}</Text>
-              <Text style={styles.problemText}>{problem.question}</Text>
-            </View>
-            <View style={styles.writeLine} />
-          </View>
-        ))}
-      </View>
-
-      {showWatermark && (
-        <Text style={styles.footer} fixed>
-          Erstellt mit Lernikon · lernikon.de
-        </Text>
-      )}
-    </Page>
-
-    {/* page 2 — answer key */}
-    <Page size="A4" style={styles.page}>
-      <View style={styles.topAccent} fixed />
-
-      <View style={styles.answerKeyHeader}>
-        <Text style={styles.brand}>Lernikon</Text>
-        <Text style={styles.title}>Lösungen</Text>
-        <Text style={styles.subtitle}>
-          {operationLabel(operation)} · Zahlenraum {rangeLabel}
-        </Text>
-      </View>
-
-      <View style={styles.grid}>
-        {problems.map((problem, i) => (
-          <View key={i} style={styles.answerCell} wrap={false}>
-            <View style={styles.answerInner}>
-              <Text style={styles.answerNumber}>{i + 1}</Text>
-              <Text style={styles.answerText}>
-                {problem.question} {problem.answer}
-              </Text>
+          <View key={i} style={cellStyle} wrap={false}>
+            <View style={styles.cellInner}>
+              <View style={styles.problemRow}>
+                <Text style={styles.numberBadge}>{i + 1}.</Text>
+                <Text style={problemTextStyle}>{problem.question}</Text>
+                <View style={styles.answerLine} />
+              </View>
             </View>
           </View>
         ))}
       </View>
 
-      {showWatermark && (
-        <Text style={styles.footer} fixed>
-          Erstellt mit Lernikon · lernikon.de
-        </Text>
-      )}
+      <View style={styles.footer} fixed>
+        <Image src={LOGO_LOCKUP_BUFFER} style={styles.footerLogo} />
+        {showWatermark && (
+          <Text style={styles.footerWatermark}>Kostenlose Version</Text>
+        )}
+      </View>
     </Page>
+
+    {/* page 2 — answer key (optional, same grid as page 1) */}
+    {includeSolutions && (
+      <Page size="A4" style={styles.page}>
+        <View style={styles.topAccent} fixed />
+        <ThemeDecoration theme={themeMeta} />
+
+        <View style={styles.answerKeyHeader}>
+          <Text style={styles.brand}>Lernikon</Text>
+          <Text style={styles.brandDomain}>lernikon.de</Text>
+          <Text style={styles.title}>Lösungen</Text>
+          <Text style={styles.subtitle}>
+            {operationLabel(operation)} · Zahlenraum {rangeLabel}
+          </Text>
+        </View>
+
+        <View style={styles.grid}>
+          {problems.map((problem, i) => (
+            <View key={i} style={cellStyle} wrap={false}>
+              <View style={styles.answerInner}>
+                <Text style={styles.numberBadge}>{i + 1}.</Text>
+                <Text style={answerTextStyle}>
+                  {problem.question} {problem.answer}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Image src={LOGO_LOCKUP_BUFFER} style={styles.footerLogo} />
+          {showWatermark && (
+            <Text style={styles.footerWatermark}>Kostenlose Version</Text>
+          )}
+        </View>
+      </Page>
+    )}
   </Document>
-);
+  );
+};
 
 /**
  * Renders the worksheet to a Node Readable stream.

@@ -1,21 +1,51 @@
 import { describe, expect, it } from "vitest";
 import { generateProblems } from "./generate";
-import type { WorksheetConfig } from "./config";
+import type { MathRechnenConfig } from "./config";
 
-const baseConfig: WorksheetConfig = {
-  subject: "mathe",
+const baseConfig: MathRechnenConfig = {
   operation: "addition",
   rangeMin: 1,
   rangeMax: 20,
-  count: 10,
+  count: 12,
+  includeSolutions: true,
   seed: 42,
 };
 
 describe("generateProblems", () => {
   it("returns the requested number of problems", () => {
-    for (const count of [5, 10, 15, 20] as const) {
+    for (const count of [8, 12, 16, 20, 24] as const) {
       const result = generateProblems({ ...baseConfig, count });
       expect(result).toHaveLength(count);
+    }
+  });
+
+  it("addition result stays within rangeMax (Zahlenraum bis N semantics)", () => {
+    for (const rangeMax of [10, 20, 50, 100]) {
+      const result = generateProblems({
+        ...baseConfig,
+        operation: "addition",
+        rangeMin: 1,
+        rangeMax,
+        count: 20,
+      });
+      for (const problem of result) {
+        expect(problem.answer).toBeLessThanOrEqual(rangeMax);
+        expect(problem.answer).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+
+  it("gemischt mode never exceeds rangeMax on additions", () => {
+    const result = generateProblems({
+      ...baseConfig,
+      operation: "gemischt",
+      rangeMin: 1,
+      rangeMax: 10,
+      count: 20,
+    });
+    for (const problem of result) {
+      expect(problem.answer).toBeLessThanOrEqual(10);
+      expect(problem.answer).toBeGreaterThanOrEqual(0);
     }
   });
 
@@ -66,12 +96,11 @@ describe("generateProblems", () => {
   it("rejects invalid configs", () => {
     expect(() =>
       generateProblems({
-        subject: "mathe",
         operation: "addition",
         rangeMin: 50,
         rangeMax: 10,
-        count: 10,
-      } as WorksheetConfig),
+        count: 12,
+      } as MathRechnenConfig),
     ).toThrow();
   });
 
@@ -92,7 +121,7 @@ describe("generateProblems", () => {
         expect(a + b).toBe(problem.answer);
       } else {
         minus += 1;
-        const [a, b] = problem.question.replace("=", "").split("−").map((s) => Number(s.trim()));
+        const [a, b] = problem.question.replace("=", "").split("-").map((s) => Number(s.trim()));
         expect(a - b).toBe(problem.answer);
         expect(problem.answer).toBeGreaterThanOrEqual(0);
       }

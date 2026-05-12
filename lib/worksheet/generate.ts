@@ -1,4 +1,8 @@
-import { worksheetConfigSchema, type Operation, type WorksheetConfig } from "./config";
+import {
+  mathRechnenConfigSchema,
+  type MathRechnenConfig,
+  type Operation,
+} from "./config";
 
 export interface Problem {
   question: string;
@@ -30,7 +34,7 @@ const renderQuestion = (operation: ConcreteOp, a: number, b: number): string => 
     case "addition":
       return `${a} + ${b} =`;
     case "subtraktion":
-      return `${a} − ${b} =`;
+      return `${a} - ${b} =`;
   }
 };
 
@@ -49,12 +53,21 @@ const draw = (
   rangeMin: number,
   rangeMax: number,
 ): { a: number; b: number } => {
+  if (operation === "addition") {
+    // "Zahlenraum bis N" = the *result* a+b must be ≤ N (and both operands
+    // are themselves at least rangeMin). Pick a so there's room for b, then
+    // pick b inside the remaining slack.
+    const maxA = Math.max(rangeMin, rangeMax - rangeMin);
+    const a = randInt(rng, rangeMin, maxA);
+    const maxB = Math.max(rangeMin, rangeMax - a);
+    const b = randInt(rng, rangeMin, maxB);
+    return { a, b };
+  }
+  // Subtraktion: result = a − b. Order operands so the result is non-negative;
+  // since a ≤ rangeMax, the result is automatically ≤ rangeMax too.
   const a = randInt(rng, rangeMin, rangeMax),
     b = randInt(rng, rangeMin, rangeMax);
-  // For subtraction, force a non-negative result by ordering operands.
-  if (operation === "subtraktion" && b > a) {
-    return { a: b, b: a };
-  }
+  if (b > a) return { a: b, b: a };
   return { a, b };
 };
 
@@ -73,8 +86,8 @@ const concreteOpFor = (
  * Pure problem generator. Validates the config, returns an array of
  * unique problems matching the requested count. Throws on invalid config.
  */
-export const generateProblems = (rawConfig: WorksheetConfig): Problem[] => {
-  const config = worksheetConfigSchema.parse(rawConfig),
+export const generateProblems = (rawConfig: MathRechnenConfig): Problem[] => {
+  const config = mathRechnenConfigSchema.parse(rawConfig),
     rng = mulberry32(config.seed ?? Math.floor(Math.random() * 2 ** 31)),
     seen = new Set<string>(),
     problems: Problem[] = [];

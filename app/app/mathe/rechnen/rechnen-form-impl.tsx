@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WorksheetPreview } from "@/components/worksheet-preview";
 import { EXERCISE_COUNTS, OPERATIONS, type Operation } from "@/lib/worksheet/config";
+import { useLocalSettings } from "@/lib/hooks/use-local-settings";
 import { capture } from "@/lib/analytics/client";
 
 export interface QuotaProps {
@@ -16,6 +18,20 @@ export interface QuotaProps {
   remaining: number | null;
   limit: number | null;
 }
+
+interface RechnenSettings {
+  operation: Operation;
+  range: [number, number];
+  count: number;
+  includeSolutions: boolean;
+}
+
+const DEFAULT_SETTINGS: RechnenSettings = {
+  operation: "addition",
+  range: [1, 10],
+  count: 12,
+  includeSolutions: true,
+};
 
 const OPERATION_LABELS: Record<Operation, string> = {
   addition: "Addition (+)",
@@ -32,16 +48,41 @@ const OPERATION_FILENAME: Record<Operation, string> = {
 const buildFilename = (operation: Operation, rangeMin: number, rangeMax: number) =>
   `Lernikon - Mathe - ${OPERATION_FILENAME[operation]} ${rangeMin}-${rangeMax}.pdf`;
 
-export const GeneratorForm = ({
+const filenameFromResponse = (response: Response, fallback: string): string => {
+  const header = response.headers.get("content-disposition");
+  if (!header) return fallback;
+  const match = header.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+  return match?.[1] ?? fallback;
+};
+
+export const RechnenFormImpl = ({
+  childId,
   quota,
 }: {
+  childId: string;
   quota: QuotaProps;
 }) => {
-  const [operation, setOperation] = useState<Operation>("addition"),
-    [range, setRange] = useState<[number, number]>([1, 20]),
-    [count, setCount] = useState<number>(10),
-    [pending, startTransition] = useTransition(),
-    [error, setError] = useState<string | null>(null);
+  const [settings, setSettings] = useLocalSettings<RechnenSettings>(
+    "lernikon.settings.mathe-rechnen",
+    DEFAULT_SETTINGS,
+  );
+  const { operation, range, count, includeSolutions } = settings;
+  const update = <K extends keyof RechnenSettings>(
+    key: K,
+    nextValue: RechnenSettings[K],
+  ) => setSettings({ ...settings, [key]: nextValue });
+
+  const [pending, startTransition] = useTransition(),
+    [error, setError] = useState<string | null>(null),
+    [preview, setPreview] = useState<{ url: string; filename: string } | null>(
+      null,
+    );
+
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+    window.location.reload();
+  };
 
   const blocked = !quota.isPaid && quota.remaining !== null && quota.remaining <= 0;
 
@@ -54,11 +95,13 @@ export const GeneratorForm = ({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          subject: "mathe",
+          topic: "mathe-rechnen",
+          childId,
           operation,
           rangeMin: range[0],
           rangeMax: range[1],
           count,
+          includeSolutions,
         }),
       });
       if (!response.ok) {
@@ -80,14 +123,9 @@ export const GeneratorForm = ({
       });
       const blob = await response.blob(),
         url = URL.createObjectURL(blob),
-        a = document.createElement("a");
-      a.href = url;
-      a.download = buildFilename(operation, range[0], range[1]);
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      window.location.reload();
+        fallback = buildFilename(operation, range[0], range[1]),
+        filename = filenameFromResponse(response, fallback);
+      setPreview({ url, filename });
     });
   };
 
@@ -100,7 +138,7 @@ export const GeneratorForm = ({
         <CardContent>
           <RadioGroup
             value={operation}
-            onValueChange={(value) => setOperation(value as Operation)}
+            onValueChange={(value) => update("operation", value as Operation)}
             className="grid grid-cols-2 gap-2"
           >
             {OPERATIONS.map((op) => (
@@ -123,8 +161,8 @@ export const GeneratorForm = ({
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="text-muted-foreground flex justify-between text-sm">
-            <span>von {range[0]}</span>
-            <span>bis {range[1]}</span>
+            <span>Zahlen ab {range[0]}</span>
+            <span>Ergebnis bis {range[1]}</span>
           </div>
           <Slider
             value={range}
@@ -133,7 +171,8 @@ export const GeneratorForm = ({
             step={1}
             onValueChange={(value) => {
               const arr = Array.isArray(value) ? value : [value];
-              if (arr.length >= 2) setRange([arr[0], arr[1]] as [number, number]);
+              if (arr.length >= 2)
+                update("range", [arr[0], arr[1]] as [number, number]);
             }}
           />
         </CardContent>
@@ -146,8 +185,8 @@ export const GeneratorForm = ({
         <CardContent>
           <RadioGroup
             value={String(count)}
-            onValueChange={(value) => setCount(Number(value))}
-            className="grid grid-cols-4 gap-2"
+            onValueChange={(value) => update("count", Number(value))}
+            className="grid grid-cols-3 gap-2 sm:grid-cols-5"
           >
             {EXERCISE_COUNTS.map((n) => (
               <Label
@@ -160,6 +199,25 @@ export const GeneratorForm = ({
               </Label>
             ))}
           </RadioGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-6">
+          <label className="border-border hover:bg-accent flex cursor-pointer items-center gap-3 rounded-md border p-3">
+            <input
+              type="checkbox"
+              checked={includeSolutions}
+              onChange={(event) =>
+                update("includeSolutions", event.target.checked)
+              }
+              className="accent-brand-accent size-4"
+            />
+            <span className="text-sm font-medium">Lösungsblatt mitdrucken</span>
+            <span className="text-muted-foreground ml-auto text-xs">
+              {includeSolutions ? "ja" : "nein"}
+            </span>
+          </label>
         </CardContent>
       </Card>
 
@@ -180,6 +238,13 @@ export const GeneratorForm = ({
         )}
         {error && <p className="text-destructive text-sm">{error}</p>}
       </div>
+      {preview && (
+        <WorksheetPreview
+          url={preview.url}
+          filename={preview.filename}
+          onClose={closePreview}
+        />
+      )}
     </form>
   );
 };
