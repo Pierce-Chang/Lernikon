@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,61 +13,53 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ThemePicker } from "@/components/theme-picker";
-import { isThemeId, type ThemeId } from "@/lib/themes";
+import { DEFAULT_THEME, type ThemeId } from "@/lib/themes";
 import { SUPPORTED_GRADES, formatGrade } from "@/lib/format/grade";
-import { updateChildProfile } from "./profile-actions";
+import { addChildProfile } from "../profile-actions";
 
-export const ChildProfileEditor = ({
-  childId,
-  initialName,
-  initialGrade,
-  initialTheme,
-  isPaid,
-}: {
-  childId: string;
-  initialName: string;
-  initialGrade: number;
-  initialTheme: string;
-  isPaid: boolean;
-}) => {
-  const [name, setName] = useState(initialName),
-    [grade, setGrade] = useState(String(initialGrade)),
-    [theme, setTheme] = useState<ThemeId>(
-      isThemeId(initialTheme) ? initialTheme : "weltraum",
-    ),
+export const AddChildForm = ({ isPaid }: { isPaid: boolean }) => {
+  const router = useRouter();
+  const [name, setName] = useState(""),
+    [grade, setGrade] = useState<string>("1"),
+    [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME),
     [pending, startTransition] = useTransition(),
-    [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+    [error, setError] = useState<string | null>(null);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setStatus("idle");
+    setError(null);
     startTransition(async () => {
-      const result = await updateChildProfile({
-        id: childId,
+      const result = await addChildProfile({
         name: name.trim(),
         grade: Number(grade),
         theme_preference: theme,
       });
-      setStatus(result.ok ? "saved" : "error");
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      router.push("/app/account");
     });
   };
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="child-name">Name</Label>
+        <Label htmlFor="name">Vorname des Kindes</Label>
         <Input
-          id="child-name"
+          id="name"
           value={name}
           onChange={(event) => setName(event.target.value)}
           maxLength={50}
+          required
+          placeholder="z.B. Max"
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="child-grade">Klasse</Label>
+        <Label htmlFor="grade">Klasse</Label>
         <Select value={grade} onValueChange={(value) => setGrade(value ?? "1")}>
-          <SelectTrigger id="child-grade">
+          <SelectTrigger id="grade">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -84,17 +77,10 @@ export const ChildProfileEditor = ({
         <ThemePicker value={theme} onChange={setTheme} isPaid={isPaid} />
       </div>
 
-      <div className="flex items-center gap-3">
-        <Button type="submit" disabled={pending}>
-          {pending ? "Wird gespeichert…" : "Speichern"}
-        </Button>
-        {status === "saved" && (
-          <span className="text-sm text-emerald-700">Gespeichert.</span>
-        )}
-        {status === "error" && (
-          <span className="text-destructive text-sm">Fehler beim Speichern.</span>
-        )}
-      </div>
+      <Button type="submit" disabled={pending || name.trim().length === 0}>
+        {pending ? "Wird gespeichert…" : "Profil anlegen"}
+      </Button>
+      {error && <p className="text-destructive text-sm">{error}</p>}
     </form>
   );
 };
