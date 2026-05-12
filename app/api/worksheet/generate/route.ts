@@ -16,6 +16,9 @@ import {
 } from "@/lib/worksheet/letter-tracing/config";
 import { generateLetterTracing } from "@/lib/worksheet/letter-tracing/generate";
 import { renderLetterTracingPdf } from "@/lib/worksheet/letter-tracing/pdf";
+import { numberTracingConfigSchema } from "@/lib/worksheet/number-tracing/config";
+import { generateNumberTracing } from "@/lib/worksheet/number-tracing/generate";
+import { renderNumberTracingPdf } from "@/lib/worksheet/number-tracing/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -199,6 +202,29 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Mathe - Rechnen - ${opLabel} ${config.rangeMin}-${config.rangeMax}`,
         logSubject: "mathe",
         logOperation: config.operation,
+        logConfig: config,
+      };
+    }
+    case "mathe-zahlen-schreiben": {
+      const parsed = numberTracingConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateNumberTracing(config),
+        digitsLabel = config.digits.join(","),
+        stream = await renderNumberTracingPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Mathe - Zahlen schreiben (${digitsLabel})`,
+        logSubject: "mathe",
+        logOperation: "zahlen-schreiben",
         logConfig: config,
       };
     }

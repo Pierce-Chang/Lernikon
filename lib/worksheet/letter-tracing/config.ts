@@ -22,7 +22,7 @@ export const LETTER_STYLE_HINTS: Record<LetterStyle, string> = {
   schreib: "Ab 2. Klasse",
 };
 
-export const LINES_PER_LETTER = [2, 3, 4] as const;
+export const LINES_PER_LETTER = [1, 2, 3, 4] as const;
 export type LinesPerLetter = (typeof LINES_PER_LETTER)[number];
 
 /**
@@ -38,7 +38,7 @@ export const letterTracingConfigSchema = z.object({
     .min(1, "Mindestens ein Buchstabe.")
     .max(10, "Maximal 10 Buchstaben pro Blatt."),
   case: z.enum(LETTER_CASES),
-  linesPerLetter: z.union([z.literal(2), z.literal(3), z.literal(4)]),
+  linesPerLetter: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
   style: z.enum(LETTER_STYLES).default("druck"),
 });
 

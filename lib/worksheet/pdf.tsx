@@ -300,7 +300,9 @@ const WorksheetDocument = ({
       <View style={styles.footer} fixed>
         <Image src={LOGO_LOCKUP_BUFFER} style={styles.footerLogo} />
         {showWatermark && (
-          <Text style={styles.footerWatermark}>Kostenlose Version</Text>
+          <Text style={styles.footerWatermark}>
+            Kostenfreie Version von lernikon.de · Family Pro entsperrt alle Themes
+          </Text>
         )}
       </View>
     </Page>
@@ -336,7 +338,9 @@ const WorksheetDocument = ({
         <View style={styles.footer} fixed>
           <Image src={LOGO_LOCKUP_BUFFER} style={styles.footerLogo} />
           {showWatermark && (
-            <Text style={styles.footerWatermark}>Kostenlose Version</Text>
+            <Text style={styles.footerWatermark}>
+              Kostenfreie Version von lernikon.de · Family Pro entsperrt alle Themes
+            </Text>
           )}
         </View>
       </Page>

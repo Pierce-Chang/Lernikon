@@ -12,6 +12,7 @@
 
 export const TOPIC_IDS = [
   "mathe-rechnen",
+  "mathe-zahlen-schreiben",
   "deutsch-buchstaben-schreiben",
 ] as const;
 
@@ -45,6 +46,15 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     description: "Addition, Subtraktion oder gemischt im wählbaren Zahlenraum.",
     href: "/app/mathe/rechnen",
     grades: [1, 2, 3, 4],
+    implemented: true,
+  },
+  "mathe-zahlen-schreiben": {
+    id: "mathe-zahlen-schreiben",
+    subject: "mathe",
+    label: "Zahlen schreiben",
+    description: "Ziffern 0-9 nachfahren mit Lineatur.",
+    href: "/app/mathe/zahlen-schreiben",
+    grades: [0],
     implemented: true,
   },
   "deutsch-buchstaben-schreiben": {
