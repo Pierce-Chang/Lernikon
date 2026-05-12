@@ -10,7 +10,7 @@ import { signInWithPassword } from "./actions";
 
 export const LoginForm = () => {
   const searchParams = useSearchParams(),
-    next = searchParams.get("next") ?? "/app/generator";
+    next = searchParams.get("next") ?? "/app";
 
   const [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),

@@ -8,7 +8,7 @@ export default function DatenschutzPage() {
       <article className="prose prose-neutral mx-auto max-w-2xl px-6 py-16 text-sm leading-7">
         <h1 className="text-3xl font-bold tracking-tight">Datenschutzerklärung</h1>
         <p className="text-muted-foreground mt-4">
-          Vorlage — bitte vor Launch durch Anwalt prüfen lassen. Stand:{" "}
+          Vorlage, bitte vor Launch durch Anwalt prüfen lassen. Stand:{" "}
           {new Date().toLocaleDateString("de-DE")}.
         </p>
 

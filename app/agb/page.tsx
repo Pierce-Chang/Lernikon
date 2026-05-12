@@ -10,7 +10,7 @@ export default function AgbPage() {
           Allgemeine Geschäftsbedingungen
         </h1>
         <p className="text-muted-foreground mt-4">
-          Vorlage — bitte vor Launch prüfen lassen. Stand:{" "}
+          Vorlage, bitte vor Launch prüfen lassen. Stand:{" "}
           {new Date().toLocaleDateString("de-DE")}.
         </p>
 
@@ -46,7 +46,7 @@ export default function AgbPage() {
 
         <h2 className="mt-6 font-semibold">5. Kündigung</h2>
         <p>
-          Das Abo ist jederzeit zum Ende der laufenden Periode kündbar — direkt im
+          Das Abo ist jederzeit zum Ende der laufenden Periode kündbar, direkt im
           Konto-Bereich über das Stripe Billing Portal.
         </p>
 

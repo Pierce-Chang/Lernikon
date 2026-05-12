@@ -52,8 +52,8 @@ export const CookieConsent = () => {
     <div className="fixed inset-x-3 bottom-3 z-50">
       <div className="border-border bg-background mx-auto flex max-w-2xl flex-col gap-3 rounded-lg border p-4 shadow-lg sm:flex-row sm:items-center">
         <p className="text-foreground text-sm">
-          Wir nutzen funktionale Cookies (notwendig) und — mit deiner
-          Zustimmung — anonymisierte Analyse via PostHog.{" "}
+          Wir nutzen funktionale Cookies (notwendig) und, mit deiner
+          Zustimmung, anonymisierte Analyse via PostHog.{" "}
           <Link href="/datenschutz" className="underline">
             Mehr erfahren
           </Link>

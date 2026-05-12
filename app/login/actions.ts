@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 const signInSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
-  next: z.string().startsWith("/").default("/app/generator"),
+  next: z.string().startsWith("/").default("/app"),
 });
 
 export const signInWithPassword = async (

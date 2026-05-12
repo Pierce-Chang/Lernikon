@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 360" width="1500" height="360" role="img" aria-label="Lernikon horizontal lockup yellow accent">
+  <g transform="translate(40 0) scale(0.625)">
+    <path d="M 80 240 L 432 96 L 304 416 L 232 304 Z" fill="#1E4A7C"></path>
+    <path d="M 80 240 L 232 304 L 432 96" fill="none" stroke="#FAFAF7" stroke-width="10" stroke-linejoin="round" opacity="0.4"></path>
+    <path d="M 232 304 L 304 416 L 304 304 Z" fill="#F4B942"></path>
+  </g>
+  <text x="390" y="245" font-family="Manrope, &#39;Helvetica Neue&#39;, &#39;Arial Black&#39;, Arial, sans-serif" font-weight="800" font-size="220" fill="#1E4A7C" letter-spacing="-9.9">lernikon<tspan fill="#F4B942">.</tspan></text>
+</svg>

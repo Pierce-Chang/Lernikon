@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 export const GET = async (request: NextRequest) => {
   const url = new URL(request.url),
     code = url.searchParams.get("code"),
-    next = url.searchParams.get("next") ?? "/app/generator";
+    next = url.searchParams.get("next") ?? "/app";
 
   if (code) {
     const supabase = await createClient(),

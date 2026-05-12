@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Lernikon icon primary">
+  <path d="M 80 240 L 432 96 L 304 416 L 232 304 Z" fill="#1E4A7C"></path>
+  <path d="M 80 240 L 232 304 L 432 96" fill="none" stroke="#FAFAF7" stroke-width="10" stroke-linejoin="round" opacity="0.4"></path>
+  <path d="M 232 304 L 304 416 L 304 304 Z" fill="#F4B942"></path>
+</svg>

@@ -12,11 +12,11 @@ const lexend = Lexend({
 
 export const metadata: Metadata = {
   title: {
-    default: "Lernikon — Schöne Übungsblätter für dein Kind",
+    default: "Lernikon · Schöne Übungsblätter für dein Kind",
     template: "%s · Lernikon",
   },
   description:
-    "Druckfertige, personalisierte Übungsblätter für die Grundschule — in 30 Sekunden. Mit Lösungen.",
+    "Druckfertige, personalisierte Übungsblätter für die Grundschule in 30 Sekunden. Mit Lösungen.",
 };
 
 export default function RootLayout({

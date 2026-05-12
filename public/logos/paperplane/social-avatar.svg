@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-label="Lernikon social avatar">
+  <rect width="1200" height="1200" rx="240" fill="#1E4A7C"></rect>
+  <g transform="translate(300 300) scale(1.171875)">
+    <path d="M 80 240 L 432 96 L 304 416 L 232 304 Z" fill="#FAFAF7"></path>
+    <path d="M 80 240 L 232 304 L 432 96" fill="none" stroke="#1E4A7C" stroke-width="10" stroke-linejoin="round" opacity="0.25"></path>
+    <path d="M 232 304 L 304 416 L 304 304 Z" fill="#F4B942"></path>
+  </g>
+</svg>

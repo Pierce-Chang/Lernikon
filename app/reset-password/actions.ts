@@ -39,5 +39,5 @@ export const updatePassword = async (
     return { ok: false, error: "Konnte Passwort nicht setzen. Bitte erneut versuchen." };
   }
 
-  redirect("/app/generator");
+  redirect("/app");
 };

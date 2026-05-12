@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Lernikon OG image">
+  <rect width="1200" height="630" fill="#F6F2EB"></rect>
+  <g transform="translate(120 155) scale(0.625)">
+    <path d="M 80 240 L 432 96 L 304 416 L 232 304 Z" fill="#1E4A7C"></path>
+    <path d="M 80 240 L 232 304 L 432 96" fill="none" stroke="#FAFAF7" stroke-width="10" stroke-linejoin="round" opacity="0.4"></path>
+    <path d="M 232 304 L 304 416 L 304 304 Z" fill="#F4B942"></path>
+  </g>
+  <text x="460" y="310" font-family="Manrope, &#39;Helvetica Neue&#39;, &#39;Arial Black&#39;, Arial, sans-serif" font-weight="800" font-size="140" fill="#1E4A7C" letter-spacing="-6">lernikon<tspan fill="#F4B942">.</tspan></text>
+  <text x="460" y="380" font-family="Manrope, &#39;Helvetica Neue&#39;, Arial, sans-serif" font-weight="500" font-size="40" fill="#3a3a3a">Arbeitsblätter generieren — drucken — lernen.</text>
+</svg>
