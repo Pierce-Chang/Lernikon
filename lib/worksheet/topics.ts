@@ -19,7 +19,7 @@ export const TOPIC_IDS = [
   "deutsch-buchstaben-schreiben",
   "deutsch-diktate",
   "deutsch-rechtschreibung",
-  "denken-logisch",
+  "denken-muster",
 ] as const;
 
 export type TopicId = (typeof TOPIC_IDS)[number];
@@ -92,15 +92,14 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     implemented: false,
     comingSoon: true,
   },
-  "denken-logisch": {
-    id: "denken-logisch",
+  "denken-muster": {
+    id: "denken-muster",
     subject: "denken",
-    label: "Logisches Denken",
-    description: "Muster, Reihen und Vergleiche erkennen.",
-    href: "/app/denken/logisch",
+    label: "Muster fortsetzen",
+    description: "Reihen aus Formen vervollständigen",
+    href: "/app/denken/muster",
     grades: [0],
-    implemented: false,
-    comingSoon: true,
+    implemented: true,
   },
   "mathe-einmaleins": {
     id: "mathe-einmaleins",

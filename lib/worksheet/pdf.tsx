@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   Document,
+  Font,
   Image,
   Page,
   StyleSheet,
@@ -28,6 +29,19 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
     "lockup-horizontal-navy-800.png",
   ),
 );
+
+// Playwrite DE Grund — the German Grundschrift kids learn to write in
+// Klasse 1. Used for the math problems themselves so the worksheet matches
+// the schoolbook style children copy from.
+Font.register({
+  family: "PlaywriteDEGrund",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "PlaywriteDEGrund-Regular.ttf",
+  ),
+});
 
 export interface WorksheetPdfProps {
   childName: string;
@@ -161,14 +175,20 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     marginRight: 8,
   },
+  // Math problems render in Playwrite Grund (kid-style Grundschrift) so
+  // the digits look like the ones first-graders are taught to write.
+  // fontWeight: bold asks React-PDF for synthetic bold since Playwrite has
+  // no bold variant on Google Fonts (max weight 400).
   problemText: {
-    fontSize: 17,
-    fontFamily: "Helvetica-Bold",
+    fontSize: 18,
+    fontFamily: "PlaywriteDEGrund",
+    fontWeight: "bold",
     color: COLOR.textDark,
   },
   problemTextSmall: {
-    fontSize: 13,
-    fontFamily: "Helvetica-Bold",
+    fontSize: 14,
+    fontFamily: "PlaywriteDEGrund",
+    fontWeight: "bold",
     color: COLOR.textDark,
   },
   answerLine: {
@@ -200,13 +220,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.answerBg,
   },
   answerText: {
-    fontSize: 13,
-    fontFamily: "Helvetica-Bold",
+    fontSize: 14,
+    fontFamily: "PlaywriteDEGrund",
+    fontWeight: "bold",
     color: COLOR.textDark,
   },
   answerTextSmall: {
-    fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontSize: 12,
+    fontFamily: "PlaywriteDEGrund",
+    fontWeight: "bold",
     color: COLOR.textDark,
   },
   // ── footer ─────────────────────────────────────────────────────────────

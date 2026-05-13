@@ -19,6 +19,7 @@ import {
   type SubjectId,
 } from "@/lib/worksheet/topics";
 import { LETTER_CASE_LABELS, LETTER_STYLE_LABELS } from "@/lib/worksheet/letter-tracing/config";
+import { DIFFICULTY_LABELS, type Difficulty, type PatternMode } from "@/lib/worksheet/pattern/config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChildSelector } from "./child-selector";
@@ -86,6 +87,16 @@ const summarizeWorksheet = (subject: string, config: Record<string, unknown>): s
       lines = Number(config.linesPerDigit ?? 0),
       digitsLabel = summarizeSelection(digits, DIGITS_FULL, "Ziffer", "Ziffern");
     return `Zahlen schreiben · ${digitsLabel} · ${pluralLines(lines)}`;
+  }
+
+  if (topic === "denken-muster") {
+    const diffKey = String(config.difficulty ?? "abab") as Difficulty,
+      diffLabel = DIFFICULTY_LABELS[diffKey] ?? diffKey,
+      rows = Number(config.rowCount ?? 0),
+      shapeCount = Array.isArray(config.shapes) ? config.shapes.length : 0,
+      mode = String(config.mode ?? "fill") as PatternMode,
+      modeLabel = mode === "cutout" ? " · Ausschneiden" : "";
+    return `Muster fortsetzen · ${diffLabel} · ${rows} Reihen · ${shapeCount} Formen${modeLabel}`;
   }
 
   if (topic === "deutsch-buchstaben-schreiben") {

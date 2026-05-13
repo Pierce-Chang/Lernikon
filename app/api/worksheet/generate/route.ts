@@ -19,6 +19,13 @@ import { renderLetterTracingPdf } from "@/lib/worksheet/letter-tracing/pdf";
 import { numberTracingConfigSchema } from "@/lib/worksheet/number-tracing/config";
 import { generateNumberTracing } from "@/lib/worksheet/number-tracing/generate";
 import { renderNumberTracingPdf } from "@/lib/worksheet/number-tracing/pdf";
+import {
+  PatternConfigSchema,
+  SHAPE_IDS,
+  DIFFICULTY_LABELS,
+} from "@/lib/worksheet/pattern/config";
+import { generatePatternSequences } from "@/lib/worksheet/pattern/generate";
+import { renderPatternPdf } from "@/lib/worksheet/pattern/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -250,6 +257,36 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Deutsch - Buchstaben (${caseLabel}) ${lettersLabel}`,
         logSubject: "deutsch",
         logOperation: null,
+        logConfig: config,
+      };
+    }
+    case "denken-muster": {
+      const parsed = PatternConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      // Server-side canonical sort of shapes — defensive against stale client state.
+      const config = {
+        ...parsed.data,
+        shapes: SHAPE_IDS.filter((id) => parsed.data.shapes.includes(id)),
+      };
+      const sheet = generatePatternSequences(config),
+        diffLabel = DIFFICULTY_LABELS[config.difficulty],
+        stream = await renderPatternPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          difficulty: config.difficulty,
+          mode: config.mode,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.includeSolutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Denken - Muster fortsetzen (${diffLabel} ${config.rowCount} Reihen)`,
+        logSubject: "denken",
+        logOperation: "muster",
         logConfig: config,
       };
     }

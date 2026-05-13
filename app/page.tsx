@@ -6,6 +6,7 @@ import { FadeIn, FadeInStagger, FadeInItem } from "@/components/motion/fade-in";
 import { Reveal } from "@/components/motion/reveal";
 import { Float } from "@/components/motion/float";
 import { FaqAccordion } from "@/components/faq-accordion";
+import { DemoWidget } from "@/components/landing/demo-widget";
 import { clientEnv } from "@/lib/env";
 
 export const metadata = {
@@ -191,6 +192,9 @@ export default function LandingPage() {
             <span>Jederzeit kündbar</span>
           </FadeIn>
         </section>
+
+        {/* Demo widget */}
+        <DemoWidget />
 
         {/* Features */}
         <section className="mx-auto w-full max-w-5xl px-6 py-20">

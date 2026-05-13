@@ -1,27 +1,32 @@
 /**
- * One-shot: turn the baked-in transparency-checker background of the theme
- * PNGs into a real RGBA alpha channel.
+ * One-shot: turn the baked-in transparency-checker background of asset PNGs
+ * into a real RGBA alpha channel.
  *
  * Some asset packs export "transparent" PNGs as RGB with the photoshop
  * checker pattern rendered into the visible pixels. This script flood-fills
  * from the edges, treating any near-white/light-gray pixel reachable from
  * the border as background, and sets its alpha to 0.
  *
- * Originals are copied to public/themes/_originals/ before being overwritten.
+ * Originals are copied to <dir>/_originals/ before being overwritten.
  *
- * Run:  node scripts/strip-theme-backgrounds.mjs
+ * Run:  node scripts/strip-theme-backgrounds.mjs               (themes, default list)
+ *       node scripts/strip-theme-backgrounds.mjs public/geometrics
+ *         (any dir; auto-discovers all *.png except _originals/)
  */
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
-const THEMES_DIR = path.resolve("public/themes");
-const TARGETS = [
-  "einhorn_theme.png",
-  "pferd_theme.png",
-  "rakete_theme.png",
-  "auto_theme_blau.png",
-];
+const DEFAULT_DIR = "public/themes",
+  DEFAULT_TARGETS = [
+    "einhorn_theme.png",
+    "pferd_theme.png",
+    "rakete_theme.png",
+    "auto_theme_blau.png",
+  ];
+
+const cliDir = process.argv[2],
+  TARGET_DIR = path.resolve(cliDir ?? DEFAULT_DIR);
 
 // A pixel counts as background if it's brightish AND near-grayscale.
 // Wider threshold catches both the white and the light-gray cells of
@@ -37,7 +42,7 @@ const isBackgroundLike = (r, g, b) => {
 };
 
 async function stripBackground(file) {
-  const src = path.join(THEMES_DIR, file);
+  const src = path.join(TARGET_DIR, file);
   const { data, info } = await sharp(src)
     .ensureAlpha()
     .raw()
@@ -91,14 +96,44 @@ async function stripBackground(file) {
   );
 }
 
+/**
+ * Resolve the list of PNGs to process. With no CLI arg we keep the original
+ * hardcoded theme list. With a dir arg we auto-discover *.png in the dir,
+ * skipping the _originals/ backup folder.
+ */
+async function resolveTargets() {
+  if (!cliDir) return DEFAULT_TARGETS;
+  const entries = await fs.readdir(TARGET_DIR);
+  return entries.filter(
+    (name) => name.toLowerCase().endsWith(".png") && !name.startsWith("_"),
+  );
+}
+
 async function main() {
-  const backupDir = path.join(THEMES_DIR, "_originals");
+  const backupDir = path.join(TARGET_DIR, "_originals");
   await fs.mkdir(backupDir, { recursive: true });
 
-  console.log(`Backing up + processing ${TARGETS.length} files ...`);
-  for (const file of TARGETS) {
-    const src = path.join(THEMES_DIR, file);
-    const bak = path.join(backupDir, file);
+  const targets = await resolveTargets();
+  console.log(
+    `Backing up + processing ${targets.length} files in ${TARGET_DIR} ...`,
+  );
+  for (const file of targets) {
+    const src = path.join(TARGET_DIR, file),
+      bak = path.join(backupDir, file);
+    // Skip if a backup already exists — that means we've processed this file
+    // before and the disk version is already clean. Re-backing-up would
+    // overwrite the dirty original with the clean current state.
+    let alreadyBackedUp = false;
+    try {
+      await fs.access(bak);
+      alreadyBackedUp = true;
+    } catch {
+      // No backup yet, proceed.
+    }
+    if (alreadyBackedUp) {
+      console.log(`  · ${file}  (already clean, skipped)`);
+      continue;
+    }
     try {
       await fs.copyFile(src, bak);
     } catch (err) {
