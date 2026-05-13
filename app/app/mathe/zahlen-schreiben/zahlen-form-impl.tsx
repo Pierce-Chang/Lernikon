@@ -28,7 +28,7 @@ interface ZahlenSettings {
 }
 
 const DEFAULT_SETTINGS: ZahlenSettings = {
-  digits: [...DIGITS],
+  digits: ["0"],
   linesPerDigit: 1,
 };
 

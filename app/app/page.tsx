@@ -8,19 +8,25 @@ import {
   listRecentWorksheets,
 } from "@/lib/db/queries";
 import { getQuota } from "@/lib/worksheet/rate-limit";
-import { formatGradeShort } from "@/lib/format/grade";
+import { formatGrade, formatGradeShort } from "@/lib/format/grade";
 import {
   SUBJECT_LABELS,
+  TopicMeta,
   TOPIC_REGISTRY,
-  topicsForGrade,
+  topicsForGradeWithRoadmap,
   listAllImplementedTopics,
   isTopicId,
+  type SubjectId,
 } from "@/lib/worksheet/topics";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LETTER_CASE_LABELS, LETTER_STYLE_LABELS } from "@/lib/worksheet/letter-tracing/config";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChildSelector } from "./child-selector";
 
 export const metadata = { title: "Übersicht" };
+
+/** All supported grades in ascending order. */
+const ALL_GRADES = [0, 1, 2, 3, 4] as const;
 
 const formatRelative = (iso: string) => {
   const date = new Date(iso),
@@ -35,20 +41,133 @@ const formatRelative = (iso: string) => {
   return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(date);
 };
 
+/** Smart summary of a selection list: "0-9" if all selected, "A,B,C" for short lists, "N items" otherwise. */
+const summarizeSelection = (
+  selected: readonly string[],
+  full: readonly string[],
+  unitSingular: string,
+  unitPlural: string,
+): string => {
+  if (selected.length === 0) return `0 ${unitPlural}`;
+  if (selected.length === full.length) {
+    return `${full[0]}-${full[full.length - 1]}`;
+  }
+  if (selected.length <= 4) {
+    const ordered = [...selected].sort((a, b) => full.indexOf(a) - full.indexOf(b));
+    return ordered.join(",");
+  }
+  return `${selected.length} ${selected.length === 1 ? unitSingular : unitPlural}`;
+};
+
+const pluralLines = (n: number) => `${n} ${n === 1 ? "Zeile" : "Zeilen"}`;
+
+const DIGITS_FULL = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
+const ALPHABET_FULL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+const OPERATION_LABEL: Record<string, string> = {
+  addition: "Addition",
+  subtraktion: "Subtraktion",
+  gemischt: "Gemischt",
+};
+
 const summarizeWorksheet = (subject: string, config: Record<string, unknown>): string => {
   const topic = typeof config.topic === "string" ? config.topic : null;
+
   if (topic === "mathe-rechnen") {
-    const op = String(config.operation ?? "?"),
-      rmin = config.rangeMin,
-      rmax = config.rangeMax,
-      count = config.count;
-    return `Rechnen · ${op} · bis ${rmax} · ${count} Aufgaben`;
+    const op = OPERATION_LABEL[String(config.operation ?? "")] ?? "Rechnen",
+      rmin = Number(config.rangeMin ?? 0),
+      rmax = Number(config.rangeMax ?? 0),
+      count = Number(config.count ?? 0);
+    return `Rechnen · ${op} · ${rmin}-${rmax} · ${count} Aufgaben`;
   }
+
+  if (topic === "mathe-zahlen-schreiben") {
+    const digits = Array.isArray(config.digits) ? (config.digits as string[]) : [],
+      lines = Number(config.linesPerDigit ?? 0),
+      digitsLabel = summarizeSelection(digits, DIGITS_FULL, "Ziffer", "Ziffern");
+    return `Zahlen schreiben · ${digitsLabel} · ${pluralLines(lines)}`;
+  }
+
   if (topic === "deutsch-buchstaben-schreiben") {
-    return `Buchstaben schreiben`;
+    const letters = Array.isArray(config.letters) ? (config.letters as string[]) : [],
+      lines = Number(config.linesPerLetter ?? 0),
+      caseValue = String(config.case ?? "both"),
+      styleValue = String(config.style ?? "druck"),
+      caseLabel =
+        caseValue in LETTER_CASE_LABELS
+          ? LETTER_CASE_LABELS[caseValue as keyof typeof LETTER_CASE_LABELS]
+          : "Groß + Klein",
+      styleLabel =
+        styleValue in LETTER_STYLE_LABELS
+          ? LETTER_STYLE_LABELS[styleValue as keyof typeof LETTER_STYLE_LABELS]
+          : "Druckschrift",
+      lettersLabel = summarizeSelection(letters, ALPHABET_FULL, "Buchstabe", "Buchstaben");
+    return `Buchstaben · ${styleLabel} · ${lettersLabel} · ${caseLabel} · ${pluralLines(lines)}`;
+  }
+
+  // Fallback: topic label from registry if we know the topic, else the raw subject.
+  if (topic && isTopicId(topic)) {
+    return TOPIC_REGISTRY[topic].label;
   }
   return subject;
 };
+
+/**
+ * Tailwind needs full class strings statically in source — we can't build them
+ * from `SUBJECT_COLOR_HEX` via template literals because the JIT scanner won't
+ * resolve them. Keep this mirror in sync with `SUBJECT_COLOR_HEX` in
+ * `lib/worksheet/topics.ts`. When subject colors become user-configurable
+ * (Phase 2), swap this for inline `style={{ ... }}` props.
+ */
+const SUBJECT_PILL_CLASS: Record<SubjectId, string> = {
+  mathe: "bg-[#1E4A7C]/10 text-[#1E4A7C]",
+  deutsch: "bg-[#DC2626]/10 text-[#DC2626]",
+  denken: "bg-[#9333EA]/10 text-[#9333EA]",
+};
+
+/** A single topic card for an implemented topic (navigable). */
+function TopicCard({ topic }: { topic: TopicMeta }) {
+  return (
+    <Link
+      href={topic.href}
+      className="group block rounded-lg border bg-card text-card-foreground transition hover:border-[#F4B942] hover:shadow-md"
+    >
+      <div className="p-4">
+        <div className="mb-2">
+          <span
+            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SUBJECT_PILL_CLASS[topic.subject]}`}
+          >
+            {SUBJECT_LABELS[topic.subject]}
+          </span>
+        </div>
+        <p className="text-base font-semibold leading-snug">{topic.label}</p>
+        <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{topic.description}</p>
+      </div>
+    </Link>
+  );
+}
+
+/** A coming-soon teaser card (not navigable). */
+function ComingSoonCard({ topic }: { topic: TopicMeta }) {
+  return (
+    <div className="relative rounded-lg border border-dashed bg-card text-card-foreground opacity-60">
+      <div className="p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <span
+            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SUBJECT_PILL_CLASS[topic.subject]}`}
+          >
+            {SUBJECT_LABELS[topic.subject]}
+          </span>
+          <span className="rounded border border-[#1E4A7C]/30 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#1E4A7C]/70">
+            Bald
+          </span>
+        </div>
+        <p className="text-base font-semibold leading-snug">{topic.label}</p>
+        <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{topic.description}</p>
+      </div>
+    </div>
+  );
+}
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -57,7 +176,7 @@ export default async function DashboardPage() {
   const [children, userRow, recent] = await Promise.all([
     listChildProfiles(),
     getCurrentUserRow(),
-    listRecentWorksheets(user.id, 5),
+    listRecentWorksheets(user.id, 10),
   ]);
   if (children.length === 0) redirect("/onboarding");
 
@@ -66,7 +185,6 @@ export default async function DashboardPage() {
 
   const quota = await getQuota(user.id, userRow),
     isAdmin = userRow?.is_admin ?? false,
-    topics = isAdmin ? listAllImplementedTopics() : topicsForGrade(active.grade),
     quotaLine = quota.isPaid
       ? "Family Pro · unbegrenzt"
       : Number.isFinite(quota.remaining)
@@ -75,6 +193,12 @@ export default async function DashboardPage() {
     recentForActive = recent.filter(
       (row) => row.child_id === null || row.child_id === active.id,
     );
+
+  // Grade order: active child's grade first, then the rest ascending.
+  const gradeOrder = [
+    active.grade,
+    ...ALL_GRADES.filter((g) => g !== active.grade),
+  ];
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -95,37 +219,56 @@ export default async function DashboardPage() {
         )}
       </header>
 
-      <section>
-        <h2 className="text-xl font-semibold">Was möchtest du heute üben?</h2>
-        {topics.length === 0 ? (
-          <p className="text-muted-foreground mt-2 text-sm">
-            Für {formatGradeShort(active.grade)} gibt es aktuell noch keine Themen. Wir
-            bauen das gerade aus.
-          </p>
-        ) : (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {topics.map((topic) => (
-              <Card key={topic.id} className="flex flex-col">
-                <CardHeader>
-                  <CardDescription className="text-xs uppercase tracking-wide">
-                    {SUBJECT_LABELS[topic.subject]}
-                  </CardDescription>
-                  <CardTitle className="text-lg">{topic.label}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-1 flex-col justify-between gap-4">
-                  <p className="text-muted-foreground text-sm">{topic.description}</p>
-                  <Button render={<Link href={topic.href} />}>Erstellen</Button>
-                </CardContent>
-              </Card>
+      {/* Admin section: all implemented topics above the per-grade sections. */}
+      {isAdmin && (
+        <section className="mb-10">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Admin · Alle Topics
+          </h2>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {listAllImplementedTopics().map((topic) => (
+              <TopicCard key={topic.id} topic={topic} />
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      )}
+
+      {/* Per-grade catalog sections. */}
+      <div className="space-y-10">
+        {gradeOrder.map((grade) => {
+          const gradeTopics = topicsForGradeWithRoadmap(grade);
+          if (gradeTopics.length === 0) return null;
+          const isActiveGrade = grade === active.grade;
+          return (
+            <section key={grade}>
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {formatGrade(grade)}
+                {isActiveGrade && (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-[#F4B942] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1E4A7C]">
+                    Deine Klasse
+                  </span>
+                )}
+              </h2>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {gradeTopics.map((topic) =>
+                  topic.implemented ? (
+                    <TopicCard key={topic.id} topic={topic} />
+                  ) : (
+                    <ComingSoonCard key={topic.id} topic={topic} />
+                  ),
+                )}
+              </div>
+            </section>
+          );
+        })}
+      </div>
 
       {recentForActive.length > 0 && (
         <section className="mt-12">
           <h2 className="text-xl font-semibold">Zuletzt erstellt</h2>
-          <ul className="mt-4 divide-y divide-border rounded-md border">
+          <ul
+            className="mt-4 max-h-44 divide-y divide-border overflow-y-auto rounded-md border"
+          >
             {recentForActive.map((row) => {
               const topicId =
                   typeof row.config_json.topic === "string" &&

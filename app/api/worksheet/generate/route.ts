@@ -253,5 +253,7 @@ const dispatchTopic = async (
         logConfig: config,
       };
     }
+    default:
+      throw new TopicError(400, "unknown_topic", { topic });
   }
 };
