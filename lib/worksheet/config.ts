@@ -9,7 +9,10 @@ import { z } from "zod";
 export const OPERATIONS = ["addition", "subtraktion", "gemischt"] as const;
 export type Operation = (typeof OPERATIONS)[number];
 
-export const operationLabel = (op: Operation): string => {
+/** All operation-like identifiers, including synthetic ones (einmaleins). */
+export type OperationLike = Operation | "einmaleins";
+
+export const operationLabel = (op: OperationLike): string => {
   switch (op) {
     case "addition":
       return "Addition";
@@ -17,6 +20,8 @@ export const operationLabel = (op: Operation): string => {
       return "Subtraktion";
     case "gemischt":
       return "Addition + Subtraktion";
+    case "einmaleins":
+      return "Einmaleins";
   }
 };
 

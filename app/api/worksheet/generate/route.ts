@@ -26,6 +26,8 @@ import {
 } from "@/lib/worksheet/pattern/config";
 import { generatePatternSequences } from "@/lib/worksheet/pattern/generate";
 import { renderPatternPdf } from "@/lib/worksheet/pattern/pdf";
+import { einmaleinsConfigSchema, ROW_IDS } from "@/lib/worksheet/einmaleins/config";
+import { generateEinmaleinsProblems } from "@/lib/worksheet/einmaleins/generate";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -287,6 +289,36 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Denken - Muster fortsetzen (${diffLabel} ${config.rowCount} Reihen)`,
         logSubject: "denken",
         logOperation: "muster",
+        logConfig: config,
+      };
+    }
+    case "mathe-einmaleins": {
+      const parsed = einmaleinsConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      // Server-side canonical sort — defensive against stale client state.
+      const config = {
+        ...parsed.data,
+        rows: ROW_IDS.filter((id) => parsed.data.rows.includes(id)),
+      };
+      const problems = generateEinmaleinsProblems(config),
+        rowsLabel = config.rows.join(", "),
+        stream = await renderWorksheetPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          operation: "einmaleins",
+          rangeLabel: rowsLabel,
+          problems,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.includeSolutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Mathe - Einmaleins - Reihen ${rowsLabel}`,
+        logSubject: "mathe",
+        logOperation: "einmaleins",
         logConfig: config,
       };
     }

@@ -19,6 +19,9 @@ import {
   PATTERN_MODE_IDS,
   PATTERN_MODE_LABELS,
   PATTERN_MODE_DESCRIPTIONS,
+  PATTERN_MODE_DIFFICULTY,
+  DIFFICULTY_DIFFICULTY_LABEL,
+  ITEMS_PER_ROW_DIFFICULTY_LABEL,
   type ShapeId,
   type Difficulty,
   type RowCount,
@@ -34,6 +37,31 @@ export interface QuotaProps {
   remaining: number | null;
   limit: number | null;
 }
+
+/**
+ * Mirror of PATTERN_MODE_DIFFICULTY → Tailwind pill class. Tailwind's JIT
+ * scanner needs static class strings, so we cannot build them from a color
+ * variable at runtime.
+ */
+const MODE_DIFFICULTY_PILL_CLASS: Record<PatternMode, string> = {
+  ausmalen: "bg-emerald-100 text-emerald-700",
+  cutout: "bg-amber-100 text-amber-700",
+  fill: "bg-rose-100 text-rose-700",
+};
+
+/** Pill class for the pattern difficulty card (ABAB / ABBABB / ABCABC / Gemischt). */
+const PATTERN_DIFFICULTY_PILL_CLASS: Record<Difficulty, string> = {
+  abab: "bg-emerald-100 text-emerald-700",
+  abbabb: "bg-amber-100 text-amber-700",
+  abcabc: "bg-rose-100 text-rose-700",
+  gemischt: "bg-violet-100 text-violet-700",
+};
+
+/** Pill class for the items-per-row toggle. */
+const ITEMS_PER_ROW_PILL_CLASS: Record<ItemsPerRow, string> = {
+  6: "bg-emerald-100 text-emerald-700",
+  7: "bg-amber-100 text-amber-700",
+};
 
 /** URL path for each shape image served from `public/geometrics/`. */
 const SHAPE_IMAGE_SRC: Record<ShapeId, string> = {
@@ -227,8 +255,15 @@ export const MusterFormImpl = ({
                 className="border-border hover:bg-accent flex cursor-pointer items-start gap-3 rounded-md border p-3"
               >
                 <RadioGroupItem id={`mode-${m}`} value={m} className="mt-0.5" />
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium">{PATTERN_MODE_LABELS[m]}</span>
+                <div className="flex flex-1 flex-col gap-0.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium">{PATTERN_MODE_LABELS[m]}</span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${MODE_DIFFICULTY_PILL_CLASS[m]}`}
+                    >
+                      {PATTERN_MODE_DIFFICULTY[m]}
+                    </span>
+                  </div>
                   <span className="text-muted-foreground text-xs">
                     {PATTERN_MODE_DESCRIPTIONS[m]}
                   </span>
@@ -257,6 +292,11 @@ export const MusterFormImpl = ({
               >
                 <RadioGroupItem id={`diff-${d}`} value={d} />
                 <span className="text-sm font-medium">{DIFFICULTY_LABELS[d]}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${PATTERN_DIFFICULTY_PILL_CLASS[d]}`}
+                >
+                  {DIFFICULTY_DIFFICULTY_LABEL[d]}
+                </span>
                 <span className="text-muted-foreground text-xs tracking-widest">
                   {DIFFICULTY_EXAMPLES[d]}
                 </span>
@@ -303,13 +343,18 @@ export const MusterFormImpl = ({
                 type="button"
                 onClick={() => update("itemsPerRow", n)}
                 aria-pressed={itemsPerRow === n}
-                className={`flex-1 rounded-md border py-2 text-sm font-medium transition ${
+                className={`flex flex-1 flex-col items-center gap-1 rounded-md border py-2 text-sm font-medium transition ${
                   itemsPerRow === n
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border hover:bg-accent"
                 }`}
               >
-                {n}
+                <span>{n}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${ITEMS_PER_ROW_PILL_CLASS[n]}`}
+                >
+                  {ITEMS_PER_ROW_DIFFICULTY_LABEL[n]}
+                </span>
               </button>
             ))}
           </div>

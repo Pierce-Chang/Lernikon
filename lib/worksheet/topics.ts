@@ -105,11 +105,10 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     id: "mathe-einmaleins",
     subject: "mathe",
     label: "Einmaleins",
-    description: "Das kleine Einmaleins von 1 bis 10.",
+    description: "Multiplikation üben mit den Reihen 1 bis 10",
     href: "/app/mathe/einmaleins",
     grades: [3],
-    implemented: false,
-    comingSoon: true,
+    implemented: true,
   },
   "mathe-schriftliche-verfahren": {
     id: "mathe-schriftliche-verfahren",

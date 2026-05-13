@@ -1,7 +1,7 @@
 import {
   PatternConfigSchema,
   DIFFICULTY_ARITY,
-  DIFFICULTY_BLANK_COUNT,
+  getBlankCount,
   PURE_DIFFICULTY_IDS,
   SHAPE_IDS,
   type PatternConfig,
@@ -143,7 +143,7 @@ export const generatePatternSequences = (
         ? PURE_DIFFICULTY_IDS[randInt(rng, 0, PURE_DIFFICULTY_IDS.length - 1)]
         : difficulty;
 
-    const blankCount = DIFFICULTY_BLANK_COUNT[rowDifficulty],
+    const blankCount = getBlankCount(rowDifficulty, itemsPerRow),
       unit = buildUnit(canonicalShapes, rowDifficulty, rng),
       items = tile(unit, itemsPerRow),
       blankStart = itemsPerRow - blankCount,
@@ -154,6 +154,7 @@ export const generatePatternSequences = (
   });
 
   // Build cutout pool: all solutions from all rows, shuffled via the same PRNG.
+  // Null for fill and ausmalen — only cutout mode provides a physical set to cut out.
   let cutouts: ShapeId[] | null = null;
   if (config.mode === "cutout") {
     cutouts = shuffle(rows.flatMap((r) => r.solutions), rng);

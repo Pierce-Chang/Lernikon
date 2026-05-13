@@ -63,7 +63,8 @@ const summarizeSelection = (
 const pluralLines = (n: number) => `${n} ${n === 1 ? "Zeile" : "Zeilen"}`;
 
 const DIGITS_FULL = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
-const ALPHABET_FULL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const ALPHABET_FULL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+  ROWS_FULL = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"] as const;
 
 const OPERATION_LABEL: Record<string, string> = {
   addition: "Addition",
@@ -89,13 +90,21 @@ const summarizeWorksheet = (subject: string, config: Record<string, unknown>): s
     return `Zahlen schreiben · ${digitsLabel} · ${pluralLines(lines)}`;
   }
 
+  if (topic === "mathe-einmaleins") {
+    const rows = Array.isArray(config.rows) ? (config.rows as number[]) : [],
+      count = Number(config.count ?? 0),
+      rowsLabel = summarizeSelection(rows.map(String), ROWS_FULL, "Reihe", "Reihen");
+    return `Einmaleins · ${rowsLabel} · ${count} Aufgaben`;
+  }
+
   if (topic === "denken-muster") {
     const diffKey = String(config.difficulty ?? "abab") as Difficulty,
       diffLabel = DIFFICULTY_LABELS[diffKey] ?? diffKey,
       rows = Number(config.rowCount ?? 0),
       shapeCount = Array.isArray(config.shapes) ? config.shapes.length : 0,
       mode = String(config.mode ?? "fill") as PatternMode,
-      modeLabel = mode === "cutout" ? " · Ausschneiden" : "";
+      modeLabel =
+        mode === "cutout" ? " · Ausschneiden" : mode === "ausmalen" ? " · Ausmalen" : "";
     return `Muster fortsetzen · ${diffLabel} · ${rows} Reihen · ${shapeCount} Formen${modeLabel}`;
   }
 

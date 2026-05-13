@@ -12,7 +12,7 @@ import {
 } from "@react-pdf/renderer";
 import type { ReactElement } from "react";
 import type { Problem } from "./generate";
-import { operationLabel, type Operation } from "./config";
+import { operationLabel, type OperationLike } from "./config";
 import { getTheme, type ThemeId } from "@/lib/themes";
 import { ThemeDecoration } from "./theme-decoration";
 
@@ -46,7 +46,7 @@ Font.register({
 export interface WorksheetPdfProps {
   childName: string;
   date: string;
-  operation: Operation;
+  operation: OperationLike;
   rangeLabel: string;
   problems: Problem[];
   theme: ThemeId;
@@ -294,7 +294,8 @@ const WorksheetDocument = ({
           <Text style={styles.brandDomain}>lernikon.de</Text>
           <Text style={styles.title}>Übungsblatt</Text>
           <Text style={styles.subtitle}>
-            {operationLabel(operation)} · Zahlenraum {rangeLabel}
+            {operationLabel(operation)} ·{" "}
+            {operation === "einmaleins" ? `Reihen ${rangeLabel}` : `Zahlenraum ${rangeLabel}`}
           </Text>
         </View>
         <View style={styles.metaCol}>
@@ -340,7 +341,8 @@ const WorksheetDocument = ({
           <Text style={styles.brandDomain}>lernikon.de</Text>
           <Text style={styles.title}>Lösungen</Text>
           <Text style={styles.subtitle}>
-            {operationLabel(operation)} · Zahlenraum {rangeLabel}
+            {operationLabel(operation)} ·{" "}
+            {operation === "einmaleins" ? `Reihen ${rangeLabel}` : `Zahlenraum ${rangeLabel}`}
           </Text>
         </View>
 

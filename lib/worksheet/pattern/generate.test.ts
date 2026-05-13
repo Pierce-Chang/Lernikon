@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { generatePatternSequences } from "./generate";
-import { PatternConfigSchema, DIFFICULTY_BLANK_COUNT, type PatternConfig } from "./config";
+import { PatternConfigSchema, getBlankCount, type PatternConfig } from "./config";
 
 const base: PatternConfig = {
   shapes: ["kreis", "viereck"],
@@ -95,15 +95,15 @@ describe("generatePatternSequences", () => {
 
   it("blanks are always the last cells and match the correct count for abab", () => {
     const sheet = generatePatternSequences(base, 1);
-    const expected = DIFFICULTY_BLANK_COUNT["abab"];
+    const expected = getBlankCount("abab", base.itemsPerRow);
     for (const row of sheet.rows) {
       expect(row.blanks).toHaveLength(expected);
-      const start = 6 - expected;
+      const start = base.itemsPerRow - expected;
       expect(row.blanks).toEqual(Array.from({ length: expected }, (_, i) => start + i));
     }
   });
 
-  it("blanks count is 3 for abcabc", () => {
+  it("blank count for abcabc matches getBlankCount", () => {
     const config: PatternConfig = {
       shapes: ["kreis", "viereck", "raute"],
       difficulty: "abcabc",
@@ -112,9 +112,10 @@ describe("generatePatternSequences", () => {
       mode: "fill",
       includeSolutions: true,
     };
-    const sheet = generatePatternSequences(config, 1);
+    const expected = getBlankCount("abcabc", config.itemsPerRow),
+      sheet = generatePatternSequences(config, 1);
     for (const row of sheet.rows) {
-      expect(row.blanks).toHaveLength(3);
+      expect(row.blanks).toHaveLength(expected);
     }
   });
 
@@ -340,7 +341,7 @@ describe("generatePatternSequences", () => {
         shapes: ["kreis", "dreieck", "viereck", "raute"],
         difficulty: "abcabc",
         rowCount: 6,
-        itemsPerRow: 8,
+        itemsPerRow: 7,
         mode: "cutout",
         includeSolutions: true,
       };
@@ -354,12 +355,26 @@ describe("generatePatternSequences", () => {
     });
   });
 
+  describe("ausmalen mode", () => {
+    it("cutouts is null when mode is ausmalen", () => {
+      const config: PatternConfig = { ...base, mode: "ausmalen" };
+      const sheet = generatePatternSequences(config, 1);
+      expect(sheet.cutouts).toBeNull();
+    });
+
+    it("rows are identical to fill mode for the same seed and config", () => {
+      const fillSheet = generatePatternSequences({ ...base, mode: "fill" }, 42),
+        ausmalenSheet = generatePatternSequences({ ...base, mode: "ausmalen" }, 42);
+      expect(JSON.stringify(ausmalenSheet.rows)).toBe(JSON.stringify(fillSheet.rows));
+    });
+  });
+
   describe("gemischt difficulty", () => {
     const gemischtConfig: PatternConfig = {
       shapes: ["kreis", "dreieck", "viereck"],
       difficulty: "gemischt",
       rowCount: 6,
-      itemsPerRow: 8,
+      itemsPerRow: 7,
       mode: "fill",
       includeSolutions: true,
     };
@@ -385,15 +400,18 @@ describe("generatePatternSequences", () => {
     });
 
     it("each row's blank count matches its actual sub-difficulty blank count", () => {
-      const sheet = generatePatternSequences(gemischtConfig, 99);
+      const sheet = generatePatternSequences(gemischtConfig, 99),
+        itemsPerRow = gemischtConfig.itemsPerRow,
+        validCounts = (["abab", "abcabc", "abbabb"] as const).map((d) =>
+          getBlankCount(d, itemsPerRow),
+        );
       for (const row of sheet.rows) {
         const bc = row.blanks.length;
-        // Valid blank counts: 2 (abab or abbabb) or 3 (abcabc).
-        expect([2, 3]).toContain(bc);
+        expect(validCounts).toContain(bc);
         // blanks must be the last bc positions.
         const expectedBlanks = Array.from(
           { length: bc },
-          (_, i) => 8 - bc + i,
+          (_, i) => itemsPerRow - bc + i,
         );
         expect(row.blanks).toEqual(expectedBlanks);
         // solutions must match the items at those positions.

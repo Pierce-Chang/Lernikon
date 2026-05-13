@@ -62,6 +62,34 @@ const SHAPE_BUFFERS: Record<ShapeId, Buffer> = {
   ),
 };
 
+/** Outline (black-on-transparent silhouette) buffers for ausmalen mode. */
+const SHAPE_OUTLINE_BUFFERS: Record<ShapeId, Buffer> = {
+  kreis: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.kreis),
+  ),
+  dreieck: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.dreieck),
+  ),
+  viereck: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.viereck),
+  ),
+  rechteck: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.rechteck),
+  ),
+  raute: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.raute),
+  ),
+  fuenfeck: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.fuenfeck),
+  ),
+  sechseck: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.sechseck),
+  ),
+  stern: fs.readFileSync(
+    path.join(process.cwd(), "public", "geometrics", "outlines", SHAPE_FILENAMES.stern),
+  ),
+};
+
 export interface PatternPdfProps {
   childName: string;
   date: string;
@@ -301,33 +329,46 @@ const cutoutImageStyle = (cellSize: number) => ({
   objectFit: "contain" as const,
 });
 
-/** A single filled or blank cell. */
+/** A single filled or blank cell. In ausmalen mode blank cells show the outline image. */
 const PatternCell = ({
   shape,
   isBlank,
   isSolution,
   cellSize,
+  mode,
 }: {
   shape: ShapeId;
   isBlank: boolean;
   isSolution: boolean;
   cellSize: number;
+  mode: PatternMode;
 }) => {
-  const base = cellBaseStyle(cellSize),
-    cellStyle = isSolution
-      ? [base, styles.cellSolution]
-      : isBlank
-        ? [base, styles.cellBlank]
-        : base;
+  const base = cellBaseStyle(cellSize);
+
+  if (isSolution) {
+    return (
+      <View style={[base, styles.cellSolution]}>
+        <Image src={SHAPE_BUFFERS[shape]} style={shapeImageStyle(cellSize)} />
+      </View>
+    );
+  }
+
+  if (isBlank && mode === "ausmalen") {
+    // Solid thin border — the outline image IS the visual cue; dashed border adds clutter.
+    return (
+      <View style={[base, { borderStyle: "solid", borderColor: COLOR.line }]}>
+        <Image src={SHAPE_OUTLINE_BUFFERS[shape]} style={shapeImageStyle(cellSize)} />
+      </View>
+    );
+  }
+
+  if (isBlank) {
+    return <View style={[base, styles.cellBlank]} />;
+  }
 
   return (
-    <View style={cellStyle}>
-      {!isBlank && (
-        <Image
-          src={SHAPE_BUFFERS[shape]}
-          style={shapeImageStyle(cellSize)}
-        />
-      )}
+    <View style={base}>
+      <Image src={SHAPE_BUFFERS[shape]} style={shapeImageStyle(cellSize)} />
     </View>
   );
 };
@@ -338,11 +379,13 @@ const PatternRowView = ({
   rowIndex,
   solutionMode,
   cellSize,
+  mode,
 }: {
   row: PatternRow;
   rowIndex: number;
   solutionMode: boolean;
   cellSize: number;
+  mode: PatternMode;
 }) => (
   <View style={styles.rowContainer} wrap={false}>
     <Text style={styles.numberBadge}>{rowIndex + 1}.</Text>
@@ -357,6 +400,7 @@ const PatternRowView = ({
             isBlank={isBlank}
             isSolution={isSolution}
             cellSize={cellSize}
+            mode={mode}
           />
         );
       })}
@@ -443,13 +487,14 @@ const PatternDocument = ({
 }: PatternPdfProps): ReactElement => {
   const themeMeta = getTheme(theme),
     cutouts = sheet.cutouts,
-    itemsPerRow = sheet.rows[0]?.items.length ?? 8,
+    itemsPerRow = sheet.rows[0]?.items.length ?? 7,
     cellSize = computeCellSize(itemsPerRow),
     { rowHeight, cutoutStripHeight } = getLayoutConstants(
       cellSize,
       cutouts?.length ?? 0,
     ),
     // Determine whether the cutout strip fits on page 1.
+    // Ausmalen mode has no cutout strip.
     cutsOnPage1 =
       mode === "cutout" &&
       cutouts !== null &&
@@ -483,7 +528,7 @@ const PatternDocument = ({
       </View>
 
       {sheet.rows.map((row, i) => (
-        <PatternRowView key={i} row={row} rowIndex={i} solutionMode={false} cellSize={cellSize} />
+        <PatternRowView key={i} row={row} rowIndex={i} solutionMode={false} cellSize={cellSize} mode={mode} />
       ))}
 
       {cutsOnPage1 && cutouts !== null && <CutoutStrip cutouts={cutouts} cellSize={cellSize} />}
@@ -529,7 +574,7 @@ const PatternDocument = ({
         </View>
 
         {sheet.rows.map((row, i) => (
-          <PatternRowView key={i} row={row} rowIndex={i} solutionMode={true} cellSize={cellSize} />
+          <PatternRowView key={i} row={row} rowIndex={i} solutionMode={true} cellSize={cellSize} mode={mode} />
         ))}
 
         <PageFooter showWatermark={showWatermark} />
