@@ -32,6 +32,9 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 17 — Deutsch Vorschule: Buchstaben schreiben (Spurschrift) (Phase 1b) — neuer Generator + 3-Linien-Schreiblernlineatur, Druck + Schreibschrift (Playwrite DE Grund / SAS)
 - [x] Task 18 — Multi-Kind (Phase 1c) — Free=1 / Pro=3, Kind-Selector im Dashboard, Add/Edit/Delete im Account
 - [x] Task 19 — Mathe Vorschule: Zahlen schreiben (Phase 1c) — Ziffern 0–9 Spurschrift, Wiederverwendung des 3-Linien-Layouts
+- [x] Task 20 — Mathe Klasse 3: Einmaleins (Phase 1c) — Reihen 1–10, Ampel-Schwierigkeit, 10/20/30 Aufgaben, optionales Lösungsblatt
+- [x] Task 21 — Denken/Logik: Muster fortsetzen (Phase 1c) — neues Fach „Denken" (lila), Formen-Reihen mit Lückenmodi, Vorschule
+- [x] Task 22 — Deutsch Klasse 1–2: Wörter abschreiben (Phase 1c) — kuratiertes Korpus, 3-Linien-Lineatur, Druck + Schreibschrift (SAS via fontkit-Outline-Workaround)
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -200,10 +203,16 @@ Built and working end-to-end:
 2. ✅ Theme-Expansion + Theme-Paywall (geshippt): 4 Themes (Weltraum, Einhorn, Pferde, Autos). Free behält „Weltraum", Pro entsperrt alle Themes. Stärkster kid-driven Conversion-Hebel.
 3. Mehr Mathe-Topics:
    - ✅ Vorschule — Zahlen schreiben 0–9 (Task 19, geshippt)
+   - ✅ Klasse 3 — Einmaleins (Task 20, geshippt)
    - ⏳ Vorschule — Mengen 1–10 (nächster Topic)
-   - ⏳ Klasse 3 — Einmaleins
    - ⏳ Klasse 4 — schriftliche Verfahren, einfache Brüche
-4. Mehr Deutsch-Topics: Klasse 1 (ABC, einfache Wörter), Klasse 2 (Diktate, Wortarten), Klasse 3 (Rechtschreibung, Leseverstehen), Klasse 4 (Aufsatz-Bausteine, Grammatik)
+4. Mehr Deutsch-Topics:
+   - ✅ Klasse 1–2 — Wörter abschreiben (Task 22, geshippt)
+   - ⏳ Klasse 2 — Diktate, Wortarten
+   - ⏳ Klasse 3 — Rechtschreibung, Leseverstehen
+   - ⏳ Klasse 4 — Aufsatz-Bausteine, Grammatik
+5. Neues Fach „Denken" (Phase 1c):
+   - ✅ Vorschule — Muster fortsetzen (Task 21, geshippt). Fach-Farbe lila (`#9333EA`), unabhängig von Mathe/Deutsch positioniert.
 
 ### Conversion-Strategie (Stand 2026-05-12, vom CEO entschieden)
 
@@ -365,6 +374,37 @@ Create Supabase migrations:
 - PDF: identisches 3-Linien-Layout wie Task 17, nur Playwrite DE Grund (Schreibschrift macht für Ziffern keinen Sinn); ghost-digit links pro Zeile
 - Generator wiederverwendet die Tuning-Konstanten der Großbuchstaben (`fontSize 42`, `top -16`)
 - Server sortiert die Ziffer-Auswahl in kanonische 0→9-Reihenfolge (defensiv gegen stale Client-State)
+- Kein Lösungsblatt
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 20 — Mathe Klasse 3: Einmaleins (Phase 1c)
+- Route: `/app/mathe/einmaleins`
+- Topic-ID: `mathe-einmaleins`; im Topic-Registry unter `subject: "mathe"`, `grades: [3]`
+- Konfig-UI: Reihen-Multiselect (1–10) mit Ampel-Pill pro Reihe (Einfach / Mittel / Schwer in emerald / amber / rose, *außerhalb* des Buttons damit die Zahl mittig bleibt), Anzahl-Toggle (10 / 20 / 30), Lösungen optional
+- Pure function `generateEinmaleinsProblems(config)`; Zod schema; vitest für Reihen-Filter + Anti-Duplikat-Logik
+- PDF wiederverwendet das Mathe-Layout (`lib/worksheet/pdf.tsx`) inkl. optionales Lösungsblatt
+- Subtitle zeigt „Reihen X, Y, Z" statt „Zahlenraum"
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 21 — Denken/Logik: Muster fortsetzen (Phase 1c)
+- Neues Fach „Denken" (3. Subject neben Mathe + Deutsch). Fach-Farbe lila (`#9333EA`)
+- Route: `/app/denken/muster`
+- Topic-ID: `denken-muster`; Vorschule (`grades: [0]`)
+- Konfig-UI: Schwierigkeit (Einfach / Mittel / Schwer), Reihenzahl, Formen pro Reihe, Lückenmodus (letzte Position / zufällige Position / mehrere Lücken — "Ausmalen-Mode")
+- Pure function `generatePatternSequences(config)`; eigener PDF-Renderer mit Form-Inventar (Kreis, Quadrat, Dreieck, Stern, …)
+- Kein Lösungsblatt nötig (Antworten ergeben sich aus dem Muster)
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 22 — Deutsch Klasse 1–2: Wörter abschreiben (Phase 1c)
+- Route: `/app/deutsch/woerter-abschreiben`
+- Topic-ID: `deutsch-woerter-abschreiben`; im Topic-Registry unter `subject: "deutsch"`, `grades: [1, 2]`
+- Konfig-UI: Klasse-Toggle (1 / 2), Anzahl Wörter (5 / 8 / 10), Zeilen pro Wort (1 / 2 / 3), Schrift (Druck Playwrite DE Grund / Schreib Playwrite DE SAS)
+- Wort-Korpus kuratiert pro Klasse in `lib/worksheet/woerter-abschreiben/corpus.ts`:
+  - Klasse 1: lautgetreue Grundwörter (Familie, Tiere, Körper, Essen, Schule, Spielzeug, Natur), kurz
+  - Klasse 2: längere Wörter, Doppelkonsonanten, ß, Umlaute, Wochentage, Monate
+- Pure function `generateWoerter(config)`: seedable Fisher-Yates-Auswahl aus dem Klassen-Korpus, deterministisch
+- PDF: 3-Linien-Schreiblernlineatur wie Task 17, ghost-word links in Lineatur-Höhe, Rest leer zum Abschreiben
+- **Schreibschrift-Workaround (kritisch):** Playwrite DE SAS hat einen React-PDF-Bug der bei mehrzeichigen Wörtern den ersten Glyph droppt. Lösung: SAS wird über `fontkit.openSync()` als Vektor-Outlines (`<Svg><Path>`) gerendert, nicht über `<Text>`. Siehe `OutlinedGhostWord` in `lib/worksheet/woerter-abschreiben/pdf.tsx`. Druckschrift (Playwrite DE Grund) bleibt normales `<Text>`. Single-Char-Use-Cases (Task 17) sind nicht betroffen.
 - Kein Lösungsblatt
 - Rate-Limit-Eintrag analog Mathe
 
