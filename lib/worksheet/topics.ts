@@ -17,6 +17,7 @@ export const TOPIC_IDS = [
   "mathe-einmaleins",
   "mathe-schriftliche-verfahren",
   "deutsch-buchstaben-schreiben",
+  "deutsch-woerter-abschreiben",
   "deutsch-diktate",
   "deutsch-rechtschreibung",
   "denken-muster",
@@ -127,6 +128,15 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     description: "Spurschrift mit Lineatur in Druck- oder Schreibschrift.",
     href: "/app/deutsch/buchstaben-schreiben",
     grades: [0, 1, 2],
+    implemented: true,
+  },
+  "deutsch-woerter-abschreiben": {
+    id: "deutsch-woerter-abschreiben",
+    subject: "deutsch",
+    label: "Wörter abschreiben",
+    description: "Wörter lesen und in der Schreiblernlineatur abschreiben",
+    href: "/app/deutsch/woerter-abschreiben",
+    grades: [1, 2],
     implemented: true,
   },
   "deutsch-diktate": {

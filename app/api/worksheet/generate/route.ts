@@ -28,6 +28,9 @@ import { generatePatternSequences } from "@/lib/worksheet/pattern/generate";
 import { renderPatternPdf } from "@/lib/worksheet/pattern/pdf";
 import { einmaleinsConfigSchema, ROW_IDS } from "@/lib/worksheet/einmaleins/config";
 import { generateEinmaleinsProblems } from "@/lib/worksheet/einmaleins/generate";
+import { WoerterConfigSchema, STYLE_LABELS } from "@/lib/worksheet/woerter-abschreiben/config";
+import { generateWoerter } from "@/lib/worksheet/woerter-abschreiben/generate";
+import { renderWoerterPdf } from "@/lib/worksheet/woerter-abschreiben/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -319,6 +322,30 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Mathe - Einmaleins - Reihen ${rowsLabel}`,
         logSubject: "mathe",
         logOperation: "einmaleins",
+        logConfig: config,
+      };
+    }
+    case "deutsch-woerter-abschreiben": {
+      const parsed = WoerterConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        blocks = generateWoerter(config),
+        styleLabel = STYLE_LABELS[config.style],
+        stream = await renderWoerterPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          blocks,
+          theme: ctx.theme,
+          style: config.style,
+          showWatermark: !ctx.isPaid,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Deutsch - Woerter abschreiben - Klasse ${config.klasse} (${styleLabel})`,
+        logSubject: "deutsch",
+        logOperation: "woerter-abschreiben",
         logConfig: config,
       };
     }

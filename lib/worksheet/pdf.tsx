@@ -177,18 +177,19 @@ const styles = StyleSheet.create({
   },
   // Math problems render in Playwrite Grund (kid-style Grundschrift) so
   // the digits look like the ones first-graders are taught to write.
-  // fontWeight: bold asks React-PDF for synthetic bold since Playwrite has
-  // no bold variant on Google Fonts (max weight 400).
+  // No fontWeight: Playwrite has no bold variant on Google Fonts, and
+  // requesting bold for a family that lacks a bold registration can leave
+  // React-PDF's font cache in a state that breaks sibling fonts (notably
+  // Playwrite SAS used in deutsch-woerter-abschreiben). Use the Regular
+  // weight only.
   problemText: {
     fontSize: 18,
     fontFamily: "PlaywriteDEGrund",
-    fontWeight: "bold",
     color: COLOR.textDark,
   },
   problemTextSmall: {
     fontSize: 14,
     fontFamily: "PlaywriteDEGrund",
-    fontWeight: "bold",
     color: COLOR.textDark,
   },
   answerLine: {
@@ -222,13 +223,11 @@ const styles = StyleSheet.create({
   answerText: {
     fontSize: 14,
     fontFamily: "PlaywriteDEGrund",
-    fontWeight: "bold",
     color: COLOR.textDark,
   },
   answerTextSmall: {
     fontSize: 12,
     fontFamily: "PlaywriteDEGrund",
-    fontWeight: "bold",
     color: COLOR.textDark,
   },
   // ── footer ─────────────────────────────────────────────────────────────

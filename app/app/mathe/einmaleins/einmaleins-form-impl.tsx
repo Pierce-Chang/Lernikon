@@ -28,11 +28,14 @@ const DEFAULT_SETTINGS: EinmaleinsSettings = {
   includeSolutions: true,
 };
 
-/** Pill background + text color per difficulty label. */
+/**
+ * Pill background + text color per difficulty label. Mirrors the muster form
+ * so all topics share one Ampel palette (emerald / amber / rose).
+ */
 const DIFFICULTY_PILL_CLASS: Record<string, string> = {
-  Einfach: "bg-green-100 text-green-700",
-  Mittel: "bg-yellow-100 text-yellow-700",
-  Schwer: "bg-red-100 text-red-700",
+  Einfach: "bg-emerald-100 text-emerald-700",
+  Mittel: "bg-amber-100 text-amber-700",
+  Schwer: "bg-rose-100 text-rose-700",
 };
 
 const filenameFromResponse = (response: Response, fallback: string): string => {
@@ -136,23 +139,24 @@ export const EinmaleinsFormImpl = ({
                 diffLabel = ROW_DIFFICULTY_LABEL[row],
                 pillClass = DIFFICULTY_PILL_CLASS[diffLabel] ?? "bg-gray-100 text-gray-700";
               return (
-                <button
-                  key={row}
-                  type="button"
-                  onClick={() => toggleRow(row)}
-                  className={`flex flex-col items-center rounded-md border px-2 py-2 transition ${
-                    selected
-                      ? "border-[#1E4A7C] bg-[#1E4A7C]/10"
-                      : "border-border hover:bg-accent"
-                  }`}
-                >
-                  <span className="text-base font-bold leading-none">{row}</span>
+                <div key={row} className="flex flex-col items-center gap-1">
                   <span
-                    className={`mt-1 rounded px-1 py-0.5 text-[9px] font-semibold leading-none ${pillClass}`}
+                    className={`rounded px-1 py-0.5 text-[8px] font-semibold leading-none ${pillClass}`}
                   >
                     {diffLabel}
                   </span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleRow(row)}
+                    className={`flex h-12 w-full items-center justify-center rounded-md border text-lg font-bold transition ${
+                      selected
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:bg-accent"
+                    }`}
+                  >
+                    {row}
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -171,9 +175,10 @@ export const EinmaleinsFormImpl = ({
                 key={n}
                 type="button"
                 onClick={() => update("count", n)}
-                className={`flex-1 rounded-md border px-4 py-3 text-sm font-medium transition ${
+                aria-pressed={count === n}
+                className={`flex-1 rounded-md border py-3 text-sm font-medium transition ${
                   count === n
-                    ? "border-[#1E4A7C] bg-[#1E4A7C]/10 text-[#1E4A7C]"
+                    ? "border-primary bg-primary text-primary-foreground"
                     : "border-border hover:bg-accent"
                 }`}
               >

@@ -108,6 +108,15 @@ const summarizeWorksheet = (subject: string, config: Record<string, unknown>): s
     return `Muster fortsetzen · ${diffLabel} · ${rows} Reihen · ${shapeCount} Formen${modeLabel}`;
   }
 
+  if (topic === "deutsch-woerter-abschreiben") {
+    const klasse = Number(config.klasse ?? 1),
+      count = Number(config.count ?? 0),
+      lines = Number(config.linesPerWord ?? 0),
+      style = String(config.style ?? "druck"),
+      styleLabel = style === "schreib" ? "Schreibschrift" : "Druckschrift";
+    return `Wörter abschreiben · Klasse ${klasse} · ${styleLabel} · ${count} Wörter · ${pluralLines(lines)}`;
+  }
+
   if (topic === "deutsch-buchstaben-schreiben") {
     const letters = Array.isArray(config.letters) ? (config.letters as string[]) : [],
       lines = Number(config.linesPerLetter ?? 0),
