@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { setActiveChild } from "@/app/app/account/profile-actions";
 
@@ -9,6 +8,17 @@ export interface ChildPill {
   name: string;
 }
 
+/**
+ * Pill-group switcher on the Dashboard. The currently active child uses the
+ * gold accent on a navy-text background; the other pills are muted.
+ * The parent gates rendering on `items.length > 1` already, but we also
+ * short-circuit here so the component is safe to drop anywhere.
+ *
+ * Selection is persisted via the server action which writes
+ * users.active_child_id. After the action, the RSC tree is revalidated and
+ * the Dashboard re-renders with the new active child driving the greeting,
+ * the "Klasse" pill, and the history filter.
+ */
 export const ChildSelector = ({
   items,
   activeId,
@@ -16,21 +26,29 @@ export const ChildSelector = ({
   items: ChildPill[];
   activeId: string;
 }) => {
-  const router = useRouter(),
-    [pending, startTransition] = useTransition();
+  const [pending, startTransition] = useTransition();
+
+  if (items.length <= 1) return null;
 
   const select = (id: string) => {
     if (id === activeId || pending) return;
     startTransition(async () => {
-      await setActiveChild({ id });
-      router.refresh();
+      try {
+        await setActiveChild({ id });
+      } catch (error) {
+        console.warn("setActiveChild failed:", error);
+      }
     });
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div
+      className="flex flex-wrap items-center gap-2"
+      role="group"
+      aria-label="Aktives Kind wählen"
+    >
       <span className="text-muted-foreground text-xs uppercase tracking-wide">
-        Wechseln zu
+        Kind wechseln
       </span>
       {items.map((child) => {
         const active = child.id === activeId;
@@ -41,12 +59,20 @@ export const ChildSelector = ({
             onClick={() => select(child.id)}
             disabled={pending}
             aria-pressed={active}
-            className={`rounded-full border px-3 py-1 text-sm font-medium transition ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F4B942] focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-70 ${
               active
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:bg-accent"
+                ? "border-[#F4B942] bg-[#F4B942] text-[#1E4A7C] shadow-sm"
+                : "border-border bg-background text-foreground hover:border-[#F4B942]/60 hover:bg-[#F4B942]/10"
             }`}
           >
+            <span
+              className={`inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold leading-none ${
+                active ? "bg-[#1E4A7C] text-[#F4B942]" : "bg-[#1E4A7C]/10 text-[#1E4A7C]"
+              }`}
+              aria-hidden
+            >
+              {child.name.charAt(0).toUpperCase()}
+            </span>
             {child.name}
           </button>
         );

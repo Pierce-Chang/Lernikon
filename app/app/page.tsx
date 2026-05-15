@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RefreshCw } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/supabase/server";
 import {
@@ -235,7 +236,9 @@ export default async function DashboardPage() {
                       variant="outline"
                       size="sm"
                       render={<Link href={topicMeta.href} />}
+                      className="flex shrink-0 items-center gap-1.5"
                     >
+                      <RefreshCw className="size-3.5" aria-hidden />
                       Erneut erstellen
                     </Button>
                   )}

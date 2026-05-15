@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { formatGrade } from "@/lib/format/grade";
 import { childGenitive } from "@/lib/format/dashboard";
@@ -129,6 +129,10 @@ export function GradeSections({
 }) {
   const prefersReduced = useReducedMotion();
   const [expanded, setExpanded] = useState(false);
+  const [showPulse, setShowPulse] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem("lernikon_grade_reveal_seen");
+  });
 
   const activeSection = sections.find((s) => s.grade === activeGrade),
     otherSections = sections.filter((s) => s.grade !== activeGrade);
@@ -148,24 +152,42 @@ export function GradeSections({
 
       {otherSections.length > 0 && (
         <div key={activeGrade}>
-          <div className="flex justify-center">
+          <div className="flex items-center gap-3">
+            <span className="hidden h-px flex-1 bg-border sm:block" aria-hidden />
             <button
               type="button"
               onClick={toggle}
               aria-expanded={expanded}
               aria-controls="other-grade-sections"
-              className="group inline-flex items-center gap-2 rounded-full border border-[#1E4A7C]/20 bg-white px-4 py-2 text-sm font-medium text-[#1E4A7C] transition hover:border-[#F4B942] hover:bg-[#F4B942]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F4B942] focus-visible:ring-offset-2"
+              className="group relative inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-[#1E4A7C]/20 bg-[#1E4A7C]/[0.04] px-5 text-sm font-semibold text-[#1E4A7C] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#F4B942] hover:bg-[#F4B942] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F4B942] focus-visible:ring-offset-2 sm:w-auto"
             >
-              <span>{expanded ? "Weniger anzeigen" : "Andere Klassen anzeigen"}</span>
+              {showPulse && !prefersReduced && (
+                <motion.span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-xl border-2 border-[#F4B942]"
+                  initial={{ opacity: 0.75, scale: 1 }}
+                  animate={{ opacity: 0, scale: 1.2 }}
+                  transition={{ duration: 1.1, ease: "easeOut", delay: 0.7 }}
+                  onAnimationComplete={() => {
+                    setShowPulse(false);
+                    if (typeof window !== "undefined") {
+                      localStorage.setItem("lernikon_grade_reveal_seen", "1");
+                    }
+                  }}
+                />
+              )}
+              <GraduationCap className="size-4 shrink-0" aria-hidden />
+              <span>{expanded ? "Weniger anzeigen" : "Alle Klassen anzeigen"}</span>
               <motion.span
                 animate={{ rotate: expanded ? 180 : 0 }}
                 transition={prefersReduced ? { duration: 0 } : { duration: 0.3, ease: "easeOut" }}
-                className="inline-flex"
+                className="inline-flex shrink-0"
                 aria-hidden
               >
                 <ChevronDown className="size-4" />
               </motion.span>
             </button>
+            <span className="hidden h-px flex-1 bg-border sm:block" aria-hidden />
           </div>
 
           <AnimatePresence initial={false}>
