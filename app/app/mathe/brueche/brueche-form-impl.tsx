@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorksheetPreview } from "@/components/worksheet-preview";
 import {
   MODUS_OPTIONS,
-  COUNT_OPTIONS,
+  COUNT_OPTIONS_DARSTELLEN,
+  COUNT_OPTIONS_VERGLEICHEN_RECHNEN,
   MODUS_LABELS,
   type BruecheModus,
   type BruecheCount,
@@ -27,6 +28,12 @@ const DEFAULT_SETTINGS: BruecheSettings = {
   count: 12,
   solutions: true,
 };
+
+/** Returns the count option list for the given modus. */
+const countOptionsForModus = (m: BruecheModus) =>
+  m === "darstellen"
+    ? COUNT_OPTIONS_DARSTELLEN
+    : COUNT_OPTIONS_VERGLEICHEN_RECHNEN;
 
 const filenameFromResponse = (response: Response, fallback: string): string => {
   const header = response.headers.get("content-disposition");
@@ -51,6 +58,20 @@ export const BruecheFormImpl = ({
     key: K,
     nextValue: BruecheSettings[K],
   ) => setSettings({ ...settings, [key]: nextValue });
+
+  // When modus changes, snap count to the middle of the new option list if the
+  // current count is not valid for that modus.
+  useEffect(() => {
+    const options = countOptionsForModus(modus);
+    if (!(options as readonly number[]).includes(count)) {
+      const middle = options[Math.floor(options.length / 2)] as BruecheCount;
+      setSettings({ ...settings, count: middle });
+    }
+  // count is intentionally excluded: we only want to react to modus changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modus]);
+
+  const countOptions = countOptionsForModus(modus);
 
   const [pending, startTransition] = useTransition(),
     [error, setError] = useState<string | null>(null),
@@ -139,7 +160,7 @@ export const BruecheFormImpl = ({
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            {COUNT_OPTIONS.map((n) => (
+            {countOptions.map((n) => (
               <button
                 key={n}
                 type="button"

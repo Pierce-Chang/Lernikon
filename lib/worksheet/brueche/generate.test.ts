@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateBrueche } from "./generate";
+import { bruecheConfigSchema } from "./config";
 import type { BruecheConfig } from "./config";
 import type { DarstellenProblem, VergleichenProblem, RechnenProblem } from "./generate";
 
@@ -25,20 +26,53 @@ describe("generateBrueche — count", () => {
   it("vergleichen: returns exactly 6 problems", () => {
     expect(generateBrueche({ ...BASE, modus: "vergleichen", count: 6 }, 4).problems).toHaveLength(6);
   });
-  it("vergleichen: returns exactly 12 problems", () => {
-    expect(generateBrueche({ ...BASE, modus: "vergleichen", count: 12 }, 5).problems).toHaveLength(12);
+  it("vergleichen: returns exactly 14 problems", () => {
+    expect(generateBrueche({ ...BASE, modus: "vergleichen", count: 14 }, 5).problems).toHaveLength(14);
   });
-  it("vergleichen: returns exactly 18 problems", () => {
-    expect(generateBrueche({ ...BASE, modus: "vergleichen", count: 18 }, 6).problems).toHaveLength(18);
+  it("vergleichen: returns exactly 24 problems", () => {
+    expect(generateBrueche({ ...BASE, modus: "vergleichen", count: 24 }, 6).problems).toHaveLength(24);
   });
   it("rechnen: returns exactly 6 problems", () => {
     expect(generateBrueche({ ...BASE, modus: "rechnen", count: 6 }, 7).problems).toHaveLength(6);
   });
-  it("rechnen: returns exactly 12 problems", () => {
-    expect(generateBrueche({ ...BASE, modus: "rechnen", count: 12 }, 8).problems).toHaveLength(12);
+  it("rechnen: returns exactly 14 problems", () => {
+    expect(generateBrueche({ ...BASE, modus: "rechnen", count: 14 }, 8).problems).toHaveLength(14);
   });
-  it("rechnen: returns exactly 18 problems", () => {
-    expect(generateBrueche({ ...BASE, modus: "rechnen", count: 18 }, 9).problems).toHaveLength(18);
+  it("rechnen: returns exactly 24 problems", () => {
+    expect(generateBrueche({ ...BASE, modus: "rechnen", count: 24 }, 9).problems).toHaveLength(24);
+  });
+});
+
+// ── Zod schema: per-modus count validation ────────────────────────────────────
+
+describe("bruecheConfigSchema — per-modus count validation", () => {
+  it("vergleichen + count=14 is valid", () => {
+    expect(() =>
+      bruecheConfigSchema.parse({ modus: "vergleichen", count: 14, solutions: false }),
+    ).not.toThrow();
+  });
+  it("vergleichen + count=12 is rejected", () => {
+    expect(() =>
+      bruecheConfigSchema.parse({ modus: "vergleichen", count: 12, solutions: false }),
+    ).toThrow();
+  });
+  it("rechnen + count=12 is rejected", () => {
+    expect(() =>
+      bruecheConfigSchema.parse({ modus: "rechnen", count: 12, solutions: false }),
+    ).toThrow();
+  });
+  it("darstellen + count=14 is rejected", () => {
+    expect(() =>
+      bruecheConfigSchema.parse({ modus: "darstellen", count: 14, solutions: false }),
+    ).toThrow();
+  });
+  it("vergleichen + count=14 + seed=42 returns 14 problems", () => {
+    const sheet = generateBrueche({ modus: "vergleichen", count: 14, solutions: false, seed: 42 });
+    expect(sheet.problems).toHaveLength(14);
+  });
+  it("rechnen + count=24 + seed=42 returns 24 problems", () => {
+    const sheet = generateBrueche({ modus: "rechnen", count: 24, solutions: false, seed: 42 });
+    expect(sheet.problems).toHaveLength(24);
   });
 });
 
@@ -105,7 +139,7 @@ describe("generateBrueche — darstellen constraints", () => {
 
 describe("generateBrueche — vergleichen constraints", () => {
   it("answer matches actual comparison (cross-multiply)", () => {
-    const problems = generateBrueche({ ...BASE, modus: "vergleichen", count: 18 }, 77).problems as VergleichenProblem[];
+    const problems = generateBrueche({ ...BASE, modus: "vergleichen", count: 24 }, 77).problems as VergleichenProblem[];
     for (const p of problems) {
       const lhs = p.left.n * p.right.d,
         rhs = p.right.n * p.left.d;
@@ -116,7 +150,7 @@ describe("generateBrueche — vergleichen constraints", () => {
   });
 
   it("no coprime-denominator pairs (one must divide the other)", () => {
-    const problems = generateBrueche({ ...BASE, modus: "vergleichen", count: 18 }, 88).problems as VergleichenProblem[];
+    const problems = generateBrueche({ ...BASE, modus: "vergleichen", count: 24 }, 88).problems as VergleichenProblem[];
     for (const p of problems) {
       const ok =
         p.left.d === p.right.d ||
@@ -137,7 +171,7 @@ describe("generateBrueche — vergleichen constraints", () => {
 
 describe("generateBrueche — rechnen constraints", () => {
   it("same denominator on both sides and in result", () => {
-    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 18 }, 33).problems as RechnenProblem[];
+    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 24 }, 33).problems as RechnenProblem[];
     for (const p of problems) {
       expect(p.left.d).toBe(p.right.d);
       expect(p.left.d).toBe(p.resultD);
@@ -145,7 +179,7 @@ describe("generateBrueche — rechnen constraints", () => {
   });
 
   it("denominator in [2, 12]", () => {
-    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 18 }, 33).problems as RechnenProblem[];
+    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 24 }, 33).problems as RechnenProblem[];
     for (const p of problems) {
       expect(p.left.d).toBeGreaterThanOrEqual(2);
       expect(p.left.d).toBeLessThanOrEqual(12);
@@ -153,21 +187,21 @@ describe("generateBrueche — rechnen constraints", () => {
   });
 
   it("resultN === left.n + right.n for addition", () => {
-    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 18 }, 20).problems as RechnenProblem[];
+    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 24 }, 20).problems as RechnenProblem[];
     for (const p of problems.filter((q) => (q as RechnenProblem).op === "+")) {
       expect(p.resultN).toBe(p.left.n + p.right.n);
     }
   });
 
   it("resultN === left.n - right.n for subtraction", () => {
-    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 18 }, 20).problems as RechnenProblem[];
+    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 24 }, 20).problems as RechnenProblem[];
     for (const p of problems.filter((q) => (q as RechnenProblem).op === "-")) {
       expect(p.resultN).toBe(p.left.n - p.right.n);
     }
   });
 
   it("resultN >= 0 always (no negative results)", () => {
-    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 18 }, 20).problems as RechnenProblem[];
+    const problems = generateBrueche({ ...BASE, modus: "rechnen", count: 24 }, 20).problems as RechnenProblem[];
     for (const p of problems) {
       expect(p.resultN).toBeGreaterThanOrEqual(0);
     }
