@@ -20,13 +20,10 @@ export type RechtschreibungConfig = z.infer<typeof rechtschreibungConfigSchema>;
 /** Sentinel string used as the blank placeholder inside template strings. */
 export const BLANK_PLACEHOLDER = "___";
 
-/**
- * One-line subtitle shown under the title on both PDF pages.
- * ASCII-only: sz used instead of sz (PDF WinAnsi safe).
- */
+/** One-line subtitle shown under the title on both PDF pages. */
 export const RULE_SUBTITLES: Record<RechtschreibRule, string> = {
   "ie-i": "Schreibe ie, i oder ih.",
-  "ss-sz": "Schreibe ss oder sz.",
+  "ss-sz": "Schreibe ss oder ß.",
   doppelkons: "Doppelkonsonanten ergänzen.",
   endung: "Wortendung ergänzen.",
   gemischt: "Verschiedene Regeln gemischt.",
@@ -35,7 +32,7 @@ export const RULE_SUBTITLES: Record<RechtschreibRule, string> = {
 /** Short pill labels used in the UI config form. */
 export const RULE_LABELS: Record<RechtschreibRule, string> = {
   "ie-i": "ie, i oder ih?",
-  "ss-sz": "ss oder sz?",
+  "ss-sz": "ss oder ß?",
   doppelkons: "Doppelkonsonanten",
   endung: "Wortendungen",
   gemischt: "Gemischt",

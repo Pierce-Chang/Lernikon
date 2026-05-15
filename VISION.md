@@ -438,7 +438,7 @@ Create Supabase migrations:
 ### Task 25 — Deutsch Klasse 3: Rechtschreibung (Phase 1c)
 - Route: `/app/deutsch/rechtschreibung`
 - Topic-ID: `deutsch-rechtschreibung`; im Topic-Registry unter `subject: "deutsch"`, `grades: [3]`
-- Konfig-UI: Regel-Pills (ie, i oder ih? / ss oder sz? / Doppelkonsonanten / Wortendungen / Gemischt), Anzahl Worter (10 / 15 / 20), Losungsblatt-Toggle; Default: ie-i, 15, Losungen an
+- Konfig-UI: Regel-Pills (ie, i oder ih? / ss oder ß? / Doppelkonsonanten / Wortendungen / Gemischt), Anzahl Worter (10 / 15 / 20), Losungsblatt-Toggle; Default: ie-i, 15, Losungen an
 - Wort-Korpus in `lib/worksheet/rechtschreibung/corpus.ts`: ~110 Eintrage uber vier Regeln (ie-i: 31, ss-sz: 22, doppelkons: 31, endung: 24). Jeder Eintrag: `{ rule, word, blank }`. Invariante: `blank` kommt genau einmal in `word` vor.
 - Pure function `generateRechtschreibung(config)`: seedable mulberry32 PRNG, Fisher-Yates. Gemischt-Modus verteilt `count` gleichmasig auf alle vier Regeln und shuffelt dann die Gesamtliste.
 - PDF: `lib/worksheet/rechtschreibung/pdf.tsx` in Helvetica. Zweispaltige Tabelle (50/50). Seite 1: `template` mit Platzhalter als Unterstrich-Underline (Ansatz: weisser Text auf `borderBottom`-View). Seite 2 (optional): volles Wort in Brandblau.
