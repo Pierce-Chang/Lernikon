@@ -560,9 +560,13 @@ const VergleichenCell = ({
   );
 };
 
-// ── Rechnen row ───────────────────────────────────────────────────────────────
+// ── Rechnen cell (2-up grid) ──────────────────────────────────────────────────
 
-const RechnenRow = ({
+/**
+ * A single rechnen problem rendered inside a card cell.
+ * Used in the 2-up grid so two problems share one row.
+ */
+const RechnenCell = ({
   problem,
   index,
   showAnswer,
@@ -570,26 +574,33 @@ const RechnenRow = ({
   problem: RechnenProblem;
   index: number;
   showAnswer: boolean;
-}): ReactElement => (
-  <View style={styles.rowItem} wrap={false}>
-    <Text style={styles.rowIndex}>{index + 1}.</Text>
-    <Bruch n={problem.left.n} d={problem.left.d} size="md" />
-    <View style={styles.rowSpacer} />
-    <Text style={{ fontSize: 16, fontFamily: "Helvetica-Bold", color: COLOR.textDark }}>
-      {problem.op}
-    </Text>
-    <View style={styles.rowSpacer} />
-    <Bruch n={problem.right.n} d={problem.right.d} size="md" />
-    <View style={styles.rowSpacer} />
-    <Text style={{ fontSize: 14, fontFamily: "Helvetica", color: COLOR.textDark }}>=</Text>
-    <View style={styles.rowSpacer} />
-    {showAnswer ? (
-      <Bruch n={problem.resultN} d={problem.resultD} size="md" color={COLOR.brand} />
-    ) : (
-      <BruchBlank size="md" />
-    )}
-  </View>
-);
+}): ReactElement => {
+  const innerStyle = showAnswer ? styles.answerInner : styles.cellInner;
+  return (
+    <View style={styles.cellHalf} wrap={false}>
+      <View style={innerStyle}>
+        <Text style={styles.problemLabel}>{index + 1}.</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Bruch n={problem.left.n} d={problem.left.d} size="md" />
+          <View style={{ width: 4 }} />
+          <Text style={{ fontSize: 16, fontFamily: "Helvetica-Bold", color: COLOR.textDark }}>
+            {problem.op}
+          </Text>
+          <View style={{ width: 4 }} />
+          <Bruch n={problem.right.n} d={problem.right.d} size="md" />
+          <View style={{ width: 4 }} />
+          <Text style={{ fontSize: 14, fontFamily: "Helvetica", color: COLOR.textDark }}>=</Text>
+          <View style={{ width: 4 }} />
+          {showAnswer ? (
+            <Bruch n={problem.resultN} d={problem.resultD} size="md" color={COLOR.brand} />
+          ) : (
+            <BruchBlank size="md" />
+          )}
+        </View>
+      </View>
+    </View>
+  );
+};
 
 // ── Page body (shared between Aufgabenblatt and Loesungsblatt) ────────────────
 
@@ -634,9 +645,9 @@ const PageBody = ({
 
   // modus === "rechnen"
   return (
-    <View style={styles.rowGrid}>
+    <View style={styles.grid}>
       {problems.map((p, i) => (
-        <RechnenRow
+        <RechnenCell
           key={i}
           problem={p as RechnenProblem}
           index={i}
