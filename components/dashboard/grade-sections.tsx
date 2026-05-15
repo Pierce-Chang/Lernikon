@@ -1,27 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ChevronDown, GraduationCap } from "lucide-react";
+import {
+  Brain,
+  Calculator,
+  ChevronDown,
+  GraduationCap,
+  Languages,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { formatGrade } from "@/lib/format/grade";
 import { childGenitive } from "@/lib/format/dashboard";
 import {
+  SUBJECT_COLOR_HEX,
+  SUBJECT_IDS,
   SUBJECT_LABELS,
   TopicMeta,
   type SubjectId,
 } from "@/lib/worksheet/topics";
 
 /**
- * Per-subject pill tint used on each topic card. Mirror of the server-side
- * mapping in app/app/page.tsx so Tailwind JIT can scan the literal class
- * strings statically. When subject colors become user-configurable in
- * Phase 2, swap for inline style props.
+ * Lucide icon paired with each subject in the dashboard sub-headers.
+ * Kept in this file (not in topics.ts) because the icon choice is a
+ * dashboard-only concern; other surfaces use just label + color.
  */
-const SUBJECT_PILL_CLASS: Record<SubjectId, string> = {
-  mathe: "bg-[#1E4A7C]/10 text-[#1E4A7C]",
-  deutsch: "bg-[#DC2626]/10 text-[#DC2626]",
-  denken: "bg-[#9333EA]/10 text-[#9333EA]",
+const SUBJECT_ICON: Record<SubjectId, LucideIcon> = {
+  mathe: Calculator,
+  deutsch: Languages,
+  denken: Brain,
 };
 
 /** A single topic card for an implemented topic (navigable). */
@@ -32,13 +40,6 @@ function TopicCard({ topic }: { topic: TopicMeta }) {
       className="group block rounded-lg border bg-card text-card-foreground transition hover:border-[#F4B942] hover:shadow-md"
     >
       <div className="p-4">
-        <div className="mb-2">
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SUBJECT_PILL_CLASS[topic.subject]}`}
-          >
-            {SUBJECT_LABELS[topic.subject]}
-          </span>
-        </div>
         <p className="text-base font-semibold leading-snug">{topic.label}</p>
         <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{topic.description}</p>
       </div>
@@ -51,12 +52,7 @@ function ComingSoonCard({ topic }: { topic: TopicMeta }) {
   return (
     <div className="relative rounded-lg border border-dashed bg-card text-card-foreground opacity-60">
       <div className="p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SUBJECT_PILL_CLASS[topic.subject]}`}
-          >
-            {SUBJECT_LABELS[topic.subject]}
-          </span>
+        <div className="mb-2 flex items-center justify-end">
           <span className="rounded border border-[#1E4A7C]/30 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#1E4A7C]/70">
             Bald
           </span>
@@ -68,13 +64,56 @@ function ComingSoonCard({ topic }: { topic: TopicMeta }) {
   );
 }
 
+/** Group topics by subject, preserving the registry's intra-subject order. */
+const groupBySubject = (topics: TopicMeta[]): Record<SubjectId, TopicMeta[]> => {
+  const out: Record<SubjectId, TopicMeta[]> = { mathe: [], deutsch: [], denken: [] };
+  for (const t of topics) out[t.subject].push(t);
+  return out;
+};
+
+/**
+ * Renders a single subject sub-block (sub-header + topic grid) inside a grade
+ * section. Subject color shows up as a thin left bar and the icon tint; the
+ * card grid itself stays neutral so the page does not get loud across multiple
+ * grades.
+ */
+function SubjectBlock({ subject, topics }: { subject: SubjectId; topics: TopicMeta[] }) {
+  const headingId = useId(),
+    Icon = SUBJECT_ICON[subject],
+    color = SUBJECT_COLOR_HEX[subject];
+  return (
+    <section aria-labelledby={headingId}>
+      <div className="mb-3 flex items-center gap-2">
+        <span
+          aria-hidden
+          className="block h-4 w-[3px] rounded-full"
+          style={{ backgroundColor: color }}
+        />
+        <Icon className="size-4 shrink-0" style={{ color }} aria-hidden />
+        <h3 id={headingId} className="text-sm font-semibold text-foreground">
+          {SUBJECT_LABELS[subject]}
+        </h3>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {topics.map((topic) =>
+          topic.implemented ? (
+            <TopicCard key={topic.id} topic={topic} />
+          ) : (
+            <ComingSoonCard key={topic.id} topic={topic} />
+          ),
+        )}
+      </div>
+    </section>
+  );
+}
+
 export interface GradeSection {
   grade: number;
   topics: TopicMeta[];
 }
 
-/** Renders one grade heading + topic grid. Used by the always-visible active
- *  section and by each entry inside the collapsible "other grades" stack. */
+/** Renders one grade heading + per-subject sub-blocks. Used by the always-visible
+ *  active section and by each entry inside the collapsible "other grades" stack. */
 function GradeBlock({
   grade,
   topics,
@@ -86,7 +125,9 @@ function GradeBlock({
   activeGrade: number;
   activeChildName: string;
 }) {
-  const isActiveGrade = grade === activeGrade;
+  const isActiveGrade = grade === activeGrade,
+    grouped = groupBySubject(topics),
+    presentSubjects = SUBJECT_IDS.filter((s) => grouped[s].length > 0);
   return (
     <section>
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -97,14 +138,10 @@ function GradeBlock({
           </span>
         )}
       </h2>
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {topics.map((topic) =>
-          topic.implemented ? (
-            <TopicCard key={topic.id} topic={topic} />
-          ) : (
-            <ComingSoonCard key={topic.id} topic={topic} />
-          ),
-        )}
+      <div className="mt-4 space-y-6">
+        {presentSubjects.map((subject) => (
+          <SubjectBlock key={subject} subject={subject} topics={grouped[subject]} />
+        ))}
       </div>
     </section>
   );
