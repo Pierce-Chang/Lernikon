@@ -151,11 +151,10 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     id: "deutsch-rechtschreibung",
     subject: "deutsch",
     label: "Rechtschreibung",
-    description: "Rechtschreibregeln üben.",
+    description: "Lückenwörter zu klassischen Klasse-3-Rechtschreibregeln.",
     href: "/app/deutsch/rechtschreibung",
     grades: [3],
-    implemented: false,
-    comingSoon: true,
+    implemented: true,
   },
 };
 

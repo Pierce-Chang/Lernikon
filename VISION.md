@@ -37,6 +37,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 22 — Deutsch Klasse 1–2: Wörter abschreiben (Phase 1c) — kuratiertes Korpus, 3-Linien-Lineatur, Druck + Schreibschrift (SAS via fontkit-Outline-Workaround)
 - [x] Task 23 — Deutsch Klasse 2: Diktat (Phase 1c) — Volldiktat-Mode, zwei-Seiten-PDF (Eltern-Vorleseblatt + Kinder-Schreibblatt mit 3-Linien-Lineatur)
 - [x] Task 24 — Mathe Klasse 4: Schriftliche Verfahren (Phase 1c) — Addition + Subtraktion im Spaltenlayout mit Übertrag, optionales Lösungsblatt
+- [x] Task 25 — Deutsch Klasse 3: Rechtschreibung (Phase 1c) — Lückenwörter zu ie/i/ih, ss/sz, Doppelkonsonanten, Wortendungen; Gemischt-Modus; optionales Lösungsblatt
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -213,7 +214,8 @@ Built and working end-to-end:
    - ✅ Klasse 1–2 — Wörter abschreiben (Task 22, geshippt)
    - ✅ Klasse 2 — Diktate (Task 23, geshippt)
    - ⏳ Klasse 2 — Wortarten
-   - ⏳ Klasse 3 — Rechtschreibung, Leseverstehen
+   - ✅ Klasse 3 — Rechtschreibung (Task 25, geshippt)
+   - ⏳ Klasse 3 — Leseverstehen
    - ⏳ Klasse 4 — Aufsatz-Bausteine, Grammatik
 5. Neues Fach „Denken" (Phase 1c):
    - ✅ Vorschule — Muster fortsetzen (Task 21, geshippt). Fach-Farbe lila (`#9333EA`), unabhängig von Mathe/Deutsch positioniert.
@@ -431,6 +433,16 @@ Create Supabase migrations:
 - PDF: eigener Renderer `lib/worksheet/schriftlich/pdf.tsx`. Pro Aufgabe: Spaltenlayout mit fixbreiten Digit-Zellen (14pt je Stelle), Carry-Zeile (9pt) zwischen den Summanden, Trennlinie, leere Antwortzeile. 6 Aufgaben → 2 Spalten, 12/18 → 3 Spalten
 - Optionales Losungsblatt (Seite 2): gleicher Spaltenlayout mit ausgefullter Antwort in Brandblau
 - Digit-Ausrichtung: feste `<View>`-Zellen pro Stelle in Helvetica (kein Courier), textAlign center — sauberste Losung ohne zusatzlichen Font-Import
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 25 — Deutsch Klasse 3: Rechtschreibung (Phase 1c)
+- Route: `/app/deutsch/rechtschreibung`
+- Topic-ID: `deutsch-rechtschreibung`; im Topic-Registry unter `subject: "deutsch"`, `grades: [3]`
+- Konfig-UI: Regel-Pills (ie, i oder ih? / ss oder sz? / Doppelkonsonanten / Wortendungen / Gemischt), Anzahl Worter (10 / 15 / 20), Losungsblatt-Toggle; Default: ie-i, 15, Losungen an
+- Wort-Korpus in `lib/worksheet/rechtschreibung/corpus.ts`: ~110 Eintrage uber vier Regeln (ie-i: 31, ss-sz: 22, doppelkons: 31, endung: 24). Jeder Eintrag: `{ rule, word, blank }`. Invariante: `blank` kommt genau einmal in `word` vor.
+- Pure function `generateRechtschreibung(config)`: seedable mulberry32 PRNG, Fisher-Yates. Gemischt-Modus verteilt `count` gleichmasig auf alle vier Regeln und shuffelt dann die Gesamtliste.
+- PDF: `lib/worksheet/rechtschreibung/pdf.tsx` in Helvetica. Zweispaltige Tabelle (50/50). Seite 1: `template` mit Platzhalter als Unterstrich-Underline (Ansatz: weisser Text auf `borderBottom`-View). Seite 2 (optional): volles Wort in Brandblau.
+- Blank-Rendering: Unterstrich-View (`borderBottomWidth: 1`, weisser Text als Spacer) — proportionale Breite durch Zeichenzahl des `blank` plus Puffer. Fallback waren Underscores in Monospace (nicht genutzt).
 - Rate-Limit-Eintrag analog Mathe
 
 ---

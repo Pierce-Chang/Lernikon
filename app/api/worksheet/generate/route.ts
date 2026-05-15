@@ -37,6 +37,9 @@ import { renderDiktatPdf } from "@/lib/worksheet/diktat/pdf";
 import { schriftlichConfigSchema, OPERATION_LABELS as SCHRIFTLICH_OP_LABELS } from "@/lib/worksheet/schriftlich/config";
 import { generateSchriftlich } from "@/lib/worksheet/schriftlich/generate";
 import { renderSchriftlichPdf } from "@/lib/worksheet/schriftlich/pdf";
+import { rechtschreibungConfigSchema, RULE_SUBTITLES } from "@/lib/worksheet/rechtschreibung/config";
+import { generateRechtschreibung } from "@/lib/worksheet/rechtschreibung/generate";
+import { renderRechtschreibungPdf } from "@/lib/worksheet/rechtschreibung/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -400,6 +403,31 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Mathe - Schriftlich - ${opLabel} ${config.stellen}-stellig`,
         logSubject: "mathe",
         logOperation: "schriftlich",
+        logConfig: config,
+      };
+    }
+    case "deutsch-rechtschreibung": {
+      const parsed = rechtschreibungConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateRechtschreibung(config),
+        ruleLabel = RULE_SUBTITLES[config.rule].replace(/\.$/, ""),
+        stream = await renderRechtschreibungPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          rule: config.rule,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Deutsch - Rechtschreibung - Klasse 3 (${ruleLabel})`,
+        logSubject: "deutsch",
+        logOperation: "rechtschreibung",
         logConfig: config,
       };
     }
