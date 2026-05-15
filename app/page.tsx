@@ -8,6 +8,8 @@ import { Float } from "@/components/motion/float";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { DemoWidget } from "@/components/landing/demo-widget";
 import { clientEnv } from "@/lib/env";
+import { getCurrentUser } from "@/lib/supabase/server";
+import { AppNavLinks } from "@/components/app-nav-links";
 
 export const metadata = {
   title: "Schöne Übungsblätter für dein Kind in 30 Sekunden",
@@ -103,7 +105,10 @@ const AccentLine = ({ className = "" }: { className?: string }) => (
   />
 );
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const user = await getCurrentUser();
+  const isLoggedIn = user !== null;
+
   return (
     <>
       <script
@@ -114,13 +119,19 @@ export default function LandingPage() {
       <header className="relative z-10 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
           <Logo variant="lockup" href="/" priority className="h-9" />
-          <nav className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" render={<Link href="/login" />}>
-              Anmelden
-            </Button>
-            <Button size="sm" render={<Link href="/signup" />}>
-              Kostenlos starten
-            </Button>
+          <nav className="flex items-center gap-2 text-sm">
+            {isLoggedIn ? (
+              <AppNavLinks />
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" render={<Link href="/login" />}>
+                  Anmelden
+                </Button>
+                <Button size="sm" render={<Link href="/signup" />}>
+                  Kostenlos starten
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -158,9 +169,15 @@ export default function LandingPage() {
               </FadeInItem>
               <FadeInItem>
                 <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <Button size="lg" render={<Link href="/signup" />}>
-                    Kostenlos starten
-                  </Button>
+                  {isLoggedIn ? (
+                    <Button size="lg" render={<Link href="/app" />}>
+                      Zum Dashboard
+                    </Button>
+                  ) : (
+                    <Button size="lg" render={<Link href="/signup" />}>
+                      Kostenlos starten
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="lg"
