@@ -9,6 +9,7 @@ import {
 } from "@/lib/db/queries";
 import { getQuota } from "@/lib/worksheet/rate-limit";
 import { formatGrade, formatGradeShort } from "@/lib/format/grade";
+import { greetingForHour, dashboardSubLine, childGenitive } from "@/lib/format/dashboard";
 import {
   SUBJECT_LABELS,
   TopicMeta,
@@ -23,6 +24,7 @@ import { DIFFICULTY_LABELS, type Difficulty, type PatternMode } from "@/lib/work
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChildSelector } from "./child-selector";
+import { HowItWorksStrip } from "@/components/dashboard/how-it-works-strip";
 
 export const metadata = { title: "Übersicht" };
 
@@ -229,15 +231,16 @@ export default async function DashboardPage() {
     ...ALL_GRADES.filter((g) => g !== active.grade),
   ];
 
+  const hour = new Date().getHours(),
+    greeting = greetingForHour(hour),
+    subLine = dashboardSubLine(active.name, formatGradeShort(active.grade), active.theme_preference ?? "weltraum", quotaLine);
+
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight">Übersicht</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Für <span className="font-medium">{active.name}</span> ·{" "}
-          {formatGradeShort(active.grade)}
-          {quotaLine && <> · {quotaLine}</>}
-        </p>
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
+        <p className="text-muted-foreground mt-1 text-sm">{subLine}</p>
+        <p className="mt-1 text-xs text-[#1E4A7C]/70">In 30 Sekunden zum fertigen Arbeitsblatt.</p>
         {children.length > 1 && (
           <div className="mt-4">
             <ChildSelector
@@ -247,6 +250,8 @@ export default async function DashboardPage() {
           </div>
         )}
       </header>
+
+      <HowItWorksStrip />
 
       {/* Admin section: all implemented topics above the per-grade sections. */}
       {isAdmin && (
@@ -274,7 +279,7 @@ export default async function DashboardPage() {
                 {formatGrade(grade)}
                 {isActiveGrade && (
                   <span className="ml-2 inline-flex items-center rounded-full bg-[#F4B942] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1E4A7C]">
-                    Deine Klasse
+                    {childGenitive(active.name)} Klasse
                   </span>
                 )}
               </h2>
