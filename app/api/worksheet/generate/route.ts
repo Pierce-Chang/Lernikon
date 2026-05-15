@@ -34,6 +34,9 @@ import { renderWoerterPdf } from "@/lib/worksheet/woerter-abschreiben/pdf";
 import { DiktatConfigSchema } from "@/lib/worksheet/diktat/config";
 import { generateDiktat } from "@/lib/worksheet/diktat/generate";
 import { renderDiktatPdf } from "@/lib/worksheet/diktat/pdf";
+import { schriftlichConfigSchema, OPERATION_LABELS as SCHRIFTLICH_OP_LABELS } from "@/lib/worksheet/schriftlich/config";
+import { generateSchriftlich } from "@/lib/worksheet/schriftlich/generate";
+import { renderSchriftlichPdf } from "@/lib/worksheet/schriftlich/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -371,6 +374,32 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Deutsch - Diktat - Klasse ${config.klasse}`,
         logSubject: "deutsch",
         logOperation: "diktat",
+        logConfig: config,
+      };
+    }
+    case "mathe-schriftlich": {
+      const parsed = schriftlichConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        problems = generateSchriftlich(config),
+        opLabel = SCHRIFTLICH_OP_LABELS[config.operation],
+        stream = await renderSchriftlichPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          problems,
+          operation: config.operation,
+          stellen: config.stellen,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Mathe - Schriftlich - ${opLabel} ${config.stellen}-stellig`,
+        logSubject: "mathe",
+        logOperation: "schriftlich",
         logConfig: config,
       };
     }
