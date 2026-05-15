@@ -1,15 +1,14 @@
 "use client";
 
-import { useId, useState } from "react";
+import { type ComponentType, type SVGProps, useId, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Brain,
   Calculator,
   ChevronDown,
   GraduationCap,
-  Languages,
-  type LucideIcon,
 } from "lucide-react";
+import { AbcIcon } from "@/components/icons/abc-icon";
 import Link from "next/link";
 import { formatGrade } from "@/lib/format/grade";
 import { childGenitive } from "@/lib/format/dashboard";
@@ -21,14 +20,17 @@ import {
   type SubjectId,
 } from "@/lib/worksheet/topics";
 
+/** Icon component type compatible with both lucide-react icons and custom SVG icons. */
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
+
 /**
- * Lucide icon paired with each subject in the dashboard sub-headers.
+ * Icon paired with each subject in the dashboard sub-headers.
  * Kept in this file (not in topics.ts) because the icon choice is a
  * dashboard-only concern; other surfaces use just label + color.
  */
-const SUBJECT_ICON: Record<SubjectId, LucideIcon> = {
+const SUBJECT_ICON: Record<SubjectId, IconComponent> = {
   mathe: Calculator,
-  deutsch: Languages,
+  deutsch: AbcIcon,
   denken: Brain,
 };
 
