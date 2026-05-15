@@ -319,7 +319,8 @@ const circleOutlinePath = (cx: number, cy: number, r: number): string =>
 
 /**
  * Kreis (pie chart style) with shaded numerator/denominator sectors.
- * Each sector is a separate Path so the fill works correctly.
+ * Layer order: unshaded sectors → shaded sectors → white radial dividers → navy circle outline.
+ * The white dividers make adjacent shaded sectors individually countable.
  */
 const KreisDarstellung = ({
   numerator,
@@ -353,29 +354,35 @@ const KreisDarstellung = ({
     },
   );
 
+  // Build radial divider lines: one per sector boundary, center → edge
+  const radialDividers: Array<{ x1: number; y1: number; x2: number; y2: number }> =
+    Array.from({ length: denominator }, (_, i) => {
+      const angle = i * sectorAngle;
+      const edge = polarToCartesian(cx, cy, r, angle);
+      return { x1: cx, y1: cy, x2: edge.x, y2: edge.y };
+    });
+
   return (
     <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {/* Unshaded sectors: white fill, outline stroke */}
+      {/* Layer 1: unshaded sectors — white fill, no stroke (dividers handle separation) */}
       {unshadedPaths.map((d, i) => (
-        <Path
-          key={`u${i}`}
-          d={d}
-          fill="#FFFFFF"
-          stroke={COLOR.outline}
-          strokeWidth={0.75}
-        />
+        <Path key={`u${i}`} d={d} fill="#FFFFFF" stroke="none" />
       ))}
-      {/* Shaded sectors: brand fill, outline stroke */}
+      {/* Layer 2: shaded sectors — brand fill, no stroke */}
       {shadedPaths.map((d, i) => (
+        <Path key={`s${i}`} d={d} fill={COLOR.shaded} stroke="none" />
+      ))}
+      {/* Layer 3: white radial dividers — visible over both shaded and unshaded */}
+      {radialDividers.map(({ x1, y1, x2, y2 }, i) => (
         <Path
-          key={`s${i}`}
-          d={d}
-          fill={COLOR.shaded}
-          stroke={COLOR.outline}
-          strokeWidth={0.75}
+          key={`div${i}`}
+          d={`M ${x1} ${y1} L ${x2.toFixed(3)} ${y2.toFixed(3)}`}
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth={1}
         />
       ))}
-      {/* Circle outline on top to clean up sector join artifacts */}
+      {/* Layer 4: navy circle outline — drawn last to keep the outer edge crisp */}
       <Path
         d={circleOutlinePath(cx, cy, r)}
         fill="none"
@@ -389,6 +396,8 @@ const KreisDarstellung = ({
 /**
  * Rechteck divided into equal vertical strips.
  * First `numerator` strips are shaded.
+ * Layer order: strips (no stroke) → white internal dividers → navy outer border.
+ * White dividers make adjacent shaded strips individually countable.
  */
 const RechteckDarstellung = ({
   numerator,
@@ -408,18 +417,34 @@ const RechteckDarstellung = ({
     shaded: i < numerator,
   }));
 
+  // Internal divider x-positions: one per internal boundary (1..denominator-1)
+  const dividerXPositions: number[] = Array.from(
+    { length: denominator - 1 },
+    (_, i) => (i + 1) * stripW,
+  );
+
   return (
     <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      {/* Layer 1: strips — fill only, no stroke */}
       {strips.map(({ x, shaded }, i) => (
         <Path
           key={i}
           d={`M ${x.toFixed(3)} 0 L ${(x + stripW).toFixed(3)} 0 L ${(x + stripW).toFixed(3)} ${height} L ${x.toFixed(3)} ${height} Z`}
           fill={shaded ? COLOR.shaded : "#FFFFFF"}
-          stroke={COLOR.outline}
-          strokeWidth={0.75}
+          stroke="none"
         />
       ))}
-      {/* Outer border */}
+      {/* Layer 2: white internal dividers — visible over both shaded and unshaded strips */}
+      {dividerXPositions.map((x, i) => (
+        <Path
+          key={`div${i}`}
+          d={`M ${x.toFixed(3)} 0 L ${x.toFixed(3)} ${height}`}
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth={1}
+        />
+      ))}
+      {/* Layer 3: navy outer border — drawn last to keep the outer edge crisp */}
       <Path
         d={`M 0 0 L ${width} 0 L ${width} ${height} L 0 ${height} Z`}
         fill="none"
