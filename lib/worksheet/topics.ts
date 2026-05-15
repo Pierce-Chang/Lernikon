@@ -142,12 +142,11 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
   "deutsch-diktate": {
     id: "deutsch-diktate",
     subject: "deutsch",
-    label: "Diktate",
-    description: "Kurze Diktate zum Hören und Schreiben.",
+    label: "Diktat",
+    description: "Eltern lesen Satze vor, Kinder schreiben sie in die Lineatur.",
     href: "/app/deutsch/diktate",
     grades: [2],
-    implemented: false,
-    comingSoon: true,
+    implemented: true,
   },
   "deutsch-rechtschreibung": {
     id: "deutsch-rechtschreibung",

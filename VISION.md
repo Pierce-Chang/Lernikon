@@ -35,6 +35,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 20 — Mathe Klasse 3: Einmaleins (Phase 1c) — Reihen 1–10, Ampel-Schwierigkeit, 10/20/30 Aufgaben, optionales Lösungsblatt
 - [x] Task 21 — Denken/Logik: Muster fortsetzen (Phase 1c) — neues Fach „Denken" (lila), Formen-Reihen mit Lückenmodi, Vorschule
 - [x] Task 22 — Deutsch Klasse 1–2: Wörter abschreiben (Phase 1c) — kuratiertes Korpus, 3-Linien-Lineatur, Druck + Schreibschrift (SAS via fontkit-Outline-Workaround)
+- [x] Task 23 — Deutsch Klasse 2: Diktat (Phase 1c) — Volldiktat-Mode, zwei-Seiten-PDF (Eltern-Vorleseblatt + Kinder-Schreibblatt mit 3-Linien-Lineatur)
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -208,7 +209,8 @@ Built and working end-to-end:
    - ⏳ Klasse 4 — schriftliche Verfahren, einfache Brüche
 4. Mehr Deutsch-Topics:
    - ✅ Klasse 1–2 — Wörter abschreiben (Task 22, geshippt)
-   - ⏳ Klasse 2 — Diktate, Wortarten
+   - ✅ Klasse 2 — Diktate (Task 23, geshippt)
+   - ⏳ Klasse 2 — Wortarten
    - ⏳ Klasse 3 — Rechtschreibung, Leseverstehen
    - ⏳ Klasse 4 — Aufsatz-Bausteine, Grammatik
 5. Neues Fach „Denken" (Phase 1c):
@@ -406,6 +408,16 @@ Create Supabase migrations:
 - PDF: 3-Linien-Schreiblernlineatur wie Task 17, ghost-word links in Lineatur-Höhe, Rest leer zum Abschreiben
 - **Schreibschrift-Workaround (kritisch):** Playwrite DE SAS hat einen React-PDF-Bug der bei mehrzeichigen Wörtern den ersten Glyph droppt. Lösung: SAS wird über `fontkit.openSync()` als Vektor-Outlines (`<Svg><Path>`) gerendert, nicht über `<Text>`. Siehe `OutlinedGhostWord` in `lib/worksheet/woerter-abschreiben/pdf.tsx`. Druckschrift (Playwrite DE Grund) bleibt normales `<Text>`. Single-Char-Use-Cases (Task 17) sind nicht betroffen.
 - Kein Lösungsblatt
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 23 — Deutsch Klasse 2: Diktat (Volldiktat-Mode) (Phase 1c)
+- Route: `/app/deutsch/diktate`
+- Topic-ID: `deutsch-diktate`; im Topic-Registry unter `subject: "deutsch"`, `grades: [2]`
+- Konfig-UI: Anzahl Satze (5 / 8 / 12)
+- Satz-Korpus in `lib/worksheet/diktat/corpus.ts`: ~68 kurze Satze fur Klasse 2 (Doppelkonsonanten, ss/sz, Umlaute, ie/i, eu/au), Themen: Familie, Schule, Tiere, Wetter, Spielen, Essen, Jahreszeiten
+- Pure function `generateDiktat(config)`: seedable Fisher-Yates-Auswahl, deterministisch, keine Duplikate
+- PDF: zwei Seiten — Seite 1 (Eltern-Vorleseblatt) nummerierte Satzliste in Helvetica; Seite 2+ (Kinder-Schreibblatt) nummerierte Blocke mit je 2 Zeilen 3-Linien-Lineatur. count=12 kann auf Seite 3 uberlaufen (kein Komprimieren der Lineatur)
+- Kein Losungsblatt (Seite 1 ist der Schlussel)
 - Rate-Limit-Eintrag analog Mathe
 
 ---

@@ -31,6 +31,9 @@ import { generateEinmaleinsProblems } from "@/lib/worksheet/einmaleins/generate"
 import { WoerterConfigSchema, STYLE_LABELS } from "@/lib/worksheet/woerter-abschreiben/config";
 import { generateWoerter } from "@/lib/worksheet/woerter-abschreiben/generate";
 import { renderWoerterPdf } from "@/lib/worksheet/woerter-abschreiben/pdf";
+import { DiktatConfigSchema } from "@/lib/worksheet/diktat/config";
+import { generateDiktat } from "@/lib/worksheet/diktat/generate";
+import { renderDiktatPdf } from "@/lib/worksheet/diktat/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -346,6 +349,28 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Deutsch - Woerter abschreiben - Klasse ${config.klasse} (${styleLabel})`,
         logSubject: "deutsch",
         logOperation: "woerter-abschreiben",
+        logConfig: config,
+      };
+    }
+    case "deutsch-diktate": {
+      const parsed = DiktatConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateDiktat(config),
+        stream = await renderDiktatPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Deutsch - Diktat - Klasse ${config.klasse}`,
+        logSubject: "deutsch",
+        logOperation: "diktat",
         logConfig: config,
       };
     }
