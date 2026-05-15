@@ -319,8 +319,11 @@ const circleOutlinePath = (cx: number, cy: number, r: number): string =>
 
 /**
  * Kreis (pie chart style) with shaded numerator/denominator sectors.
- * Layer order: unshaded sectors → shaded sectors → white radial dividers → navy circle outline.
- * The white dividers make adjacent shaded sectors individually countable.
+ * Layer order:
+ *   1. All sectors with navy stroke — gives every cell a visible outline.
+ *   2. White radial dividers only between adjacent shaded sectors (i+1 < numerator)
+ *      — makes stacked shaded sectors individually countable without hiding unshaded outlines.
+ *   3. Navy outer circle — keeps the outer edge crisp regardless of divider layer.
  */
 const KreisDarstellung = ({
   numerator,
@@ -337,43 +340,40 @@ const KreisDarstellung = ({
 
   const sectorAngle = (2 * Math.PI) / denominator;
 
-  // Build shaded sectors (0..numerator-1)
-  const shadedPaths: string[] = Array.from({ length: numerator }, (_, i) => {
-    const start = i * sectorAngle,
-      end = (i + 1) * sectorAngle;
-    return pieSectorPath(cx, cy, r, start, end);
-  });
-
-  // Build unshaded sectors (numerator..denominator-1)
-  const unshadedPaths: string[] = Array.from(
-    { length: denominator - numerator },
+  // All sector paths with their fill; stroke applied uniformly in JSX.
+  const allSectors: Array<{ d: string; shaded: boolean }> = Array.from(
+    { length: denominator },
     (_, i) => {
-      const start = (numerator + i) * sectorAngle,
-        end = (numerator + i + 1) * sectorAngle;
-      return pieSectorPath(cx, cy, r, start, end);
+      const start = i * sectorAngle,
+        end = (i + 1) * sectorAngle;
+      return { d: pieSectorPath(cx, cy, r, start, end), shaded: i < numerator };
     },
   );
 
-  // Build radial divider lines: one per sector boundary, center → edge
-  const radialDividers: Array<{ x1: number; y1: number; x2: number; y2: number }> =
-    Array.from({ length: denominator }, (_, i) => {
-      const angle = i * sectorAngle;
+  // White radial dividers only at shaded-shaded boundaries: between sector i and i+1
+  // where i+1 < numerator (i.e. both sides are shaded).
+  const shadedDividers: Array<{ x1: number; y1: number; x2: number; y2: number }> =
+    Array.from({ length: numerator > 0 ? numerator - 1 : 0 }, (_, i) => {
+      // Boundary angle between shaded sector i and shaded sector i+1
+      const angle = (i + 1) * sectorAngle;
       const edge = polarToCartesian(cx, cy, r, angle);
       return { x1: cx, y1: cy, x2: edge.x, y2: edge.y };
     });
 
   return (
     <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {/* Layer 1: unshaded sectors — white fill, no stroke (dividers handle separation) */}
-      {unshadedPaths.map((d, i) => (
-        <Path key={`u${i}`} d={d} fill="#FFFFFF" stroke="none" />
+      {/* Layer 1: all sectors — navy stroke gives every cell a visible outline */}
+      {allSectors.map(({ d, shaded }, i) => (
+        <Path
+          key={`sec${i}`}
+          d={d}
+          fill={shaded ? COLOR.shaded : "#FFFFFF"}
+          stroke={COLOR.outline}
+          strokeWidth={1}
+        />
       ))}
-      {/* Layer 2: shaded sectors — brand fill, no stroke */}
-      {shadedPaths.map((d, i) => (
-        <Path key={`s${i}`} d={d} fill={COLOR.shaded} stroke="none" />
-      ))}
-      {/* Layer 3: white radial dividers — visible over both shaded and unshaded */}
-      {radialDividers.map(({ x1, y1, x2, y2 }, i) => (
+      {/* Layer 2: white radial dividers at shaded-shaded boundaries only */}
+      {shadedDividers.map(({ x1, y1, x2, y2 }, i) => (
         <Path
           key={`div${i}`}
           d={`M ${x1} ${y1} L ${x2.toFixed(3)} ${y2.toFixed(3)}`}
@@ -382,7 +382,7 @@ const KreisDarstellung = ({
           strokeWidth={1}
         />
       ))}
-      {/* Layer 4: navy circle outline — drawn last to keep the outer edge crisp */}
+      {/* Layer 3: navy circle outline — drawn last to keep the outer edge crisp */}
       <Path
         d={circleOutlinePath(cx, cy, r)}
         fill="none"
@@ -396,8 +396,11 @@ const KreisDarstellung = ({
 /**
  * Rechteck divided into equal vertical strips.
  * First `numerator` strips are shaded.
- * Layer order: strips (no stroke) → white internal dividers → navy outer border.
- * White dividers make adjacent shaded strips individually countable.
+ * Layer order:
+ *   1. All strips with navy stroke — gives every strip a visible outline.
+ *   2. White vertical dividers only at shaded-shaded boundaries (i+1 < numerator)
+ *      — makes stacked shaded strips individually countable without hiding unshaded outlines.
+ *   3. Navy outer border — keeps the outer edge crisp regardless of divider layer.
  */
 const RechteckDarstellung = ({
   numerator,
@@ -417,25 +420,27 @@ const RechteckDarstellung = ({
     shaded: i < numerator,
   }));
 
-  // Internal divider x-positions: one per internal boundary (1..denominator-1)
-  const dividerXPositions: number[] = Array.from(
-    { length: denominator - 1 },
+  // White dividers only at shaded-shaded boundaries: between strip i and strip i+1
+  // where i+1 < numerator (i.e. both sides are shaded).
+  const shadedDividerXs: number[] = Array.from(
+    { length: numerator > 0 ? numerator - 1 : 0 },
     (_, i) => (i + 1) * stripW,
   );
 
   return (
     <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      {/* Layer 1: strips — fill only, no stroke */}
+      {/* Layer 1: all strips — navy stroke gives every strip a visible outline */}
       {strips.map(({ x, shaded }, i) => (
         <Path
           key={i}
           d={`M ${x.toFixed(3)} 0 L ${(x + stripW).toFixed(3)} 0 L ${(x + stripW).toFixed(3)} ${height} L ${x.toFixed(3)} ${height} Z`}
           fill={shaded ? COLOR.shaded : "#FFFFFF"}
-          stroke="none"
+          stroke={COLOR.outline}
+          strokeWidth={1}
         />
       ))}
-      {/* Layer 2: white internal dividers — visible over both shaded and unshaded strips */}
-      {dividerXPositions.map((x, i) => (
+      {/* Layer 2: white vertical dividers at shaded-shaded boundaries only */}
+      {shadedDividerXs.map((x, i) => (
         <Path
           key={`div${i}`}
           d={`M ${x.toFixed(3)} 0 L ${x.toFixed(3)} ${height}`}
