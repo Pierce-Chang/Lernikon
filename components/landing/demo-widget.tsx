@@ -59,10 +59,10 @@ export function DemoWidget() {
       </div>
 
       {/* Two-column grid: controls left, mockup right */}
-      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,420px)_1fr]">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,420px)_1fr] lg:items-center">
         {/* Controls column. Below lg, the grid collapses to one column and
             we center the controls to mirror the mockup below. */}
-        <div className="mx-auto flex w-full max-w-sm flex-col gap-6 lg:mx-0 lg:max-w-none">
+        <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
           <PillToggleGroup
             label="Zahlenraum"
             value={range}
