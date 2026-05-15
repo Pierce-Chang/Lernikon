@@ -8,23 +8,20 @@ import {
   listRecentWorksheets,
 } from "@/lib/db/queries";
 import { getQuota } from "@/lib/worksheet/rate-limit";
-import { formatGrade, formatGradeShort } from "@/lib/format/grade";
-import { greetingForHour, dashboardSubLine, childGenitive } from "@/lib/format/dashboard";
+import { formatGradeShort } from "@/lib/format/grade";
+import { greetingForHour, dashboardSubLine } from "@/lib/format/dashboard";
 import {
-  SUBJECT_LABELS,
   TopicMeta,
   TOPIC_REGISTRY,
   topicsForGradeWithRoadmap,
-  listAllImplementedTopics,
   isTopicId,
-  type SubjectId,
 } from "@/lib/worksheet/topics";
 import { LETTER_CASE_LABELS, LETTER_STYLE_LABELS } from "@/lib/worksheet/letter-tracing/config";
 import { DIFFICULTY_LABELS, type Difficulty, type PatternMode } from "@/lib/worksheet/pattern/config";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChildSelector } from "./child-selector";
 import { HowItWorksStrip } from "@/components/dashboard/how-it-works-strip";
+import { GradeSections, type GradeSection } from "@/components/dashboard/grade-sections";
 
 export const metadata = { title: "Übersicht" };
 
@@ -143,62 +140,6 @@ const summarizeWorksheet = (subject: string, config: Record<string, unknown>): s
   return subject;
 };
 
-/**
- * Tailwind needs full class strings statically in source — we can't build them
- * from `SUBJECT_COLOR_HEX` via template literals because the JIT scanner won't
- * resolve them. Keep this mirror in sync with `SUBJECT_COLOR_HEX` in
- * `lib/worksheet/topics.ts`. When subject colors become user-configurable
- * (Phase 2), swap this for inline `style={{ ... }}` props.
- */
-const SUBJECT_PILL_CLASS: Record<SubjectId, string> = {
-  mathe: "bg-[#1E4A7C]/10 text-[#1E4A7C]",
-  deutsch: "bg-[#DC2626]/10 text-[#DC2626]",
-  denken: "bg-[#9333EA]/10 text-[#9333EA]",
-};
-
-/** A single topic card for an implemented topic (navigable). */
-function TopicCard({ topic }: { topic: TopicMeta }) {
-  return (
-    <Link
-      href={topic.href}
-      className="group block rounded-lg border bg-card text-card-foreground transition hover:border-[#F4B942] hover:shadow-md"
-    >
-      <div className="p-4">
-        <div className="mb-2">
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SUBJECT_PILL_CLASS[topic.subject]}`}
-          >
-            {SUBJECT_LABELS[topic.subject]}
-          </span>
-        </div>
-        <p className="text-base font-semibold leading-snug">{topic.label}</p>
-        <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{topic.description}</p>
-      </div>
-    </Link>
-  );
-}
-
-/** A coming-soon teaser card (not navigable). */
-function ComingSoonCard({ topic }: { topic: TopicMeta }) {
-  return (
-    <div className="relative rounded-lg border border-dashed bg-card text-card-foreground opacity-60">
-      <div className="p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SUBJECT_PILL_CLASS[topic.subject]}`}
-          >
-            {SUBJECT_LABELS[topic.subject]}
-          </span>
-          <span className="rounded border border-[#1E4A7C]/30 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#1E4A7C]/70">
-            Bald
-          </span>
-        </div>
-        <p className="text-base font-semibold leading-snug">{topic.label}</p>
-        <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{topic.description}</p>
-      </div>
-    </div>
-  );
-}
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -215,7 +156,6 @@ export default async function DashboardPage() {
   if (!active) redirect("/onboarding");
 
   const quota = await getQuota(user.id, userRow),
-    isAdmin = userRow?.is_admin ?? false,
     quotaLine = quota.isPaid
       ? "Family Pro · unbegrenzt"
       : Number.isFinite(quota.remaining)
@@ -225,11 +165,16 @@ export default async function DashboardPage() {
       (row) => row.child_id === null || row.child_id === active.id,
     );
 
-  // Grade order: active child's grade first, then the rest ascending.
+  // Pre-compute per-grade topic lists on the server: active grade first, rest
+  // ascending. We hand a plain JSON-safe array down to the client component
+  // that owns the collapse/animation state.
   const gradeOrder = [
-    active.grade,
-    ...ALL_GRADES.filter((g) => g !== active.grade),
-  ];
+      active.grade,
+      ...ALL_GRADES.filter((g) => g !== active.grade),
+    ],
+    sections: GradeSection[] = gradeOrder
+      .map((grade) => ({ grade, topics: topicsForGradeWithRoadmap(grade) as TopicMeta[] }))
+      .filter((s) => s.topics.length > 0);
 
   const hour = new Date().getHours(),
     greeting = greetingForHour(hour),
@@ -237,6 +182,8 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
+      {!userRow?.hide_how_it_works && <HowItWorksStrip />}
+
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground mt-1 text-sm">{subLine}</p>
@@ -251,51 +198,12 @@ export default async function DashboardPage() {
         )}
       </header>
 
-      <HowItWorksStrip />
-
-      {/* Admin section: all implemented topics above the per-grade sections. */}
-      {isAdmin && (
-        <section className="mb-10">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Admin · Alle Topics
-          </h2>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {listAllImplementedTopics().map((topic) => (
-              <TopicCard key={topic.id} topic={topic} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Per-grade catalog sections. */}
-      <div className="space-y-10">
-        {gradeOrder.map((grade) => {
-          const gradeTopics = topicsForGradeWithRoadmap(grade);
-          if (gradeTopics.length === 0) return null;
-          const isActiveGrade = grade === active.grade;
-          return (
-            <section key={grade}>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                {formatGrade(grade)}
-                {isActiveGrade && (
-                  <span className="ml-2 inline-flex items-center rounded-full bg-[#F4B942] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1E4A7C]">
-                    {childGenitive(active.name)} Klasse
-                  </span>
-                )}
-              </h2>
-              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {gradeTopics.map((topic) =>
-                  topic.implemented ? (
-                    <TopicCard key={topic.id} topic={topic} />
-                  ) : (
-                    <ComingSoonCard key={topic.id} topic={topic} />
-                  ),
-                )}
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      {/* Per-grade catalog sections: active grade always visible, others behind a reveal. */}
+      <GradeSections
+        sections={sections}
+        activeGrade={active.grade}
+        activeChildName={active.name}
+      />
 
       {recentForActive.length > 0 && (
         <section className="mt-12">
