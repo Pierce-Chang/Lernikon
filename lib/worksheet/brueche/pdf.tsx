@@ -269,10 +269,29 @@ const BruchBlank = ({ size = "lg" }: { size?: BruchSize }): ReactElement => {
   );
 };
 
-/** Blank comparison operator slot — a wide underline for <, > or =. */
-const OpBlank = (): ReactElement => (
+/**
+ * Comparison operator slot — a square box between the two Brueche.
+ * Pass `answer` to print the operator inside (Loesungsblatt); omit for the empty box (Aufgabenblatt).
+ */
+const OpBlank = ({ answer }: { answer?: string }): ReactElement => (
   <View style={{ alignItems: "center", justifyContent: "center", width: 28 }}>
-    <View style={{ width: 22, height: 1.5, backgroundColor: COLOR.blank }} />
+    <View
+      style={{
+        width: 22,
+        height: 22,
+        borderWidth: 1,
+        borderColor: COLOR.brand,
+        borderRadius: 2,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {answer !== undefined && (
+        <Text style={{ fontSize: 13, fontFamily: "Helvetica-Bold", color: COLOR.brand }}>
+          {answer}
+        </Text>
+      )}
+    </View>
   </View>
 );
 
@@ -511,7 +530,11 @@ const DarstellenCell = ({
 
 // ── Vergleichen row ───────────────────────────────────────────────────────────
 
-const VergleichenRow = ({
+/**
+ * A single vergleichen problem rendered inside a card cell.
+ * Used in the 2-up grid so two problems share one row.
+ */
+const VergleichenCell = ({
   problem,
   index,
   showAnswer,
@@ -519,24 +542,23 @@ const VergleichenRow = ({
   problem: VergleichenProblem;
   index: number;
   showAnswer: boolean;
-}): ReactElement => (
-  <View style={styles.rowItem} wrap={false}>
-    <Text style={styles.rowIndex}>{index + 1}.</Text>
-    <Bruch n={problem.left.n} d={problem.left.d} size="md" />
-    <View style={styles.rowSpacer} />
-    {showAnswer ? (
-      <View style={{ width: 28, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontSize: 16, fontFamily: "Helvetica-Bold", color: COLOR.brand }}>
-          {problem.answer}
-        </Text>
+}): ReactElement => {
+  const innerStyle = showAnswer ? styles.answerInner : styles.cellInner;
+  return (
+    <View style={styles.cellHalf} wrap={false}>
+      <View style={innerStyle}>
+        <Text style={styles.problemLabel}>{index + 1}.</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Bruch n={problem.left.n} d={problem.left.d} size="md" />
+          <View style={{ width: 10 }} />
+          <OpBlank answer={showAnswer ? problem.answer : undefined} />
+          <View style={{ width: 10 }} />
+          <Bruch n={problem.right.n} d={problem.right.d} size="md" />
+        </View>
       </View>
-    ) : (
-      <OpBlank />
-    )}
-    <View style={styles.rowSpacer} />
-    <Bruch n={problem.right.n} d={problem.right.d} size="md" />
-  </View>
-);
+    </View>
+  );
+};
 
 // ── Rechnen row ───────────────────────────────────────────────────────────────
 
@@ -597,9 +619,9 @@ const PageBody = ({
 
   if (modus === "vergleichen") {
     return (
-      <View style={styles.rowGrid}>
+      <View style={styles.grid}>
         {problems.map((p, i) => (
-          <VergleichenRow
+          <VergleichenCell
             key={i}
             problem={p as VergleichenProblem}
             index={i}
