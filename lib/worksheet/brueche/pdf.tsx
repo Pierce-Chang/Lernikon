@@ -237,20 +237,15 @@ const Bruch = ({
 };
 
 /**
- * Blank fraction slot — two underline lines with a bar between them.
+ * Blank fraction slot — only the Bruchstrich, with transparent spacers above and below.
  * Used on the Aufgabenblatt for the answer area.
  */
 const BruchBlank = ({ size = "lg" }: { size?: BruchSize }): ReactElement => {
   const { fontSize, barWidth, barThick } = BRUCH_SIZES[size];
-  const lineH = 1.5;
-  // Blank lines are slightly wider than the bar to signal "write here"
-  const lineW = barWidth + 4;
   return (
     <View style={{ alignItems: "center" }}>
-      {/* Top blank */}
-      <View style={{ height: fontSize, justifyContent: "flex-end" }}>
-        <View style={{ width: lineW, height: lineH, backgroundColor: COLOR.blank }} />
-      </View>
+      {/* Top spacer — preserves slot height, no ink mark */}
+      <View style={{ height: fontSize }} />
       {/* Fraction bar */}
       <View
         style={{
@@ -261,10 +256,8 @@ const BruchBlank = ({ size = "lg" }: { size?: BruchSize }): ReactElement => {
           marginBottom: 2,
         }}
       />
-      {/* Bottom blank */}
-      <View style={{ height: fontSize, justifyContent: "flex-start" }}>
-        <View style={{ width: lineW, height: lineH, backgroundColor: COLOR.blank }} />
-      </View>
+      {/* Bottom spacer — preserves slot height, no ink mark */}
+      <View style={{ height: fontSize }} />
     </View>
   );
 };
