@@ -40,6 +40,9 @@ import { renderSchriftlichPdf } from "@/lib/worksheet/schriftlich/pdf";
 import { rechtschreibungConfigSchema, RULE_SUBTITLES } from "@/lib/worksheet/rechtschreibung/config";
 import { generateRechtschreibung } from "@/lib/worksheet/rechtschreibung/generate";
 import { renderRechtschreibungPdf } from "@/lib/worksheet/rechtschreibung/pdf";
+import { bruecheConfigSchema, MODUS_LABELS } from "@/lib/worksheet/brueche/config";
+import { generateBrueche } from "@/lib/worksheet/brueche/generate";
+import { renderBruechePdf } from "@/lib/worksheet/brueche/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -428,6 +431,31 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Deutsch - Rechtschreibung - Klasse 3 (${ruleLabel})`,
         logSubject: "deutsch",
         logOperation: "rechtschreibung",
+        logConfig: config,
+      };
+    }
+    case "mathe-brueche": {
+      const parsed = bruecheConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        { problems } = generateBrueche(config),
+        modusLabel = MODUS_LABELS[config.modus],
+        stream = await renderBruechePdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          problems,
+          modus: config.modus,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Mathe - Bruche - ${modusLabel}`,
+        logSubject: "mathe",
+        logOperation: "brueche",
         logConfig: config,
       };
     }

@@ -38,6 +38,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 23 — Deutsch Klasse 2: Diktat (Phase 1c) — Volldiktat-Mode, zwei-Seiten-PDF (Eltern-Vorleseblatt + Kinder-Schreibblatt mit 3-Linien-Lineatur)
 - [x] Task 24 — Mathe Klasse 4: Schriftliche Verfahren (Phase 1c) — Addition + Subtraktion im Spaltenlayout mit Übertrag, optionales Lösungsblatt
 - [x] Task 25 — Deutsch Klasse 3: Rechtschreibung (Phase 1c) — Lückenwörter zu ie/i/ih, ss/sz, Doppelkonsonanten, Wortendungen; Gemischt-Modus; optionales Lösungsblatt
+- [x] Task 26 — Mathe Klasse 4: Brüche (Phase 1c) — Multi-Modus (Darstellen / Vergleichen / Rechnen), SVG-Kreissektor + Rechteck-Darstellung, optionales Lösungsblatt
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -209,7 +210,7 @@ Built and working end-to-end:
    - ✅ Klasse 3 — Einmaleins (Task 20, geshippt)
    - ⏳ Vorschule — Mengen 1–10 (nächster Topic)
    - ✅ Klasse 4 — schriftliche Verfahren (Task 24, geshippt)
-   - ⏳ Klasse 4 — einfache Brüche
+   - ✅ Klasse 4 — Brüche (Task 26, geshippt)
 4. Mehr Deutsch-Topics:
    - ✅ Klasse 1–2 — Wörter abschreiben (Task 22, geshippt)
    - ✅ Klasse 2 — Diktate (Task 23, geshippt)
@@ -443,6 +444,19 @@ Create Supabase migrations:
 - Pure function `generateRechtschreibung(config)`: seedable mulberry32 PRNG, Fisher-Yates. Gemischt-Modus verteilt `count` gleichmasig auf alle vier Regeln und shuffelt dann die Gesamtliste.
 - PDF: `lib/worksheet/rechtschreibung/pdf.tsx` in Helvetica. Zweispaltige Tabelle (50/50). Seite 1: `template` mit Platzhalter als Unterstrich-Underline (Ansatz: weisser Text auf `borderBottom`-View). Seite 2 (optional): volles Wort in Brandblau.
 - Blank-Rendering: Unterstrich-View (`borderBottomWidth: 1`, weisser Text als Spacer) — proportionale Breite durch Zeichenzahl des `blank` plus Puffer. Fallback waren Underscores in Monospace (nicht genutzt).
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 26 — Mathe Klasse 4: Brüche (Phase 1c)
+- Route: `/app/mathe/brueche`
+- Topic-ID: `mathe-brueche`; im Topic-Registry unter `subject: "mathe"`, `grades: [4]`
+- Konfig-UI: Modus-Pills (Darstellen / Vergleichen / Rechnen), Anzahl-Pills (6 / 12 / 18), Losungsblatt-Toggle; Default: Darstellen, 12, Losungen an
+- Drei Aufgabentypen (ein Modus pro Arbeitsblatt):
+  - `darstellen`: geshadete Form (Kreis oder Rechteck) + leere `___/___`-Lucke. Nenner [2,10], Zahler [1, Nenner-1]. 50/50 Kreise/Rechtecke. Keine Duplikate.
+  - `vergleichen`: zwei Bruche nebeneinander mit Lucke fur `<`, `>`, `=`. Nenner gleich oder einer teilt den anderen (kein echt-fremder Nenner). ~60% gleicher Nenner, ~40% Vielfaches. Antwort per Kreuzprodukt berechnet (kein Float-Fehler).
+  - `rechnen`: Addition/Subtraktion mit gleichem Nenner. Nenner [2,12]. Zahler [1, Nenner-1]. Subtraktion: linker Zahler >= rechter (kein negatives Ergebnis). Ergebnis nicht kurzen.
+- Bruch-Primitive `Bruch`/`BruchBlank` per gestapelter View+Text: Zahler oben, thin View als Bruchstrich, Nenner unten. Drei Groessen (sm/md/lg). Blank-Version: Unterstrich-Views mit sichtbarem Bruchstrich.
+- SVG-Kreissektor: Path-basiert via Polarkoordinaten. Jeder Sektor ist ein separater `<Path>` (M center L start A ... Z), damit `fill` zuverlassig greift. `large-arc-flag` korrekt aus Winkel >= PI berechnet. Kreisumriss als eigener `<Path>` on top fur saubere Sektorubergange.
+- Rechteck: N gleich breite vertikale Streifen, erste M gefullt (fill=brand), Rest weiss.
 - Rate-Limit-Eintrag analog Mathe
 
 ---
