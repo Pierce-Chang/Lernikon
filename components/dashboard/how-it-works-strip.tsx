@@ -9,9 +9,10 @@
  */
 /* eslint-disable no-await-in-loop */
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, useTransition } from "react";
 import { motion, useReducedMotion, useInView, useAnimate } from "framer-motion";
 import { Settings, FileText, Printer } from "lucide-react";
+import { setHideHowItWorks } from "@/app/app/actions";
 
 // ---------------------------------------------------------------------------
 // Shared cursor SVG element
@@ -56,7 +57,7 @@ function Step1Animation({ isInView }: { isInView: boolean }) {
     const run = async () => {
       while (!cancelled) {
         // Reset to initial state
-        await animate("#cursor1", { opacity: 0, x: 80, y: 70 }, { duration: 0 });
+        await animate("#cursor1", { opacity: 0, x: 40, y: 50 }, { duration: 0 });
         await animate("#tile-rechnen", {
           borderColor: "#e2e8f0",
           boxShadow: "none",
@@ -71,7 +72,7 @@ function Step1Animation({ isInView }: { isInView: boolean }) {
         if (cancelled) break;
 
         // t=0.2–0.9: cursor moves to tile centre
-        await animate("#cursor1", { x: 18, y: 22 }, { duration: 0.7, ease: "easeInOut" });
+        await animate("#cursor1", { x: 0, y: 16 }, { duration: 0.7, ease: "easeInOut" });
         if (cancelled) break;
 
         // t=0.9–1.1: click press (cursor scale + tile highlight)
@@ -397,11 +398,16 @@ function Step3Animation({ isInView }: { isInView: boolean }) {
         await new Promise<void>((res) => { setTimeout(res, 700); });
         if (cancelled) break;
 
-        // FileText floats up + Printer fades in
-        await Promise.all([
-          animate("#step3-filtext", { y: -20, opacity: 0 }, { duration: 0.4, ease: "easeIn" }),
-          animate("#step3-printer", { opacity: 1 }, { duration: 0.3 }),
-        ]);
+        // FileText floats up and disappears.
+        await animate("#step3-filtext", { y: -20, opacity: 0 }, { duration: 0.4, ease: "easeIn" });
+        if (cancelled) break;
+
+        // Small breather between PDF exit and printer entrance.
+        await new Promise<void>((res) => { setTimeout(res, 200); });
+        if (cancelled) break;
+
+        // Printer fades in.
+        await animate("#step3-printer", { opacity: 1 }, { duration: 0.3 });
         if (cancelled) break;
 
         // t=2.1: Printer scale bump (swallow feedback)
@@ -544,13 +550,49 @@ function Step3Card() {
 // Public export
 // ---------------------------------------------------------------------------
 
-/** Three-step animated explainer strip for the Dashboard page. */
+/**
+ * Three-step animated explainer strip for the Dashboard page.
+ * The "Nicht mehr anzeigen" checkbox writes the preference to the user
+ * row via a server action so it travels across browsers and devices.
+ * `dismissed` flips locally first for snappy feedback; the server action
+ * then refreshes the page so the strip stays hidden on next render.
+ */
 export function HowItWorksStrip() {
+  const [dismissed, setDismissed] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  if (dismissed) return null;
+
+  const onToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.checked) return;
+    setDismissed(true);
+    startTransition(async () => {
+      try {
+        await setHideHowItWorks(true);
+      } catch (error) {
+        console.warn("hide how-it-works failed:", error);
+        setDismissed(false);
+      }
+    });
+  };
+
   return (
     <section className="mb-10">
-      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        So funktioniert&apos;s
-      </h2>
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          So funktioniert&apos;s
+        </h2>
+        <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground">
+          <input
+            type="checkbox"
+            checked={false}
+            disabled={pending}
+            onChange={onToggle}
+            className="size-3 cursor-pointer accent-[#1E4A7C]"
+          />
+          Nicht mehr anzeigen
+        </label>
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Step1Card />
         <Step2Card />

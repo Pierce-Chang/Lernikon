@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import type { ChildProfileRow, UserRow, WorksheetLogRow } from "@/lib/db/types";
 
@@ -82,11 +81,9 @@ export const countChildProfiles = async (): Promise<number> => {
   return count ?? 0;
 };
 
-export const ACTIVE_CHILD_COOKIE = "lernikon_active_child";
-
 /**
  * Resolve the "active" child for the current user. Priority:
- *   1. explicit selection in the `lernikon_active_child` cookie
+ *   1. explicit selection in users.active_child_id (persisted across devices)
  *   2. child that owns the most recent row in worksheets_log
  *   3. oldest child by created_at
  * Returns null only if the user has no children at all.
@@ -97,12 +94,11 @@ export const getActiveChildProfile = async (
   const children = await listChildProfiles();
   if (children.length === 0) return null;
 
-  const cookieStore = await cookies(),
-    cookieId = cookieStore.get(ACTIVE_CHILD_COOKIE)?.value,
-    fromCookie = cookieId
-      ? children.find((c) => c.id === cookieId) ?? null
+  const userRow = await getCurrentUserRow(),
+    fromUserRow = userRow?.active_child_id
+      ? children.find((c) => c.id === userRow.active_child_id) ?? null
       : null;
-  if (fromCookie) return fromCookie;
+  if (fromUserRow) return fromUserRow;
 
   const supabase = await createClient(),
     { data: lastLog } = await supabase

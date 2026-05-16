@@ -1,15 +1,10 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
-import {
-  ACTIVE_CHILD_COOKIE,
-  countChildProfiles,
-  getCurrentUserRow,
-} from "@/lib/db/queries";
+import { countChildProfiles, getCurrentUserRow } from "@/lib/db/queries";
 import { hasUnlimited } from "@/lib/worksheet/rate-limit";
 import { getTheme, isThemeId, type ThemeId } from "@/lib/themes";
 
@@ -165,11 +160,8 @@ export const deleteChildProfile = async (
     return { ok: false, error: "Konnte das Profil nicht löschen." };
   }
 
-  // Clear the active-child cookie if it pointed at the deleted row.
-  const cookieStore = await cookies();
-  if (cookieStore.get(ACTIVE_CHILD_COOKIE)?.value === parsed.data.id) {
-    cookieStore.delete(ACTIVE_CHILD_COOKIE);
-  }
+  // The FK on users.active_child_id has ON DELETE SET NULL, so Postgres
+  // clears the pointer for us. Nothing extra to do here.
 
   revalidatePath("/app/account");
   revalidatePath("/app");
@@ -177,9 +169,9 @@ export const deleteChildProfile = async (
 };
 
 /**
- * Persist the user's choice of active child via a cookie. Subsequent
- * server queries pick this up via `getActiveChildProfile`. Invoked from
- * the dashboard child selector.
+ * Persist the user's choice of active child on the account row. Subsequent
+ * server queries pick this up via `getActiveChildProfile`. Invoked from the
+ * dashboard child selector.
  */
 export const setActiveChild = async (raw: unknown): Promise<void> => {
   const parsed = idSchema.safeParse(raw);
@@ -188,24 +180,24 @@ export const setActiveChild = async (raw: unknown): Promise<void> => {
   const user = await getCurrentUser();
   if (!user) return;
 
-  // Verify ownership before storing.
+  // Verify ownership before storing. Defence in depth on top of RLS.
   const supabase = await createClient(),
-    { data } = await supabase
+    { data: owned } = await supabase
       .from("children_profiles")
       .select("id")
       .eq("id", parsed.data.id)
       .eq("user_id", user.id)
       .maybeSingle();
-  if (!data) return;
+  if (!owned) return;
 
-  const cookieStore = await cookies();
-  cookieStore.set(ACTIVE_CHILD_COOKIE, parsed.data.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    // 90 days — short enough that stale selections die naturally.
-    maxAge: 60 * 60 * 24 * 90,
-  });
+  const { error } = await supabase
+    .from("users")
+    .update({ active_child_id: parsed.data.id })
+    .eq("id", user.id);
+  if (error) {
+    console.warn("setActiveChild:", error.message);
+    return;
+  }
 
   revalidatePath("/app");
 };

@@ -18,6 +18,8 @@ export interface UserRow {
   subscription_status: SubscriptionStatus;
   subscription_period_end: string | null;
   is_admin: boolean;
+  hide_how_it_works: boolean;
+  active_child_id: string | null;
   created_at: string;
 }
 
@@ -28,6 +30,8 @@ export interface UserInsert {
   subscription_status?: SubscriptionStatus;
   subscription_period_end?: string | null;
   is_admin?: boolean;
+  hide_how_it_works?: boolean;
+  active_child_id?: string | null;
   created_at?: string;
 }
 
@@ -36,6 +40,8 @@ export interface UserUpdate {
   stripe_customer_id?: string | null;
   subscription_status?: SubscriptionStatus;
   subscription_period_end?: string | null;
+  hide_how_it_works?: boolean;
+  active_child_id?: string | null;
 }
 
 export interface ChildProfileRow {
