@@ -45,11 +45,6 @@ const STEPS_3X2 = [
 const EXAMPLE_3X1 = { a: 345, b: 6, partials: [2070], result: 2070 } as const;
 const EXAMPLE_3X2 = { a: 345, b: 12, partials: [690, 345], result: 4140 } as const;
 
-// Carry digits for the 3x1 example (345 × 6): shown as small superscript-like
-// text above the multiplicand. Position matches the hundreds and tens columns.
-// Hundreds carry = 2 (from 18+2), tens carry = 3 (from 24+3→27).
-// Displayed as a string aligned over the 3-digit multiplicand: " 23" (space = ones).
-const EXAMPLE_3X1_CARRIES = " 23" as const;
 
 // ── Merkkasten walkthrough lines ──────────────────────────────────────────
 // Lines use "fur" / "Ubertrag" (WinAnsi-safe: no umlauts that risk encoding issues
@@ -110,6 +105,13 @@ const OP_W = 16;
 // can be up to 6 digits for 3x2 (999×99 = 98,901 → 5 digits, plus one carry
 // guard). Using 6 gives comfortable overflow margin for all cases.
 const TOTAL_COLS = 6;
+
+// Merkkasten example: smaller cells than the main grid since the example
+// sits inside the explanation box.
+const MK_DIGIT_W = 9,
+  MK_OP_W = 12,
+  // Max digits in result (2070 or 4140 → 4 digits).
+  MK_TOTAL_COLS = 4;
 
 const styles = StyleSheet.create({
   page: {
@@ -337,40 +339,62 @@ const styles = StyleSheet.create({
     color: COLOR.textDark,
     marginBottom: 3,
   },
-  merkkastenExample: {
-    alignItems: "flex-start",
+  // The whole example block: width = MK_OP_W + MK_TOTAL_COLS * MK_DIGIT_W
+  merkkastenExampleCol: {
+    width: MK_OP_W + MK_TOTAL_COLS * MK_DIGIT_W,
+    marginLeft: 4,
   },
-  merkkastenExampleRow: {
+  mkRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-end",
   },
-  merkkastenExampleText: {
+  mkOpCell: {
+    width: MK_OP_W,
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    textAlign: "center",
+  },
+  mkOpSpacer: {
+    width: MK_OP_W,
+  },
+  mkDigitCell: {
+    width: MK_DIGIT_W,
     fontSize: 10,
     fontFamily: "Helvetica",
     color: COLOR.textDark,
+    textAlign: "center",
   },
-  merkkastenExampleOp: {
+  mkDigitCellBrand: {
+    width: MK_DIGIT_W,
     fontSize: 10,
     fontFamily: "Helvetica-Bold",
     color: COLOR.brand,
-    marginRight: 2,
+    textAlign: "center",
   },
-  merkkastenExampleNote: {
-    fontSize: 8,
-    fontFamily: "Helvetica",
+  mkCarryCell: {
+    width: MK_DIGIT_W,
+    fontSize: 6,
+    fontFamily: "Helvetica-Bold",
     color: COLOR.textMuted,
-    marginLeft: 6,
+    textAlign: "center",
   },
-  merkkastenRule: {
-    borderBottomWidth: 1,
-    borderBottomColor: COLOR.textDark,
+  // Spans only digit columns (no op-spacer): MK_TOTAL_COLS * MK_DIGIT_W
+  mkRule: {
+    marginLeft: MK_OP_W,
     marginTop: 2,
     marginBottom: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: COLOR.textDark,
+    width: MK_TOTAL_COLS * MK_DIGIT_W,
   },
-  merkkastenResult: {
-    fontSize: 10,
-    fontFamily: "Helvetica-Bold",
-    color: COLOR.brand,
+  mkExampleNote: {
+    fontSize: 7,
+    fontFamily: "Helvetica",
+    color: COLOR.textMuted,
+    marginTop: 3,
+    marginLeft: MK_OP_W,
   },
   // Section divider between Merkkasten sections.
   merkkastenSectionGap: {
@@ -382,18 +406,6 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     color: COLOR.brand,
     marginBottom: 4,
-  },
-  // Carry row shown above the multiplicand in the 3x1 example.
-  merkkastenCarryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  merkkastenCarryText: {
-    fontSize: 6,
-    fontFamily: "Helvetica-Bold",
-    color: COLOR.textMuted,
-    letterSpacing: 2,
-    marginLeft: 12,
   },
   walkthroughTitle: {
     fontSize: 9,
@@ -421,6 +433,10 @@ const styles = StyleSheet.create({
 /** Split a number into individual digit characters, left-padded with spaces to `width`. */
 const digitChars = (n: number, width: number): string[] =>
   String(n).padStart(width, " ").split("");
+
+/** Same as digitChars but uses MK_TOTAL_COLS as fixed width for merkkasten cells. */
+const mkDigitChars = (n: number): string[] =>
+  String(n).padStart(MK_TOTAL_COLS, " ").split("");
 
 /**
  * Renders a row of right-aligned digit cells.
@@ -595,11 +611,74 @@ const ProblemCell = ({
   );
 };
 
+/** Renders one right-aligned digit row in the merkkasten example. */
+const MkDigitRow = ({
+  value,
+  brand,
+}: {
+  value: number;
+  brand?: boolean;
+}): ReactElement => {
+  const chars = mkDigitChars(value),
+    cellStyle = brand ? styles.mkDigitCellBrand : styles.mkDigitCell;
+  return (
+    <View style={styles.mkRow}>
+      <View style={styles.mkOpSpacer} />
+      {chars.map((ch, i) => (
+        <Text key={i} style={cellStyle}>
+          {ch === " " ? "" : ch}
+        </Text>
+      ))}
+    </View>
+  );
+};
+
+/** Renders the multiplier row with the × sign in the op cell. */
+const MkMultiplierRow = ({ value }: { value: number }): ReactElement => {
+  const chars = mkDigitChars(value);
+  return (
+    <View style={styles.mkRow}>
+      <Text style={styles.mkOpCell}>{"x"}</Text>
+      {chars.map((ch, i) => (
+        <Text key={i} style={styles.mkDigitCell}>
+          {ch === " " ? "" : ch}
+        </Text>
+      ))}
+    </View>
+  );
+};
+
+/**
+ * Renders the carry row above the multiplicand (3x1 only).
+ * carries[0] = carry over the tens digit, carries[1] = carry over the hundreds digit
+ * (i.e. from right to left, index 0 is rightmost carry position above digit position 1).
+ */
+const MkCarryRow = ({ carries }: { carries: number[] }): ReactElement => {
+  const slots: string[] = new Array(MK_TOTAL_COLS).fill(" ");
+  // carry at index i (from right) goes above digit position i+1 from right,
+  // which maps to slot MK_TOTAL_COLS - 2 - i.
+  carries.forEach((c, i) => {
+    const slotIdx = MK_TOTAL_COLS - 2 - i;
+    if (slotIdx >= 0 && slotIdx < MK_TOTAL_COLS) {
+      slots[slotIdx] = String(c);
+    }
+  });
+  return (
+    <View style={styles.mkRow}>
+      <View style={styles.mkOpSpacer} />
+      {slots.map((ch, i) => (
+        <Text key={i} style={styles.mkCarryCell}>
+          {ch === " " ? "" : ch}
+        </Text>
+      ))}
+    </View>
+  );
+};
+
 /**
  * Example visual for the Merkkasten.
- * Rendered as a mini columnar layout matching the schoolbook style.
- * Font sizes are larger than before (10pt digits) because the visual is
- * now full-width rather than squeezed into a right column.
+ * Rendered as a right-aligned schoolbook column using fixed-width digit cells.
+ * The rule line is scoped to the digit columns only (not full box width).
  */
 const MerkkastenExample = ({ stellen }: { stellen: MulStellen }): ReactElement => {
   const ex = stellen === "3x1" ? EXAMPLE_3X1 : EXAMPLE_3X2;
@@ -607,55 +686,34 @@ const MerkkastenExample = ({ stellen }: { stellen: MulStellen }): ReactElement =
     <View>
       <Text style={styles.merkkastenSectionTitle}>{"Beispiel:"}</Text>
 
-      {/* Carry row — only for 3x1 (simulates superscript carries above multiplicand) */}
-      {stellen === "3x1" && (
-        <View style={styles.merkkastenCarryRow}>
-          <Text style={styles.merkkastenCarryText}>{EXAMPLE_3X1_CARRIES}</Text>
-        </View>
-      )}
-
-      {/* Multiplicand */}
-      <View style={styles.merkkastenExampleRow}>
-        <Text style={styles.merkkastenExampleText}>
-          {String(ex.a)}
-        </Text>
+      <View style={styles.merkkastenExampleCol}>
+        {stellen === "3x1" ? (
+          <>
+            {/* carries: [3, 2] — tens-carry=3 over position 1, hundreds-carry=2 over position 2 */}
+            <MkCarryRow carries={[3, 2]} />
+            <MkDigitRow value={ex.a} />
+            <MkMultiplierRow value={ex.b} />
+            <View style={styles.mkRule} />
+            <MkDigitRow value={ex.result} brand />
+          </>
+        ) : (
+          <>
+            <MkDigitRow value={ex.a} />
+            <MkMultiplierRow value={ex.b} />
+            <View style={styles.mkRule} />
+            {ex.partials.map((pp, i) => (
+              <MkDigitRow key={i} value={pp} brand />
+            ))}
+            <View style={styles.mkRule} />
+            <MkDigitRow value={ex.result} brand />
+          </>
+        )}
       </View>
 
-      {/* Multiplier row with × operator */}
-      <View style={styles.merkkastenExampleRow}>
-        <Text style={styles.merkkastenExampleOp}>{"×"}</Text>
-        <Text style={styles.merkkastenExampleText}>
-          {String(ex.b)}
-        </Text>
-      </View>
-
-      {/* Rule */}
-      <View style={styles.merkkastenRule} />
-
-      {/* Partial products with parens annotation */}
-      {ex.partials.map((pp, i) => (
-        <View key={i} style={styles.merkkastenExampleRow}>
-          <Text style={styles.merkkastenExampleText}>
-            {String(pp)}
-          </Text>
-          {stellen === "3x2" && (
-            <Text style={styles.merkkastenExampleNote}>
-              {i === 0
-                ? `(${ex.a} × ${ex.b % 10})`
-                : `(${ex.a} × ${Math.floor(ex.b / 10)}, eine Stelle versetzt)`}
-            </Text>
-          )}
-        </View>
-      ))}
-
-      {/* Second rule + result — only for 3x2 */}
       {stellen === "3x2" && (
-        <>
-          <View style={styles.merkkastenRule} />
-          <Text style={styles.merkkastenResult}>
-            {String(ex.result)}
-          </Text>
-        </>
+        <Text style={styles.mkExampleNote}>
+          {`Teilprodukte: ${ex.partials[0]} (= ${ex.a} x ${ex.b % 10}), ${ex.partials[1]} (= ${ex.a} x ${Math.floor(ex.b / 10)}, eine Stelle versetzt)`}
+        </Text>
       )}
     </View>
   );
