@@ -83,15 +83,15 @@ function DeutschBody({
   // Vertical positions of the three Schreiblernlineatur lines, as percentage
   // from the top of the body container. Move these to shift line spacing.
   const OBERLINIE_TOP = "25%";
-  const MITTELLINIE_TOP = "50%";
-  const GRUNDLINIE_TOP = "75%";
+  const MITTELLINIE_TOP = "46%";
+  const GRUNDLINIE_TOP = "74%";
 
-  // Letter rendering. Separate size + vertical offset for upper- vs lowercase
-  // so each case can sit correctly on the lineatur without affecting the other.
-  // Tailwind text-* classes; negative Y-offset moves the glyph up.
-  const UPPERCASE_FONT_CLASS = "text-4xl";
+  // Letter rendering. Pixel font-size + vertical offset per case so upper- and
+  // lowercase can each be tuned independently. Negative Y-offset moves the
+  // glyph up; positive moves it down.
+  const UPPERCASE_FONT_PX = 36;
   const UPPERCASE_Y_OFFSET_PX = 0;
-  const LOWERCASE_FONT_CLASS = "text-4xl";
+  const LOWERCASE_FONT_PX = 36;
   const LOWERCASE_Y_OFFSET_PX = 0;
 
   // Ghost-trace opacity (0.0 = invisible, 1.0 = solid).
@@ -105,7 +105,7 @@ function DeutschBody({
   const letter = DEUTSCH_LETTERS[tickIndex % DEUTSCH_LETTERS.length];
   const lineTint = `${color}${LINE_TINT_ALPHA}`;
   const isUpper = letter === letter.toUpperCase();
-  const fontClass = isUpper ? UPPERCASE_FONT_CLASS : LOWERCASE_FONT_CLASS;
+  const fontPx = isUpper ? UPPERCASE_FONT_PX : LOWERCASE_FONT_PX;
   const yOffset = isUpper ? UPPERCASE_Y_OFFSET_PX : LOWERCASE_Y_OFFSET_PX;
 
   return (
@@ -127,10 +127,11 @@ function DeutschBody({
         style={{ top: GRUNDLINIE_TOP, height: 1, backgroundColor: lineTint }}
       />
       <span
-        className={`relative font-playwrite ${fontClass} leading-none`}
+        className="relative font-playwrite leading-none"
         style={{
           color,
           opacity: LETTER_OPACITY,
+          fontSize: `${fontPx}px`,
           transform: `translateY(${yOffset}px)`,
         }}
       >
