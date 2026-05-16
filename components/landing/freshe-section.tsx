@@ -58,7 +58,7 @@ const SUBJECT_ICON: Record<SubjectKey, LucideIcon> = {
 function MatheBody({ tickIndex }: { tickIndex: number }) {
   const problems = MATHE_PROBLEMS[tickIndex % MATHE_PROBLEMS.length];
   return (
-    <div className="flex h-20 flex-col items-center justify-center gap-2 p-3 sm:h-24">
+    <div className="flex h-full flex-col items-center justify-center gap-2 p-3">
       {problems.map((line, i) => (
         <div
           key={i}
@@ -109,7 +109,7 @@ function DeutschBody({
   const yOffset = isUpper ? UPPERCASE_Y_OFFSET_PX : LOWERCASE_Y_OFFSET_PX;
 
   return (
-    <div className="relative flex h-20 items-center justify-center overflow-hidden sm:h-24">
+    <div className="relative flex h-full items-center justify-center overflow-hidden">
       <div
         className="absolute left-0 right-0"
         style={{ top: OBERLINIE_TOP, height: 1, backgroundColor: lineTint }}
@@ -151,7 +151,7 @@ function DenkenBody({
 }) {
   const shapes = DENKEN_PATTERNS[tickIndex % DENKEN_PATTERNS.length];
   return (
-    <div className="flex h-20 items-center justify-center gap-1.5 p-3 sm:h-24">
+    <div className="flex h-full items-center justify-center gap-1.5 p-3">
       {shapes.map((shape, i) => (
         <span
           key={i}
@@ -217,19 +217,22 @@ function SheetCard({ subject, tickIndex, reducedMotion }: SheetCardProps) {
 
       {/* Cycling subject body — cross-fade between variations */}
       {reducedMotion ? (
-        body
+        <div className="relative h-20 sm:h-24">{body}</div>
       ) : (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={tickIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            {body}
-          </motion.div>
-        </AnimatePresence>
+        <div className="relative h-20 sm:h-24">
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={tickIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="absolute inset-0"
+            >
+              {body}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       )}
 
       {/* Footer strip — unchanged */}
