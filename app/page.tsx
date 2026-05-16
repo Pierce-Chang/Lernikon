@@ -7,6 +7,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { Float } from "@/components/motion/float";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { DemoWidget } from "@/components/landing/demo-widget";
+import { FresheSection } from "@/components/landing/freshe-section";
 import { clientEnv } from "@/lib/env";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { AppNavLinks } from "@/components/app-nav-links";
@@ -237,6 +238,9 @@ export default async function LandingPage() {
             ))}
           </div>
         </section>
+
+        {/* Freshe / always-new differentiator */}
+        <FresheSection />
 
         {/* Pricing */}
         <section
