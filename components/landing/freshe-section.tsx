@@ -5,6 +5,7 @@ import { Check, Dices, Calculator, Book, Brain } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Reveal } from "@/components/motion/reveal";
 import { SUBJECT_COLOR_HEX, SUBJECT_LABELS } from "@/lib/worksheet/topics";
+import type { SubjectId } from "@/lib/worksheet/topics";
 import type { LucideIcon } from "lucide-react";
 
 const PROOF_POINTS = [
@@ -17,29 +18,30 @@ const PROOF_POINTS = [
   },
 ] as const;
 
-type SubjectKey = "mathe" | "deutsch" | "denken";
+/** Curated addition/subtraction problems (Unicode minus U+2212, double-underscore gap). */
+const MATHE_PROBLEMS: readonly (readonly string[])[] = [
+  ["3 + 5 = __", "9 − 4 = __", "7 + 2 = __"],
+  ["12 − 5 = __", "4 + 7 = __", "11 − 3 = __"],
+  ["8 + 6 = __", "13 − 7 = __", "5 + 9 = __"],
+  ["6 + 4 = __", "10 − 6 = __", "7 + 8 = __"],
+  ["11 − 4 = __", "3 + 9 = __", "14 − 8 = __"],
+  ["9 + 7 = __", "12 − 7 = __", "6 + 5 = __"],
+] as const;
 
-/** Width-class variants per subject. Three variations cycle in sequence. */
-const VARIATIONS: Record<SubjectKey, readonly (readonly string[])[]> = {
-  // Mathe = short, uniform "equation" widths
-  mathe: [
-    ["w-2/3", "w-3/5", "w-2/3", "w-1/2", "w-3/5"],
-    ["w-3/5", "w-1/2", "w-2/3", "w-3/5", "w-1/2"],
-    ["w-1/2", "w-2/3", "w-3/5", "w-2/3", "w-3/5"],
-  ],
-  // Deutsch = longer, variable "word/sentence" widths
-  deutsch: [
-    ["w-full", "w-3/4", "w-full", "w-5/6", "w-2/3"],
-    ["w-5/6", "w-full", "w-3/4", "w-full", "w-3/4"],
-    ["w-full", "w-2/3", "w-5/6", "w-full", "w-3/4"],
-  ],
-  // Denken = very uniform "pattern row" widths
-  denken: [
-    ["w-3/4", "w-3/4", "w-3/4", "w-3/4", "w-3/4"],
-    ["w-4/5", "w-4/5", "w-4/5", "w-4/5", "w-4/5"],
-    ["w-2/3", "w-2/3", "w-2/3", "w-2/3", "w-2/3"],
-  ],
-} as const;
+/** Letters cycled on the Schreiblernlineatur card: uppercase then lowercase pairs. */
+const DEUTSCH_LETTERS = ["A", "a", "B", "b", "C", "c", "D", "d"] as const;
+
+/** Pattern rows: 4 shapes shown, the 5th (?) is the blank to complete. */
+const DENKEN_PATTERNS: readonly (readonly string[])[] = [
+  ["●", "▲", "●", "▲"],
+  ["■", "●", "■", "●"],
+  ["▲", "■", "▲", "■"],
+  ["●", "●", "▲", "●"],
+  ["▲", "▲", "■", "▲"],
+  ["■", "▲", "●", "■"],
+] as const;
+
+type SubjectKey = Extract<SubjectId, "mathe" | "deutsch" | "denken">;
 
 const SUBJECT_ICON: Record<SubjectKey, LucideIcon> = {
   mathe: Calculator,
@@ -47,31 +49,123 @@ const SUBJECT_ICON: Record<SubjectKey, LucideIcon> = {
   denken: Brain,
 };
 
+/** Three math problems stacked vertically. */
+function MatheBody({ tickIndex }: { tickIndex: number }) {
+  const problems = MATHE_PROBLEMS[tickIndex % MATHE_PROBLEMS.length];
+  return (
+    <div className="flex h-20 flex-col justify-center gap-1.5 p-3 sm:h-24">
+      {problems.map((line, i) => (
+        <div
+          key={i}
+          className="text-[10px] tabular-nums text-foreground/70 font-mono leading-tight"
+        >
+          {line}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Single letter on a three-line Schreiblernlineatur. */
+function DeutschBody({
+  tickIndex,
+  color,
+}: {
+  tickIndex: number;
+  color: string;
+}) {
+  const letter = DEUTSCH_LETTERS[tickIndex % DEUTSCH_LETTERS.length];
+  // 10% opacity tint for the lines
+  const lineTint = `${color}28`;
+  return (
+    <div className="relative flex h-20 items-center justify-center overflow-hidden sm:h-24">
+      {/* Three Schreiblernlineatur lines at 25 / 50 / 75 % height */}
+      <div
+        className="absolute left-0 right-0"
+        style={{ top: "25%", height: 1, backgroundColor: lineTint }}
+      />
+      <div
+        className="absolute left-0 right-0 border-0"
+        style={{
+          top: "50%",
+          height: 1,
+          backgroundImage: `repeating-linear-gradient(to right, ${lineTint} 0, ${lineTint} 4px, transparent 4px, transparent 8px)`,
+        }}
+      />
+      <div
+        className="absolute left-0 right-0"
+        style={{ top: "75%", height: 1, backgroundColor: lineTint }}
+      />
+      {/* Ghost-trace letter centred over the lineatur */}
+      <span
+        className="relative text-4xl leading-none"
+        style={{ color, opacity: 0.65 }}
+      >
+        {letter}
+      </span>
+    </div>
+  );
+}
+
+/** Four shapes in a row followed by a bordered ? box. */
+function DenkenBody({
+  tickIndex,
+  color,
+}: {
+  tickIndex: number;
+  color: string;
+}) {
+  const shapes = DENKEN_PATTERNS[tickIndex % DENKEN_PATTERNS.length];
+  return (
+    <div className="flex h-20 items-center justify-center gap-1.5 p-3 sm:h-24">
+      {shapes.map((shape, i) => (
+        <span
+          key={i}
+          className="text-xl leading-none"
+          style={{ color }}
+        >
+          {shape}
+        </span>
+      ))}
+      {/* ? box */}
+      <div
+        className="flex h-5 w-5 items-center justify-center rounded border text-[10px] leading-none"
+        style={{ borderColor: color, color }}
+      >
+        ?
+      </div>
+    </div>
+  );
+}
+
+interface CardBodyProps {
+  subject: SubjectKey;
+  tickIndex: number;
+  color: string;
+}
+
+/** Dispatches to the subject-specific body component. */
+function CardBody({ subject, tickIndex, color }: CardBodyProps) {
+  if (subject === "mathe") return <MatheBody tickIndex={tickIndex} />;
+  if (subject === "deutsch")
+    return <DeutschBody tickIndex={tickIndex} color={color} />;
+  return <DenkenBody tickIndex={tickIndex} color={color} />;
+}
+
 interface SheetCardProps {
   subject: SubjectKey;
-  variationIndex: number;
+  tickIndex: number;
   reducedMotion: boolean;
 }
 
-/** Mini fake-worksheet card with subject-colored header and cycling task lines. */
-function SheetCard({ subject, variationIndex, reducedMotion }: SheetCardProps) {
+/** Mini fake-worksheet card with subject-colored header and cycling subject content. */
+function SheetCard({ subject, tickIndex, reducedMotion }: SheetCardProps) {
   const color = SUBJECT_COLOR_HEX[subject],
     label = SUBJECT_LABELS[subject],
-    Icon = SUBJECT_ICON[subject],
-    lines = VARIATIONS[subject][variationIndex],
-    // Hex + "1A" = 10% opacity variant of the subject color
-    lineBg = `${color}1A`;
+    Icon = SUBJECT_ICON[subject];
 
-  const linesContent = (
-    <div className="flex flex-col gap-2 p-3 pb-2">
-      {lines.map((w, i) => (
-        <div
-          key={i}
-          className={`h-2 rounded-full ${w}`}
-          style={{ backgroundColor: lineBg }}
-        />
-      ))}
-    </div>
+  const body = (
+    <CardBody subject={subject} tickIndex={tickIndex} color={color} />
   );
 
   return (
@@ -87,19 +181,19 @@ function SheetCard({ subject, variationIndex, reducedMotion }: SheetCardProps) {
         </span>
       </div>
 
-      {/* Cycling task lines — cross-fade between variations */}
+      {/* Cycling subject body — cross-fade between variations */}
       {reducedMotion ? (
-        linesContent
+        body
       ) : (
         <AnimatePresence mode="wait">
           <motion.div
-            key={variationIndex}
+            key={tickIndex}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           >
-            {linesContent}
+            {body}
           </motion.div>
         </AnimatePresence>
       )}
@@ -119,12 +213,12 @@ const AccentLine = ({ className = "" }: { className?: string }) => (
 /** Highlights the "always fresh" differentiator with copy + a fanned card cluster. */
 export function FresheSection() {
   const prefersReducedMotion = useReducedMotion() ?? false;
-  const [variationIndex, setVariationIndex] = useState(0);
+  const [tickIndex, setTickIndex] = useState(0);
 
   useEffect(() => {
     if (prefersReducedMotion) return;
     const id = setInterval(() => {
-      setVariationIndex((prev) => (prev + 1) % 3);
+      setTickIndex((prev) => prev + 1);
     }, 2000);
     return () => clearInterval(id);
   }, [prefersReducedMotion]);
@@ -176,14 +270,14 @@ export function FresheSection() {
             >
               <SheetCard
                 subject="mathe"
-                variationIndex={variationIndex}
+                tickIndex={tickIndex}
                 reducedMotion={prefersReducedMotion}
               />
             </Reveal>
             <Reveal delay={0.15} className="relative z-10">
               <SheetCard
                 subject="deutsch"
-                variationIndex={variationIndex}
+                tickIndex={tickIndex}
                 reducedMotion={prefersReducedMotion}
               />
             </Reveal>
@@ -193,7 +287,7 @@ export function FresheSection() {
             >
               <SheetCard
                 subject="denken"
-                variationIndex={variationIndex}
+                tickIndex={tickIndex}
                 reducedMotion={prefersReducedMotion}
               />
             </Reveal>
