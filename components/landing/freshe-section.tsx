@@ -18,14 +18,19 @@ const PROOF_POINTS = [
   },
 ] as const;
 
-/** Curated addition/subtraction problems (Unicode minus U+2212, double-underscore gap). */
+/**
+ * Curated addition/subtraction problems. Each string is padded so its first
+ * operand occupies 2 monospace columns, which keeps the `=` sign aligned
+ * across all three rows of every variation. Unicode minus U+2212 not ASCII
+ * hyphen; double-underscore is the answer blank.
+ */
 const MATHE_PROBLEMS: readonly (readonly string[])[] = [
-  ["3 + 5 = __", "9 − 4 = __", "7 + 2 = __"],
-  ["12 − 5 = __", "4 + 7 = __", "11 − 3 = __"],
-  ["8 + 6 = __", "13 − 7 = __", "5 + 9 = __"],
-  ["6 + 4 = __", "10 − 6 = __", "7 + 8 = __"],
-  ["11 − 4 = __", "3 + 9 = __", "14 − 8 = __"],
-  ["9 + 7 = __", "12 − 7 = __", "6 + 5 = __"],
+  [" 3 + 5 = __", " 9 − 4 = __", " 7 + 2 = __"],
+  ["12 − 5 = __", " 4 + 7 = __", "11 − 3 = __"],
+  [" 8 + 6 = __", "13 − 7 = __", " 5 + 9 = __"],
+  [" 6 + 4 = __", "10 − 6 = __", " 7 + 8 = __"],
+  ["11 − 4 = __", " 3 + 9 = __", "14 − 8 = __"],
+  [" 9 + 7 = __", "12 − 7 = __", " 6 + 5 = __"],
 ] as const;
 
 /** Letters cycled on the Schreiblernlineatur card: uppercase then lowercase pairs. */
@@ -57,7 +62,7 @@ function MatheBody({ tickIndex }: { tickIndex: number }) {
       {problems.map((line, i) => (
         <div
           key={i}
-          className="text-sm tabular-nums text-foreground/80 font-mono leading-tight"
+          className="text-foreground/80 font-mono text-sm tabular-nums leading-tight whitespace-pre"
         >
           {line}
         </div>
@@ -84,7 +89,7 @@ function DeutschBody({
   // Letter rendering. Tailwind class for font-size; opacity for ghost-trace
   // feel; vertical nudge in px (negative = up, positive = down) lets you
   // align the letter baseline on the Grundlinie without rewriting layout.
-  const LETTER_FONT_CLASS = "text-4xl";
+  const LETTER_FONT_CLASS = "text-6xl";
   const LETTER_OPACITY = 0.65;
   const LETTER_Y_OFFSET_PX = 0;
 
