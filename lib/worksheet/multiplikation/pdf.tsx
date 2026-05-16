@@ -494,14 +494,17 @@ const ProblemCell = ({
           <PartialRow key={i} value={pp} shift={i} showAnswer={showAnswer} />
         ))}
 
-        {/* Rule between partial products and result */}
-        {problem.partialProducts.length > 1 && <View style={styles.ruleLine} />}
-
-        {/* Result row */}
-        {showAnswer ? (
-          <DigitRow value={problem.result} brand />
-        ) : (
-          <BlankResultRow />
+        {/* Rule + result row — only when there are 2 partial products to sum.
+            For single-digit multiplier (3x1) the single partial product IS the result. */}
+        {problem.partialProducts.length > 1 && (
+          <>
+            <View style={styles.ruleLine} />
+            {showAnswer ? (
+              <DigitRow value={problem.result} brand />
+            ) : (
+              <BlankResultRow />
+            )}
+          </>
         )}
       </View>
     </View>
