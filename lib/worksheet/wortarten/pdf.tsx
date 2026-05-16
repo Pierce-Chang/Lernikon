@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: 56,
     paddingBottom: 64,
-    paddingLeft: 52,
-    paddingRight: 52,
+    paddingLeft: 70,
+    paddingRight: 70,
     fontFamily: "Helvetica",
     color: COLOR.textDark,
     backgroundColor: "#FFFFFF",
@@ -183,8 +183,8 @@ const styles = StyleSheet.create({
   footer: {
     position: "absolute",
     bottom: 22,
-    left: 52,
-    right: 52,
+    left: 70,
+    right: 70,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: COLOR.line,
