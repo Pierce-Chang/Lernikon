@@ -46,6 +46,9 @@ import { renderBruechePdf } from "@/lib/worksheet/brueche/pdf";
 import { wortartenConfigSchema } from "@/lib/worksheet/wortarten/config";
 import { generateWortarten } from "@/lib/worksheet/wortarten/generate";
 import { renderWortartenPdf } from "@/lib/worksheet/wortarten/pdf";
+import { multiplikationConfigSchema, STELLEN_LABELS as MUL_STELLEN_LABELS } from "@/lib/worksheet/multiplikation/config";
+import { generateMultiplikation } from "@/lib/worksheet/multiplikation/generate";
+import { renderMultiplikationPdf } from "@/lib/worksheet/multiplikation/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -482,6 +485,31 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Deutsch - Wortarten - Klasse 2`,
         logSubject: "deutsch",
         logOperation: "wortarten",
+        logConfig: config,
+      };
+    }
+    case "mathe-multiplikation": {
+      const parsed = multiplikationConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        problems = generateMultiplikation(config),
+        stellenLabel = MUL_STELLEN_LABELS[config.stellen],
+        stream = await renderMultiplikationPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          problems,
+          stellen: config.stellen,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Mathe - Schriftliche Multiplikation (${stellenLabel})`,
+        logSubject: "mathe",
+        logOperation: "multiplikation",
         logConfig: config,
       };
     }

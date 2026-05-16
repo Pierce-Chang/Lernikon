@@ -18,7 +18,7 @@
  *            | Vorschule          | Klasse 1         | Klasse 2              | Klasse 3                   | Klasse 4                         |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Mathe      | Zahlen schreiben   | Rechnen (+ -)    | Rechnen (+ -)         | Rechnen (+ -), Einmaleins  | Rechnen (+ -), Schriftlich,      |
- *            | Mengen 1-10 [*]    |                  |                       |                            | Brüche                           |
+ *            | Mengen 1-10 [*]    |                  |                       |                            | Brüche, Schriftliche Mul         |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Deutsch    | Buchst. schreiben  | Buchst. schreib. | Buchst. schreiben,    | Rechtschreibung            | -                                |
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
@@ -28,7 +28,7 @@
  *
  * Echte Lücken (kein comingSoon, einfach nicht da):
  *   - Mathe Klasse 1-4: Zehnerübergang als eigener didaktischer Fokus
- *   - Mathe Klasse 4: schriftliche Multiplikation, schriftliche Division
+ *   - Mathe Klasse 4: schriftliche Division
  *   - Mathe Klasse 4: Bruchrechnen mit ungleichen Nennern, Dezimalzahlen
  *   - Deutsch Klasse 2: Lückendiktat
  *   - Deutsch Klasse 3: Leseverstehen
@@ -46,6 +46,7 @@ export const TOPIC_IDS = [
   "mathe-einmaleins",
   "mathe-schriftlich",
   "mathe-brueche",
+  "mathe-multiplikation",
   "deutsch-buchstaben-schreiben",
   "deutsch-woerter-abschreiben",
   "deutsch-diktate",
@@ -257,6 +258,36 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     label: "Brüche",
     description: "Brüche darstellen, vergleichen und mit gleichem Nenner rechnen.",
     href: "/app/mathe/brueche",
+    grades: [4],
+    implemented: true,
+  },
+
+  /**
+   * Klasse 4 · Mathe · Schriftliche Multiplikation mit Teilprodukten.
+   *
+   * Aufgabentyp: Spaltenlayout mit fixbreiten Digit-Zellen (14 pt je Stelle).
+   * Pro Aufgabe: Multiplikand (oben), × Multiplikator (darunter), Trennlinie,
+   * leere Teilprodukt-Zeilen (eine pro Multiplikator-Stelle), zweite Trennlinie,
+   * leere Ergebniszeile. 4 Aufgaben → 2x2, 8 → 2x4, 12 → 3x4.
+   * Optionales Lösungsblatt auf Seite 2 (Teilprodukte + Ergebnis in Brandblau).
+   *
+   * Konfig-Achsen:
+   *   - Stellen ("3x1": Multiplikand 100-999, Multiplikator 2-9 /
+   *     "3x2": Multiplikand 100-999, Multiplikator 10-99) — Default: "3x2"
+   *   - Anzahl (4 / 8 / 12) — Default: 8
+   *   - Lösungsblatt (an / aus) — Default: an
+   *
+   * NICHT in scope:
+   *   - Schriftliche Division: existiert noch nicht
+   *   - Multiplikation als Einmaleins-Trockenübung → "mathe-einmaleins"
+   *   - Addition / Subtraktion schriftlich → "mathe-schriftlich"
+   */
+  "mathe-multiplikation": {
+    id: "mathe-multiplikation",
+    subject: "mathe",
+    label: "Schriftliche Multiplikation",
+    description: "Multiplikation im Spaltenlayout mit Teilprodukten.",
+    href: "/app/mathe/multiplikation",
     grades: [4],
     implemented: true,
   },
