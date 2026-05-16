@@ -53,11 +53,11 @@ const SUBJECT_ICON: Record<SubjectKey, LucideIcon> = {
 function MatheBody({ tickIndex }: { tickIndex: number }) {
   const problems = MATHE_PROBLEMS[tickIndex % MATHE_PROBLEMS.length];
   return (
-    <div className="flex h-20 flex-col justify-center gap-1.5 p-3 sm:h-24">
+    <div className="flex h-20 flex-col items-center justify-center gap-2 p-3 sm:h-24">
       {problems.map((line, i) => (
         <div
           key={i}
-          className="text-[10px] tabular-nums text-foreground/70 font-mono leading-tight"
+          className="text-sm tabular-nums text-foreground/80 font-mono leading-tight"
         >
           {line}
         </div>
@@ -74,32 +74,53 @@ function DeutschBody({
   tickIndex: number;
   color: string;
 }) {
+  // ─── Lineatur tuning knobs ───────────────────────────────────────────────
+  // Vertical positions of the three Schreiblernlineatur lines, as percentage
+  // from the top of the body container. Move these to shift line spacing.
+  const OBERLINIE_TOP = "25%";
+  const MITTELLINIE_TOP = "50%";
+  const GRUNDLINIE_TOP = "75%";
+
+  // Letter rendering. Tailwind class for font-size; opacity for ghost-trace
+  // feel; vertical nudge in px (negative = up, positive = down) lets you
+  // align the letter baseline on the Grundlinie without rewriting layout.
+  const LETTER_FONT_CLASS = "text-4xl";
+  const LETTER_OPACITY = 0.65;
+  const LETTER_Y_OFFSET_PX = 0;
+
+  // Lineatur line color tint. Hex alpha suffix on the subject color.
+  // Common values: 28 (~16%), 40 (~25%), 66 (~40%), 99 (~60%).
+  const LINE_TINT_ALPHA = "40";
+  // ─────────────────────────────────────────────────────────────────────────
+
   const letter = DEUTSCH_LETTERS[tickIndex % DEUTSCH_LETTERS.length];
-  // 10% opacity tint for the lines
-  const lineTint = `${color}28`;
+  const lineTint = `${color}${LINE_TINT_ALPHA}`;
+
   return (
     <div className="relative flex h-20 items-center justify-center overflow-hidden sm:h-24">
-      {/* Three Schreiblernlineatur lines at 25 / 50 / 75 % height */}
       <div
         className="absolute left-0 right-0"
-        style={{ top: "25%", height: 1, backgroundColor: lineTint }}
+        style={{ top: OBERLINIE_TOP, height: 1, backgroundColor: lineTint }}
       />
       <div
-        className="absolute left-0 right-0 border-0"
+        className="absolute left-0 right-0"
         style={{
-          top: "50%",
+          top: MITTELLINIE_TOP,
           height: 1,
           backgroundImage: `repeating-linear-gradient(to right, ${lineTint} 0, ${lineTint} 4px, transparent 4px, transparent 8px)`,
         }}
       />
       <div
         className="absolute left-0 right-0"
-        style={{ top: "75%", height: 1, backgroundColor: lineTint }}
+        style={{ top: GRUNDLINIE_TOP, height: 1, backgroundColor: lineTint }}
       />
-      {/* Ghost-trace letter centred over the lineatur */}
       <span
-        className="relative text-4xl leading-none"
-        style={{ color, opacity: 0.65 }}
+        className={`relative ${LETTER_FONT_CLASS} leading-none`}
+        style={{
+          color,
+          opacity: LETTER_OPACITY,
+          transform: `translateY(${LETTER_Y_OFFSET_PX}px)`,
+        }}
       >
         {letter}
       </span>
