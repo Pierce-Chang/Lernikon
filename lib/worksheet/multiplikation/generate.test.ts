@@ -6,6 +6,7 @@ const BASE_3x2: MultiplikationConfig = {
   stellen: "3x2",
   count: 8,
   solutions: false,
+  merkkasten: false,
   seed: 42,
 };
 
@@ -13,19 +14,20 @@ const BASE_3x1: MultiplikationConfig = {
   stellen: "3x1",
   count: 4,
   solutions: false,
+  merkkasten: false,
   seed: 42,
 };
 
 describe("generateMultiplikation", () => {
   it("rejects invalid stellen", () => {
     expect(() =>
-      generateMultiplikation({ stellen: "2x1" as "3x1", count: 4, solutions: false }),
+      generateMultiplikation({ stellen: "2x1" as "3x1", count: 4, solutions: false, merkkasten: false }),
     ).toThrow();
   });
 
   it("rejects invalid count", () => {
     expect(() =>
-      generateMultiplikation({ stellen: "3x2", count: 5 as 4, solutions: false }),
+      generateMultiplikation({ stellen: "3x2", count: 5 as 4, solutions: false, merkkasten: false }),
     ).toThrow();
   });
 

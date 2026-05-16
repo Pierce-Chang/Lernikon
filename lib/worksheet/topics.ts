@@ -276,6 +276,7 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
    *     "3x2": Multiplikand 100-999, Multiplikator 10-99) — Default: "3x2"
    *   - Anzahl (4 / 8 / 12) — Default: 8
    *   - Lösungsblatt (an / aus) — Default: an
+   *   - Merkkasten (an / aus) — Default: aus, kleine Erklär-Box für Eltern oben auf dem Aufgabenblatt
    *
    * NICHT in scope:
    *   - Schriftliche Division: existiert noch nicht

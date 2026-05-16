@@ -10,6 +10,7 @@ export const multiplikationConfigSchema = z.object({
   stellen: z.enum(["3x1", "3x2"]),
   count: z.union([z.literal(4), z.literal(8), z.literal(12)]),
   solutions: z.boolean(),
+  merkkasten: z.boolean(),
   seed: z.number().int().optional(),
 });
 

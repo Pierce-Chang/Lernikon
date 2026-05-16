@@ -27,6 +27,24 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
   ),
 );
 
+// ── Merkkasten step arrays (chosen per stellen mode) ──────────────────────
+const STEPS_3X1 = [
+  "Schreibe die Zahlen stellenrichtig untereinander.",
+  "Multipliziere die obere Zahl mit dem Multiplikator.",
+  "Schreibe das Ergebnis unter den Strich.",
+] as const;
+
+const STEPS_3X2 = [
+  "Schreibe die Zahlen stellenrichtig untereinander.",
+  "Multipliziere die obere Zahl mit der Einerstelle.",
+  "Multipliziere mit der Zehnerstelle, eine Stelle nach links versetzt.",
+  "Addiere die Teilprodukte.",
+] as const;
+
+/** Hardcoded examples — not part of the generated exercise set. */
+const EXAMPLE_3X1 = { a: 345, b: 6, partials: [2070], result: 2070 } as const;
+const EXAMPLE_3X2 = { a: 345, b: 12, partials: [690, 345], result: 4140 } as const;
+
 // ── Brand palette (mirrors lib/worksheet/schriftlich/pdf.tsx) ─────────────
 const COLOR = {
   brand: "#1E4A7C",
@@ -245,6 +263,75 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLOR.line,
   },
+  // ── Merkkasten ─────────────────────────────────────────────────────────────
+  merkkastenWrap: {
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: COLOR.brand,
+    borderRadius: 4,
+    backgroundColor: "#F4F7FA",
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 12,
+    paddingRight: 12,
+  },
+  merkkastenTitle: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    marginBottom: 6,
+  },
+  merkkastenBody: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  merkkastenSteps: {
+    flex: 1,
+  },
+  merkkastenStep: {
+    fontSize: 9,
+    fontFamily: "Helvetica",
+    color: COLOR.textDark,
+    marginBottom: 3,
+  },
+  merkkastenExample: {
+    marginLeft: 16,
+    alignItems: "flex-end",
+  },
+  merkkastenExampleRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  merkkastenExampleText: {
+    fontSize: 8,
+    fontFamily: "Helvetica",
+    color: COLOR.textDark,
+  },
+  merkkastenExampleOp: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    marginRight: 2,
+  },
+  merkkastenExampleNote: {
+    fontSize: 7,
+    fontFamily: "Helvetica",
+    color: COLOR.textMuted,
+    marginLeft: 4,
+  },
+  merkkastenRule: {
+    borderBottomWidth: 1,
+    borderBottomColor: COLOR.textDark,
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  merkkastenResult: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    textAlign: "right",
+  },
 });
 
 /** Split a number into individual digit characters, left-padded with spaces to `width`. */
@@ -421,6 +508,81 @@ const ProblemCell = ({
   );
 };
 
+/**
+ * Renders the step-by-step explanation box for parents.
+ * Shown only on the Aufgabenblatt (Page 1), not on the Losungsblatt.
+ * Content adapts to the stellen mode: 3x1 omits the Zehnerstelle step.
+ */
+const Merkkasten = ({ stellen }: { stellen: MulStellen }): ReactElement => {
+  const steps = stellen === "3x1" ? STEPS_3X1 : STEPS_3X2,
+    ex = stellen === "3x1" ? EXAMPLE_3X1 : EXAMPLE_3X2;
+
+  return (
+    <View style={styles.merkkastenWrap}>
+      <Text style={styles.merkkastenTitle}>
+        {"Merkkasten · So rechnest du schriftlich mal"}
+      </Text>
+      <View style={styles.merkkastenBody}>
+        {/* Step list */}
+        <View style={styles.merkkastenSteps}>
+          {steps.map((step, i) => (
+            <Text key={i} style={styles.merkkastenStep}>
+              {`${i + 1}. ${step}`}
+            </Text>
+          ))}
+        </View>
+
+        {/* Example column */}
+        <View style={styles.merkkastenExample}>
+          {/* Multiplicand */}
+          <View style={styles.merkkastenExampleRow}>
+            <Text style={styles.merkkastenExampleText}>
+              {String(ex.a).padStart(6, " ")}
+            </Text>
+          </View>
+
+          {/* Multiplier row with x operator */}
+          <View style={styles.merkkastenExampleRow}>
+            <Text style={styles.merkkastenExampleOp}>{"x"}</Text>
+            <Text style={styles.merkkastenExampleText}>
+              {String(ex.b).padStart(5, " ")}
+            </Text>
+          </View>
+
+          {/* Rule */}
+          <View style={styles.merkkastenRule} />
+
+          {/* Partial products */}
+          {ex.partials.map((pp, i) => (
+            <View key={i} style={styles.merkkastenExampleRow}>
+              <Text style={styles.merkkastenExampleText}>
+                {String(pp).padStart(7, " ")}
+              </Text>
+              <Text style={styles.merkkastenExampleNote}>
+                {stellen === "3x2"
+                  ? i === 0
+                    ? `<- ${ex.a} x ${ex.b % 10}`
+                    : `<- ${ex.a} x ${Math.floor(ex.b / 10)} (verschoben)`
+                  : `<- Ergebnis`}
+              </Text>
+            </View>
+          ))}
+
+          {/* Second rule + result — only for 3x2 (3x1 has one partial = result) */}
+          {stellen === "3x2" && (
+            <>
+              <View style={styles.merkkastenRule} />
+              <Text style={styles.merkkastenResult}>
+                {String(ex.result).padStart(7, " ")}
+              </Text>
+            </>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+};
+
 /** Build the subtitle string shown under the heading. */
 const buildSubtitle = (stellen: MulStellen, count: number): string =>
   `${STELLEN_LABELS[stellen]} · ${count} Aufgaben`;
@@ -433,6 +595,7 @@ export interface MultiplikationPdfProps {
   theme: ThemeId;
   showWatermark: boolean;
   includeSolutions: boolean;
+  merkkasten: boolean;
 }
 
 const MultiplikationDocument = ({
@@ -443,6 +606,7 @@ const MultiplikationDocument = ({
   theme,
   showWatermark,
   includeSolutions,
+  merkkasten,
 }: MultiplikationPdfProps): ReactElement => {
   const themeMeta = getTheme(theme),
     count = problems.length,
@@ -476,6 +640,8 @@ const MultiplikationDocument = ({
             <Text style={styles.metaValue}>{date}</Text>
           </View>
         </View>
+
+        {merkkasten && <Merkkasten stellen={stellen} />}
 
         <View style={styles.grid}>
           {problems.map((problem, i) => (

@@ -504,6 +504,7 @@ const dispatchTopic = async (
           theme: ctx.theme,
           showWatermark: !ctx.isPaid,
           includeSolutions: config.solutions,
+          merkkasten: config.merkkasten,
         });
       return {
         stream,

@@ -20,12 +20,14 @@ interface MultiplikationSettings {
   stellen: MulStellen;
   count: MulCount;
   solutions: boolean;
+  merkkasten: boolean;
 }
 
 const DEFAULT_SETTINGS: MultiplikationSettings = {
   stellen: "3x2",
   count: 8,
   solutions: true,
+  merkkasten: false,
 };
 
 const filenameFromResponse = (response: Response, fallback: string): string => {
@@ -46,7 +48,7 @@ export const MultiplikationFormImpl = ({
     "lernikon.settings.mathe-multiplikation",
     DEFAULT_SETTINGS,
   );
-  const { stellen, count, solutions } = settings;
+  const { stellen, count, solutions, merkkasten } = settings;
   const update = <K extends keyof MultiplikationSettings>(
     key: K,
     nextValue: MultiplikationSettings[K],
@@ -78,6 +80,7 @@ export const MultiplikationFormImpl = ({
           stellen,
           count,
           solutions,
+          merkkasten,
         }),
       });
       if (!response.ok) {
@@ -176,6 +179,29 @@ export const MultiplikationFormImpl = ({
             <span className="text-sm font-medium">Losungsblatt mitdrucken</span>
             <span className="text-muted-foreground ml-auto text-xs">
               {solutions ? "ja" : "nein"}
+            </span>
+          </label>
+        </CardContent>
+      </Card>
+
+      {/* Merkkasten */}
+      <Card>
+        <CardContent className="pt-6">
+          <label className="border-border hover:bg-accent flex cursor-pointer items-center gap-3 rounded-md border p-3">
+            <input
+              type="checkbox"
+              checked={merkkasten}
+              onChange={(event) => update("merkkasten", event.target.checked)}
+              className="accent-brand-accent size-4"
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">Merkkasten mitdrucken</span>
+              <span className="text-muted-foreground text-xs">
+                Kleiner Erklarkasten oben auf dem Blatt, falls dein Kind oder du das Verfahren nochmal nachlesen wollt.
+              </span>
+            </div>
+            <span className="text-muted-foreground ml-auto text-xs">
+              {merkkasten ? "ja" : "nein"}
             </span>
           </label>
         </CardContent>
