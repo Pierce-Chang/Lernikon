@@ -131,14 +131,6 @@ const styles = StyleSheet.create({
     color: COLOR.textDark,
     backgroundColor: "#FFFFFF",
   },
-  topAccent: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 6,
-    backgroundColor: COLOR.brand,
-  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -507,8 +499,7 @@ const PatternDocument = ({
   // Page 1 — worksheet with blank cells (and optional inline cutout strip).
   pages.push(
     <Page key="worksheet" size="A4" style={styles.page}>
-      <View style={styles.topAccent} fixed />
-      <ThemeDecoration theme={themeMeta} />
+<ThemeDecoration theme={themeMeta} />
 
       <View style={styles.header}>
         <View>
@@ -541,8 +532,7 @@ const PatternDocument = ({
   if (cutsOnPage2 && cutouts !== null) {
     pages.push(
       <Page key="cutouts" size="A4" style={styles.page}>
-        <View style={styles.topAccent} fixed />
-        <ThemeDecoration theme={themeMeta} />
+    <ThemeDecoration theme={themeMeta} />
 
         <View style={styles.cutoutPageHeader}>
           <Text style={styles.brand}>Lernikon</Text>
@@ -561,8 +551,7 @@ const PatternDocument = ({
   if (includeSolutions) {
     pages.push(
       <Page key="solutions" size="A4" style={styles.page}>
-        <View style={styles.topAccent} fixed />
-        <ThemeDecoration theme={themeMeta} />
+    <ThemeDecoration theme={themeMeta} />
 
         <View style={styles.solutionHeader}>
           <Text style={styles.brand}>Lernikon</Text>

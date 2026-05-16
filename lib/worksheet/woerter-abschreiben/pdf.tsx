@@ -146,14 +146,6 @@ const styles = StyleSheet.create({
     color: COLOR.textDark,
     backgroundColor: "#FFFFFF",
   },
-  topAccent: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 6,
-    backgroundColor: COLOR.brand,
-  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -401,8 +393,7 @@ const WoerterDocument = ({
       producer="Lernikon"
     >
       <Page size="A4" style={styles.page}>
-        <View style={styles.topAccent} fixed />
-        <ThemeDecoration theme={themeMeta} />
+<ThemeDecoration theme={themeMeta} />
 
         <View style={styles.header}>
           <View>
