@@ -4,12 +4,12 @@ import { Check, Dices } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 
 const PROOF_POINTS = [
-  { text: "Über 100 Diktat-Sätze und Wörter pro Thema im Pool" },
+  { text: "Nächste Woche dasselbe Thema, trotzdem frische Aufgaben" },
   {
-    text: "Aufgaben werden beim Klick frisch gewürfelt, nicht aus einer fixen Liste abgespielt",
+    text: "Geschwister erhalten nie identische Blätter",
   },
   {
-    text: "Die Lösungsseite von heute passt nicht zum Blatt von morgen",
+    text: "Kein Auswendiglernen der Lösungen vom letzten Mal",
   },
 ] as const;
 
@@ -57,16 +57,17 @@ export function FresheSection() {
           <Reveal className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <Dices className="text-brand-accent mb-4 size-10" />
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Immer neue Aufgaben
+              Jedes Mal ein anderes Blatt
             </h2>
             <AccentLine className="mx-auto mt-3 lg:mx-0" />
             <p className="text-muted-foreground mt-4 text-base font-medium">
-              Jeder Klick erzeugt ein frisches Blatt, nie dasselbe wie gestern.
+              Druckst du dasselbe Thema nochmal, kommen andere Aufgaben raus.
             </p>
             <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-              Lernikon würfelt bei jedem Druck neu: andere Aufgaben, andere
-              Reihenfolge, immer anderes Ergebnis. Kein Kind kann sich die
-              Lösungen vom Vortag merken. Ein Thema reicht für Wochen.
+              Ob dein Kind am Montag rechnet und am Wochenende nochmal übt, ob
+              zwei Geschwister denselben Generator nutzen oder das Thema Wochen
+              später wiederholt wird: jedes Blatt ist anders zusammengestellt.
+              Kein Kind sieht dasselbe zweimal.
             </p>
             <ul className="mt-5 space-y-1.5">
               {PROOF_POINTS.map(({ text }) => (
