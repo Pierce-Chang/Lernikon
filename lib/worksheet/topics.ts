@@ -21,6 +21,7 @@ export const TOPIC_IDS = [
   "deutsch-woerter-abschreiben",
   "deutsch-diktate",
   "deutsch-rechtschreibung",
+  "deutsch-wortarten",
   "denken-muster",
 ] as const;
 
@@ -164,6 +165,15 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     description: "Lückenwörter zu klassischen Klasse-3-Rechtschreibregeln.",
     href: "/app/deutsch/rechtschreibung",
     grades: [3],
+    implemented: true,
+  },
+  "deutsch-wortarten": {
+    id: "deutsch-wortarten",
+    subject: "deutsch",
+    label: "Wortarten erkennen",
+    description: "Nomen, Verb oder Adjektiv ankreuzen - mit gemischtem Wortschatz.",
+    href: "/app/deutsch/wortarten",
+    grades: [2],
     implemented: true,
   },
 };

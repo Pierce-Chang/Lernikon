@@ -43,6 +43,9 @@ import { renderRechtschreibungPdf } from "@/lib/worksheet/rechtschreibung/pdf";
 import { bruecheConfigSchema, MODUS_LABELS } from "@/lib/worksheet/brueche/config";
 import { generateBrueche } from "@/lib/worksheet/brueche/generate";
 import { renderBruechePdf } from "@/lib/worksheet/brueche/pdf";
+import { wortartenConfigSchema } from "@/lib/worksheet/wortarten/config";
+import { generateWortarten } from "@/lib/worksheet/wortarten/generate";
+import { renderWortartenPdf } from "@/lib/worksheet/wortarten/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -456,6 +459,29 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Mathe - Bruche - ${modusLabel}`,
         logSubject: "mathe",
         logOperation: "brueche",
+        logConfig: config,
+      };
+    }
+    case "deutsch-wortarten": {
+      const parsed = wortartenConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateWortarten(config),
+        stream = await renderWortartenPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Deutsch - Wortarten - Klasse 2`,
+        logSubject: "deutsch",
+        logOperation: "wortarten",
         logConfig: config,
       };
     }

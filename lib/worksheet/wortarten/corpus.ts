@@ -1,0 +1,155 @@
+/**
+ * Klasse 2 Wortarten corpus.
+ * Three arrays of words typical for Klasse 2, one per part of speech.
+ * Nomen are stored in their correct capitalised form for readability and reuse;
+ * the PDF renders all words lowercase so the capitalisation hint does not give
+ * the answer away — that transformation happens in the generator output.
+ */
+
+export type Wortart = "nomen" | "verb" | "adjektiv";
+
+export interface WortartEntry {
+  word: string;
+  wortart: Wortart;
+}
+
+export const NOMEN = [
+  "Haus",
+  "Buch",
+  "Tisch",
+  "Hund",
+  "Schule",
+  "Kind",
+  "Auto",
+  "Baum",
+  "Blume",
+  "Sonne",
+  "Mond",
+  "Stern",
+  "Bett",
+  "Stuhl",
+  "Tasche",
+  "Apfel",
+  "Brot",
+  "Wasser",
+  "Fisch",
+  "Vogel",
+  "Hand",
+  "Kopf",
+  "Auge",
+  "Tag",
+  "Nacht",
+  "Sommer",
+  "Winter",
+  "Berg",
+  "Garten",
+  "Wald",
+  "Wiese",
+  "Straße",
+  "Stadt",
+  "Mutter",
+  "Vater",
+  "Bruder",
+  "Schwester",
+  "Freund",
+  "Heft",
+  "Ball",
+] as const;
+
+export const VERBEN = [
+  "laufen",
+  "springen",
+  "lesen",
+  "schreiben",
+  "malen",
+  "essen",
+  "trinken",
+  "spielen",
+  "lachen",
+  "weinen",
+  "schlafen",
+  "singen",
+  "tanzen",
+  "schwimmen",
+  "hüpfen",
+  "rennen",
+  "gehen",
+  "sehen",
+  "hören",
+  "denken",
+  "lernen",
+  "üben",
+  "helfen",
+  "fragen",
+  "antworten",
+  "kochen",
+  "backen",
+  "putzen",
+  "suchen",
+  "finden",
+  "geben",
+  "nehmen",
+  "bauen",
+  "zeichnen",
+  "fliegen",
+  "klettern",
+  "winken",
+  "rufen",
+  "werfen",
+  "stehen",
+] as const;
+
+export const ADJEKTIVE = [
+  "groß",
+  "klein",
+  "schnell",
+  "langsam",
+  "schön",
+  "alt",
+  "jung",
+  "neu",
+  "dick",
+  "dünn",
+  "lang",
+  "kurz",
+  "hell",
+  "dunkel",
+  "warm",
+  "kalt",
+  "hart",
+  "weich",
+  "süß",
+  "sauer",
+  "leise",
+  "laut",
+  "glücklich",
+  "traurig",
+  "müde",
+  "fleißig",
+  "lieb",
+  "klug",
+  "mutig",
+  "rot",
+  "blau",
+  "grün",
+  "gelb",
+  "rund",
+  "eckig",
+  "stark",
+  "schwach",
+  "leicht",
+  "schwer",
+  "lustig",
+] as const;
+
+/** Full flat corpus with wortart labels attached. */
+export const WORTARTEN_CORPUS: readonly WortartEntry[] = [
+  ...NOMEN.map((word) => ({ word, wortart: "nomen" as Wortart })),
+  ...VERBEN.map((word) => ({ word, wortart: "verb" as Wortart })),
+  ...ADJEKTIVE.map((word) => ({ word, wortart: "adjektiv" as Wortart })),
+];
+
+/** Count of entries per category — exported for vitest. */
+export const NOMEN_COUNT = NOMEN.length,
+  VERBEN_COUNT = VERBEN.length,
+  ADJEKTIVE_COUNT = ADJEKTIVE.length;
