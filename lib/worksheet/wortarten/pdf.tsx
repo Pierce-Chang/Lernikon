@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    marginBottom: 20,
-    paddingBottom: 14,
+    marginBottom: 14,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: COLOR.line,
   },
@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
   // Column header row
   tableHead: {
     flexDirection: "row",
-    marginBottom: 6,
-    paddingBottom: 6,
+    marginBottom: 4,
+    paddingBottom: 4,
     borderBottomWidth: 1,
     borderBottomColor: COLOR.line,
   },
@@ -149,8 +149,8 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingTop: 5,
-    paddingBottom: 5,
+    paddingTop: 3,
+    paddingBottom: 3,
     borderBottomWidth: 1,
     borderBottomColor: "#F3F4F6",
   },
