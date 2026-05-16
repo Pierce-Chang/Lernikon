@@ -48,7 +48,7 @@ export const MultiplikationFormImpl = ({
     "lernikon.settings.mathe-multiplikation",
     DEFAULT_SETTINGS,
   );
-  const { stellen, count, solutions, merkkasten } = settings;
+  const { stellen, count, solutions, merkkasten = false } = settings;
   const update = <K extends keyof MultiplikationSettings>(
     key: K,
     nextValue: MultiplikationSettings[K],
