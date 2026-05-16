@@ -30,7 +30,7 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
 // ── Merkkasten step arrays (chosen per stellen mode) ──────────────────────
 const STEPS_3X1 = [
   "Schreibe beide Zahlen stellenrichtig untereinander. Das × steht links neben der unteren Zahl.",
-  "Multipliziere die obere Zahl mit dem Multiplikator, Stelle für Stelle und mit Übertrag.",
+  "Multipliziere die obere Zahl mit dem Multiplikator, Stelle fur Stelle und mit Ubertrag.",
   "Schreibe das Ergebnis unter den Strich. Bei einstelligen Multiplikatoren ist das gleich das Endergebnis.",
 ] as const;
 
@@ -44,6 +44,49 @@ const STEPS_3X2 = [
 /** Hardcoded examples — not part of the generated exercise set. */
 const EXAMPLE_3X1 = { a: 345, b: 6, partials: [2070], result: 2070 } as const;
 const EXAMPLE_3X2 = { a: 345, b: 12, partials: [690, 345], result: 4140 } as const;
+
+// Carry digits for the 3x1 example (345 × 6): shown as small superscript-like
+// text above the multiplicand. Position matches the hundreds and tens columns.
+// Hundreds carry = 2 (from 18+2), tens carry = 3 (from 24+3→27).
+// Displayed as a string aligned over the 3-digit multiplicand: " 23" (space = ones).
+const EXAMPLE_3X1_CARRIES = " 23" as const;
+
+// ── Merkkasten walkthrough lines ──────────────────────────────────────────
+// Lines use "fur" / "Ubertrag" (WinAnsi-safe: no umlauts that risk encoding issues
+// in the font's Latin-1 subset; Helvetica covers a-umlaut but we keep it simple
+// and consistent with no-umlaut convention used elsewhere in PDF copy).
+// Actually Helvetica covers umlauts — use them for readability.
+const WALKTHROUGH_3X1 = [
+  "6 × 5 = 30: schreibe 0, Übertrag 3",
+  "6 × 4 = 24, plus Übertrag 3 = 27: schreibe 7, Übertrag 2",
+  "6 × 3 = 18, plus Übertrag 2 = 20: schreibe 20",
+  "Ergebnis: 2070",
+] as const;
+
+// For 3x2 we use grouped sub-sections (Step 2, Step 3, Step 4).
+// Each group has a header string (bold) followed by detail lines (regular).
+const WALKTHROUGH_3X2_GROUPS = [
+  {
+    header: "Schritt 2 (× Einerstelle 2):",
+    lines: [
+      "2 × 5 = 10: schreibe 0, Übertrag 1",
+      "2 × 4 = 8, plus Übertrag 1 = 9: schreibe 9",
+      "2 × 3 = 6: schreibe 6",
+      "Erstes Teilprodukt: 690",
+    ],
+  },
+  {
+    header: "Schritt 3 (× Zehnerstelle 1, eine Stelle versetzt):",
+    lines: [
+      "1 × 5 = 5, 1 × 4 = 4, 1 × 3 = 3",
+      "Zweites Teilprodukt: 345 (eine Stelle versetzt = quasi 3450)",
+    ],
+  },
+  {
+    header: "Schritt 4: addiere die Teilprodukte",
+    lines: ["690 + 3450 = 4140"],
+  },
+] as const;
 
 // ── Brand palette (mirrors lib/worksheet/schriftlich/pdf.tsx) ─────────────
 const COLOR = {
@@ -295,30 +338,28 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   merkkastenExample: {
-    marginLeft: 16,
-    alignItems: "flex-end",
+    alignItems: "flex-start",
   },
   merkkastenExampleRow: {
     flexDirection: "row",
-    justifyContent: "flex-end",
     alignItems: "center",
   },
   merkkastenExampleText: {
-    fontSize: 8,
+    fontSize: 10,
     fontFamily: "Helvetica",
     color: COLOR.textDark,
   },
   merkkastenExampleOp: {
-    fontSize: 8,
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
     color: COLOR.brand,
     marginRight: 2,
   },
   merkkastenExampleNote: {
-    fontSize: 7,
+    fontSize: 8,
     fontFamily: "Helvetica",
     color: COLOR.textMuted,
-    marginLeft: 4,
+    marginLeft: 6,
   },
   merkkastenRule: {
     borderBottomWidth: 1,
@@ -327,10 +368,53 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   merkkastenResult: {
-    fontSize: 8,
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
     color: COLOR.brand,
-    textAlign: "right",
+  },
+  // Section divider between Merkkasten sections.
+  merkkastenSectionGap: {
+    marginTop: 8,
+  },
+  // Title line above the example visual and above the walkthrough.
+  merkkastenSectionTitle: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    marginBottom: 4,
+  },
+  // Carry row shown above the multiplicand in the 3x1 example.
+  merkkastenCarryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  merkkastenCarryText: {
+    fontSize: 6,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.textMuted,
+    letterSpacing: 2,
+    marginLeft: 12,
+  },
+  walkthroughTitle: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.brand,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  walkthroughLine: {
+    fontSize: 8,
+    fontFamily: "Helvetica",
+    color: COLOR.textDark,
+    marginBottom: 2,
+    lineHeight: 1.4,
+  },
+  walkthroughGroupHeader: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    color: COLOR.textDark,
+    marginTop: 5,
+    marginBottom: 2,
   },
 });
 
@@ -512,76 +596,137 @@ const ProblemCell = ({
 };
 
 /**
+ * Example visual for the Merkkasten.
+ * Rendered as a mini columnar layout matching the schoolbook style.
+ * Font sizes are larger than before (10pt digits) because the visual is
+ * now full-width rather than squeezed into a right column.
+ */
+const MerkkastenExample = ({ stellen }: { stellen: MulStellen }): ReactElement => {
+  const ex = stellen === "3x1" ? EXAMPLE_3X1 : EXAMPLE_3X2;
+  return (
+    <View>
+      <Text style={styles.merkkastenSectionTitle}>{"Beispiel:"}</Text>
+
+      {/* Carry row — only for 3x1 (simulates superscript carries above multiplicand) */}
+      {stellen === "3x1" && (
+        <View style={styles.merkkastenCarryRow}>
+          <Text style={styles.merkkastenCarryText}>{EXAMPLE_3X1_CARRIES}</Text>
+        </View>
+      )}
+
+      {/* Multiplicand */}
+      <View style={styles.merkkastenExampleRow}>
+        <Text style={styles.merkkastenExampleText}>
+          {String(ex.a)}
+        </Text>
+      </View>
+
+      {/* Multiplier row with × operator */}
+      <View style={styles.merkkastenExampleRow}>
+        <Text style={styles.merkkastenExampleOp}>{"×"}</Text>
+        <Text style={styles.merkkastenExampleText}>
+          {String(ex.b)}
+        </Text>
+      </View>
+
+      {/* Rule */}
+      <View style={styles.merkkastenRule} />
+
+      {/* Partial products with parens annotation */}
+      {ex.partials.map((pp, i) => (
+        <View key={i} style={styles.merkkastenExampleRow}>
+          <Text style={styles.merkkastenExampleText}>
+            {String(pp)}
+          </Text>
+          {stellen === "3x2" && (
+            <Text style={styles.merkkastenExampleNote}>
+              {i === 0
+                ? `(${ex.a} × ${ex.b % 10})`
+                : `(${ex.a} × ${Math.floor(ex.b / 10)}, eine Stelle versetzt)`}
+            </Text>
+          )}
+        </View>
+      ))}
+
+      {/* Second rule + result — only for 3x2 */}
+      {stellen === "3x2" && (
+        <>
+          <View style={styles.merkkastenRule} />
+          <Text style={styles.merkkastenResult}>
+            {String(ex.result)}
+          </Text>
+        </>
+      )}
+    </View>
+  );
+};
+
+/**
+ * Walkthrough section — concrete step-by-step calculation including carries.
+ * Adapts content to the stellen mode.
+ */
+const MerkkastenWalkthrough = ({ stellen }: { stellen: MulStellen }): ReactElement => {
+  if (stellen === "3x1") {
+    return (
+      <View style={styles.merkkastenSectionGap}>
+        <Text style={styles.walkthroughTitle}>{"So rechnest du jede Stelle:"}</Text>
+        {WALKTHROUGH_3X1.map((line, i) => (
+          <Text key={i} style={styles.walkthroughLine}>
+            {line}
+          </Text>
+        ))}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.merkkastenSectionGap}>
+      <Text style={styles.walkthroughTitle}>{"So rechnest du im Detail:"}</Text>
+      {WALKTHROUGH_3X2_GROUPS.map((group, gi) => (
+        <View key={gi}>
+          <Text style={styles.walkthroughGroupHeader}>{group.header}</Text>
+          {group.lines.map((line, li) => (
+            <Text key={li} style={styles.walkthroughLine}>
+              {"  "}{line}
+            </Text>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+};
+
+/**
  * Renders the step-by-step explanation box for parents.
  * Shown only on the Aufgabenblatt (Page 1), not on the Losungsblatt.
+ * Three vertical sections: Steps list, Example visual, Walkthrough.
  * Content adapts to the stellen mode: 3x1 omits the Zehnerstelle step.
  */
 const Merkkasten = ({ stellen }: { stellen: MulStellen }): ReactElement => {
-  const steps = stellen === "3x1" ? STEPS_3X1 : STEPS_3X2,
-    ex = stellen === "3x1" ? EXAMPLE_3X1 : EXAMPLE_3X2;
+  const steps = stellen === "3x1" ? STEPS_3X1 : STEPS_3X2;
 
   return (
     <View style={styles.merkkastenWrap}>
       <Text style={styles.merkkastenTitle}>
         {"Merkkasten · So rechnest du schriftlich mal"}
       </Text>
-      <View style={styles.merkkastenBody}>
-        {/* Step list */}
-        <View style={styles.merkkastenSteps}>
-          {steps.map((step, i) => (
-            <Text key={i} style={styles.merkkastenStep}>
-              {`${i + 1}. ${step}`}
-            </Text>
-          ))}
-        </View>
 
-        {/* Example column */}
-        <View style={styles.merkkastenExample}>
-          {/* Multiplicand */}
-          <View style={styles.merkkastenExampleRow}>
-            <Text style={styles.merkkastenExampleText}>
-              {String(ex.a).padStart(6, " ")}
-            </Text>
-          </View>
-
-          {/* Multiplier row with × operator (U+00D7 — in WinAnsi/Latin-1) */}
-          <View style={styles.merkkastenExampleRow}>
-            <Text style={styles.merkkastenExampleOp}>{"×"}</Text>
-            <Text style={styles.merkkastenExampleText}>
-              {String(ex.b).padStart(5, " ")}
-            </Text>
-          </View>
-
-          {/* Rule */}
-          <View style={styles.merkkastenRule} />
-
-          {/* Partial products with parens annotation (no arrows — WinAnsi lacks ← →) */}
-          {ex.partials.map((pp, i) => (
-            <View key={i} style={styles.merkkastenExampleRow}>
-              <Text style={styles.merkkastenExampleText}>
-                {String(pp).padStart(7, " ")}
-              </Text>
-              {stellen === "3x2" && (
-                <Text style={styles.merkkastenExampleNote}>
-                  {i === 0
-                    ? `(${ex.a} × ${ex.b % 10})`
-                    : `(${ex.a} × ${Math.floor(ex.b / 10)}, eine Stelle versetzt)`}
-                </Text>
-              )}
-            </View>
-          ))}
-
-          {/* Second rule + result — only for 3x2 (3x1 has one partial = result) */}
-          {stellen === "3x2" && (
-            <>
-              <View style={styles.merkkastenRule} />
-              <Text style={styles.merkkastenResult}>
-                {String(ex.result).padStart(7, " ")}
-              </Text>
-            </>
-          )}
-        </View>
+      {/* Section 1: numbered steps */}
+      <View>
+        {steps.map((step, i) => (
+          <Text key={i} style={styles.merkkastenStep}>
+            {`${i + 1}. ${step}`}
+          </Text>
+        ))}
       </View>
+
+      {/* Section 2: example visual */}
+      <View style={styles.merkkastenSectionGap}>
+        <MerkkastenExample stellen={stellen} />
+      </View>
+
+      {/* Section 3: walkthrough with carries */}
+      <MerkkastenWalkthrough stellen={stellen} />
     </View>
   );
 };
