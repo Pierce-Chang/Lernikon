@@ -29,16 +29,16 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
 
 // ── Merkkasten step arrays (chosen per stellen mode) ──────────────────────
 const STEPS_3X1 = [
-  "Schreibe die Zahlen stellenrichtig untereinander.",
-  "Multipliziere die obere Zahl mit dem Multiplikator.",
-  "Schreibe das Ergebnis unter den Strich.",
+  "Schreibe beide Zahlen stellenrichtig untereinander. Das × steht links neben der unteren Zahl.",
+  "Multipliziere die obere Zahl mit dem Multiplikator, Stelle für Stelle und mit Übertrag.",
+  "Schreibe das Ergebnis unter den Strich. Bei einstelligen Multiplikatoren ist das gleich das Endergebnis.",
 ] as const;
 
 const STEPS_3X2 = [
-  "Schreibe die Zahlen stellenrichtig untereinander.",
-  "Multipliziere die obere Zahl mit der Einerstelle.",
-  "Multipliziere mit der Zehnerstelle, eine Stelle nach links versetzt.",
-  "Addiere die Teilprodukte.",
+  "Schreibe beide Zahlen stellenrichtig untereinander. Das × steht links neben der unteren Zahl.",
+  "Multipliziere die obere Zahl mit der Einerstelle des Multiplikators. Schreibe das Ergebnis unter den Strich.",
+  "Multipliziere die obere Zahl mit der Zehnerstelle. Schreibe dieses Teilprodukt eine Stelle weiter nach links versetzt.",
+  "Ziehe einen Strich unter die Teilprodukte und addiere sie zum Endergebnis.",
 ] as const;
 
 /** Hardcoded examples — not part of the generated exercise set. */
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   merkkastenSteps: {
-    flex: 1,
+    flex: 1.6,
   },
   merkkastenStep: {
     fontSize: 9,
@@ -541,9 +541,9 @@ const Merkkasten = ({ stellen }: { stellen: MulStellen }): ReactElement => {
             </Text>
           </View>
 
-          {/* Multiplier row with x operator */}
+          {/* Multiplier row with × operator (U+00D7 — in WinAnsi/Latin-1) */}
           <View style={styles.merkkastenExampleRow}>
-            <Text style={styles.merkkastenExampleOp}>{"x"}</Text>
+            <Text style={styles.merkkastenExampleOp}>{"×"}</Text>
             <Text style={styles.merkkastenExampleText}>
               {String(ex.b).padStart(5, " ")}
             </Text>
@@ -552,19 +552,19 @@ const Merkkasten = ({ stellen }: { stellen: MulStellen }): ReactElement => {
           {/* Rule */}
           <View style={styles.merkkastenRule} />
 
-          {/* Partial products */}
+          {/* Partial products with parens annotation (no arrows — WinAnsi lacks ← →) */}
           {ex.partials.map((pp, i) => (
             <View key={i} style={styles.merkkastenExampleRow}>
               <Text style={styles.merkkastenExampleText}>
                 {String(pp).padStart(7, " ")}
               </Text>
-              <Text style={styles.merkkastenExampleNote}>
-                {stellen === "3x2"
-                  ? i === 0
-                    ? `<- ${ex.a} x ${ex.b % 10}`
-                    : `<- ${ex.a} x ${Math.floor(ex.b / 10)} (verschoben)`
-                  : `<- Ergebnis`}
-              </Text>
+              {stellen === "3x2" && (
+                <Text style={styles.merkkastenExampleNote}>
+                  {i === 0
+                    ? `(${ex.a} × ${ex.b % 10})`
+                    : `(${ex.a} × ${Math.floor(ex.b / 10)}, eine Stelle versetzt)`}
+                </Text>
+              )}
             </View>
           ))}
 
