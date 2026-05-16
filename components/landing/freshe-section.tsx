@@ -83,16 +83,16 @@ function DeutschBody({
   // Vertical positions of the three Schreiblernlineatur lines, as percentage
   // from the top of the body container. Move these to shift line spacing.
   const OBERLINIE_TOP = "25%";
-  const MITTELLINIE_TOP = "46%";
-  const GRUNDLINIE_TOP = "74%";
+  const MITTELLINIE_TOP = "50%";
+  const GRUNDLINIE_TOP = "75%";
 
   // Letter rendering. Pixel font-size + vertical offset per case so upper- and
   // lowercase can each be tuned independently. Negative Y-offset moves the
   // glyph up; positive moves it down.
-  const UPPERCASE_FONT_PX = 36;
-  const UPPERCASE_Y_OFFSET_PX = 0;
-  const LOWERCASE_FONT_PX = 36;
-  const LOWERCASE_Y_OFFSET_PX = 0;
+  const UPPERCASE_FONT_PX = 51;
+  const UPPERCASE_Y_OFFSET_PX = 0.5;
+  const LOWERCASE_FONT_PX = 46;
+  const LOWERCASE_Y_OFFSET_PX = 3;
 
   // Ghost-trace opacity (0.0 = invisible, 1.0 = solid).
   const LETTER_OPACITY = 0.65;
