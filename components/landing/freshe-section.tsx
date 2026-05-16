@@ -1,7 +1,11 @@
 "use client";
 
-import { Check, Dices } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Dices, Calculator, Book, Brain } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Reveal } from "@/components/motion/reveal";
+import { SUBJECT_COLOR_HEX, SUBJECT_LABELS } from "@/lib/worksheet/topics";
+import type { LucideIcon } from "lucide-react";
 
 const PROOF_POINTS = [
   { text: "Nächste Woche dasselbe Thema, trotzdem frische Aufgaben" },
@@ -13,29 +17,94 @@ const PROOF_POINTS = [
   },
 ] as const;
 
-const VARIANTS = {
-  a: ["w-full", "w-3/4", "w-full", "w-5/6", "w-2/3"],
-  b: ["w-5/6", "w-full", "w-3/4", "w-full", "w-3/4"],
-  c: ["w-full", "w-2/3", "w-5/6", "w-full", "w-3/4"],
+type SubjectKey = "mathe" | "deutsch" | "denken";
+
+/** Width-class variants per subject. Three variations cycle in sequence. */
+const VARIATIONS: Record<SubjectKey, readonly (readonly string[])[]> = {
+  // Mathe = short, uniform "equation" widths
+  mathe: [
+    ["w-2/3", "w-3/5", "w-2/3", "w-1/2", "w-3/5"],
+    ["w-3/5", "w-1/2", "w-2/3", "w-3/5", "w-1/2"],
+    ["w-1/2", "w-2/3", "w-3/5", "w-2/3", "w-3/5"],
+  ],
+  // Deutsch = longer, variable "word/sentence" widths
+  deutsch: [
+    ["w-full", "w-3/4", "w-full", "w-5/6", "w-2/3"],
+    ["w-5/6", "w-full", "w-3/4", "w-full", "w-3/4"],
+    ["w-full", "w-2/3", "w-5/6", "w-full", "w-3/4"],
+  ],
+  // Denken = very uniform "pattern row" widths
+  denken: [
+    ["w-3/4", "w-3/4", "w-3/4", "w-3/4", "w-3/4"],
+    ["w-4/5", "w-4/5", "w-4/5", "w-4/5", "w-4/5"],
+    ["w-2/3", "w-2/3", "w-2/3", "w-2/3", "w-2/3"],
+  ],
 } as const;
 
-type Variant = keyof typeof VARIANTS;
+const SUBJECT_ICON: Record<SubjectKey, LucideIcon> = {
+  mathe: Calculator,
+  deutsch: Book,
+  denken: Brain,
+};
 
-/** Mini fake-worksheet card: navy header strip, 5 stubbed task lines, footer wordmark. */
-function SheetCard({ variant }: { variant: Variant }) {
-  const lines = VARIANTS[variant];
+interface SheetCardProps {
+  subject: SubjectKey;
+  variationIndex: number;
+  reducedMotion: boolean;
+}
+
+/** Mini fake-worksheet card with subject-colored header and cycling task lines. */
+function SheetCard({ subject, variationIndex, reducedMotion }: SheetCardProps) {
+  const color = SUBJECT_COLOR_HEX[subject],
+    label = SUBJECT_LABELS[subject],
+    Icon = SUBJECT_ICON[subject],
+    lines = VARIATIONS[subject][variationIndex],
+    // Hex + "1A" = 10% opacity variant of the subject color
+    lineBg = `${color}1A`;
+
+  const linesContent = (
+    <div className="flex flex-col gap-2 p-3 pb-2">
+      {lines.map((w, i) => (
+        <div
+          key={i}
+          className={`h-2 rounded-full ${w}`}
+          style={{ backgroundColor: lineBg }}
+        />
+      ))}
+    </div>
+  );
+
   return (
     <div className="w-36 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:w-40">
-      <div className="bg-brand flex h-6 items-center px-2">
-        <span className="text-[7px] font-medium tracking-wide text-white/60">
-          lernikon.de
+      {/* Subject-colored header */}
+      <div
+        className="flex h-6 items-center gap-1 px-2"
+        style={{ backgroundColor: color }}
+      >
+        <Icon className="size-2.5 text-white" />
+        <span className="text-[7px] font-medium tracking-wide text-white">
+          {label}
         </span>
       </div>
-      <div className="flex flex-col gap-2 p-3 pb-2">
-        {lines.map((w, i) => (
-          <div key={i} className={`bg-brand/10 h-2 rounded-full ${w}`} />
-        ))}
-      </div>
+
+      {/* Cycling task lines — cross-fade between variations */}
+      {reducedMotion ? (
+        linesContent
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={variationIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            {linesContent}
+          </motion.div>
+        </AnimatePresence>
+      )}
+
+      {/* Footer strip — unchanged */}
       <div className="border-border/50 border-t px-2 py-1">
         <span className="text-muted-foreground text-[6px]">lernikon.de</span>
       </div>
@@ -49,6 +118,17 @@ const AccentLine = ({ className = "" }: { className?: string }) => (
 
 /** Highlights the "always fresh" differentiator with copy + a fanned card cluster. */
 export function FresheSection() {
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const [variationIndex, setVariationIndex] = useState(0);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const id = setInterval(() => {
+      setVariationIndex((prev) => (prev + 1) % 3);
+    }, 2000);
+    return () => clearInterval(id);
+  }, [prefersReducedMotion]);
+
   return (
     <section className="border-y border-border bg-[#FAFAF7]">
       <div className="mx-auto w-full max-w-5xl px-6 py-20">
@@ -94,16 +174,28 @@ export function FresheSection() {
               delay={0.05}
               className="absolute left-0 top-2 z-0 rotate-[-3deg] opacity-70"
             >
-              <SheetCard variant="a" />
+              <SheetCard
+                subject="mathe"
+                variationIndex={variationIndex}
+                reducedMotion={prefersReducedMotion}
+              />
             </Reveal>
             <Reveal delay={0.15} className="relative z-10">
-              <SheetCard variant="b" />
+              <SheetCard
+                subject="deutsch"
+                variationIndex={variationIndex}
+                reducedMotion={prefersReducedMotion}
+              />
             </Reveal>
             <Reveal
               delay={0.25}
               className="absolute right-0 top-4 z-0 rotate-[2deg] opacity-60"
             >
-              <SheetCard variant="c" />
+              <SheetCard
+                subject="denken"
+                variationIndex={variationIndex}
+                reducedMotion={prefersReducedMotion}
+              />
             </Reveal>
           </div>
         </div>
