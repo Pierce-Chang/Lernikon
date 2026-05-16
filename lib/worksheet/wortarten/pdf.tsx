@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   // Left column: word list
   wordCol: {
-    flex: 1,
+    width: 130,
     paddingRight: 8,
   },
   // Right columns: one per wortart
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     borderBottomColor: COLOR.line,
   },
   colHeaderWord: {
-    flex: 1,
+    width: 130,
   },
   colHeaderText: {
     width: CHECKBOX_COL_WIDTH,
