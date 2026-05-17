@@ -73,9 +73,9 @@ const DOT_R = 3;
  * Fewer pairs -> larger shapes.
  */
 const shapeSize = (paarCount: number): number => {
-  if (paarCount <= 4) return 55;
-  if (paarCount <= 6) return 50;
-  return 45;
+  if (paarCount <= 4) return 70;
+  if (paarCount <= 6) return 60;
+  return 55;
 };
 
 // ── Styles ────────────────────────────────────────────────────────────────────
