@@ -48,17 +48,17 @@ const STEPS_ERGAENZUNG = [
 // ── Walkthrough lines for 728 : 4 = 182 ─────────────────────────────────────
 
 const WALKTHROUGH_ABZIEH = [
-  "7 : 4 = 1 (4 passt einmal in 7), 7 minus 4 = 3 (Rest 3, schreibe 1 als erste Quotient-Stelle)",
-  "2 herabgeholt, ergibt 32. 32 : 4 = 8, 32 minus 32 = 0 (schreibe 8 als zweite Quotient-Stelle)",
-  "8 herabgeholt, ergibt 8. 8 : 4 = 2, 8 minus 8 = 0 (schreibe 2 als dritte Quotient-Stelle)",
-  "Ergebnis: 182, kein Rest",
+  "7 : 4 = 1, denn 1 × 4 = 4. Rechne 7 minus 4 = 3 (Rest 3). Schreibe 1 als erste Quotient-Stelle.",
+  "Hole die 2 herunter, das ergibt 32. 32 : 4 = 8, denn 8 × 4 = 32. Rechne 32 minus 32 = 0. Schreibe 8 als zweite Quotient-Stelle.",
+  "Hole die 8 herunter, das ergibt 8. 8 : 4 = 2, denn 2 × 4 = 8. Rechne 8 minus 8 = 0. Schreibe 2 als dritte Quotient-Stelle.",
+  "Ergebnis: 182, kein Rest.",
 ] as const;
 
 const WALKTHROUGH_ERGAENZUNG = [
-  "7 : 4 = 1 (4 passt einmal in 7), 4 plus 3 = 7 (schreibe 3 als Rest, 1 als erste Quotient-Stelle)",
-  "2 herabgeholt, ergibt 32. 32 : 4 = 8, 32 plus 0 = 32 (schreibe 8 als zweite Quotient-Stelle, Rest 0)",
-  "8 herabgeholt, ergibt 8. 8 : 4 = 2, 8 plus 0 = 8 (schreibe 2 als dritte Quotient-Stelle, Rest 0)",
-  "Ergebnis: 182, kein Rest",
+  "7 : 4 = 1, denn 1 × 4 = 4. Ergänze von 4 bis 7: 4 plus 3 = 7 (Rest 3). Schreibe 1 als erste Quotient-Stelle.",
+  "Hole die 2 herunter, das ergibt 32. 32 : 4 = 8, denn 8 × 4 = 32. Ergänze von 32 bis 32: 32 plus 0 = 32 (Rest 0). Schreibe 8 als zweite Quotient-Stelle.",
+  "Hole die 8 herunter, das ergibt 8. 8 : 4 = 2, denn 2 × 4 = 8. Ergänze von 8 bis 8: 8 plus 0 = 8 (Rest 0). Schreibe 2 als dritte Quotient-Stelle.",
+  "Ergebnis: 182, kein Rest.",
 ] as const;
 
 // ── Brand palette ─────────────────────────────────────────────────────────────
