@@ -154,6 +154,7 @@ const styles = StyleSheet.create({
     width: LEFT_COL_WIDTH,
     flexDirection: "column",
     justifyContent: "space-evenly",
+    alignItems: "flex-start",
   },
   midCol: {
     width: MID_WIDTH,
@@ -162,6 +163,7 @@ const styles = StyleSheet.create({
     width: RIGHT_COL_WIDTH,
     flexDirection: "column",
     justifyContent: "space-evenly",
+    alignItems: "flex-end",
   },
   leftItem: {
     flexDirection: "row",
