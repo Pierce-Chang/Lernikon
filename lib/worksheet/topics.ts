@@ -54,6 +54,7 @@ export const TOPIC_IDS = [
   "deutsch-rechtschreibung",
   "deutsch-wortarten",
   "denken-muster",
+  "denken-formen-erkennen",
 ] as const;
 
 export type TopicId = (typeof TOPIC_IDS)[number];
@@ -523,6 +524,19 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     label: "Muster fortsetzen",
     description: "Reihen aus Formen vervollständigen",
     href: "/app/denken/muster",
+    grades: [0],
+    implemented: true,
+  },
+
+  /**
+   * Stub — full JSDoc and coverage matrix update added in registry commit.
+   */
+  "denken-formen-erkennen": {
+    id: "denken-formen-erkennen",
+    subject: "denken",
+    label: "Formen erkennen",
+    description: "Geometrische Formen entdecken und ausmalen",
+    href: "/app/denken/formen-erkennen",
     grades: [0],
     implemented: true,
   },

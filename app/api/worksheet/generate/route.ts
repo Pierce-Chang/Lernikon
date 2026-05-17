@@ -52,6 +52,10 @@ import { renderMultiplikationPdf } from "@/lib/worksheet/multiplikation/pdf";
 import { divisionConfigSchema, STELLEN_LABELS as DIV_STELLEN_LABELS, VERFAHREN_LABELS as DIV_VERFAHREN_LABELS } from "@/lib/worksheet/division/config";
 import { generateDivision } from "@/lib/worksheet/division/generate";
 import { renderDivisionPdf } from "@/lib/worksheet/division/pdf";
+import { formenErkennenConfigSchema, SCHWIERIGKEIT_LABELS as FORMEN_SCHWIERIGKEIT_LABELS } from "@/lib/worksheet/denken-formen-erkennen/config";
+import { generateFormenErkennen } from "@/lib/worksheet/denken-formen-erkennen/generate";
+import { renderFormenErkennenPdf } from "@/lib/worksheet/denken-formen-erkennen/pdf";
+import { SHAPE_LABELS as FORMEN_SHAPE_LABELS } from "@/lib/worksheet/denken-formen-erkennen/shapes";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -543,6 +547,34 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Mathe - Schriftliche Division (${stellenLabel}, ${verfahrenLabel})${config.mitRest ? " mit Rest" : ""}`,
         logSubject: "mathe",
         logOperation: "division",
+        logConfig: config,
+      };
+    }
+    case "denken-formen-erkennen": {
+      const parsed = formenErkennenConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateFormenErkennen(config),
+        zielFormLabel = FORMEN_SHAPE_LABELS[config.zielForm],
+        schwierigkeitLabel = FORMEN_SCHWIERIGKEIT_LABELS[config.schwierigkeit],
+        stream = await renderFormenErkennenPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          zielForm: config.zielForm,
+          totalCount: config.totalCount,
+          schwierigkeit: config.schwierigkeit,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Denken - Formen erkennen (${zielFormLabel}, ${schwierigkeitLabel})`,
+        logSubject: "denken",
+        logOperation: "formen-erkennen",
         logConfig: config,
       };
     }
