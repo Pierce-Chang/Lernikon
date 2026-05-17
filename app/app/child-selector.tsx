@@ -68,7 +68,7 @@ export const ChildSelector = ({
             }`}
           >
             <span
-              className="inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-current/20 p-0.5"
+              className={`inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-current/20 p-0.5 ${active ? "bg-white" : ""}`}
               aria-hidden
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
