@@ -10,6 +10,7 @@ import {
 } from "@/lib/db/queries";
 import { getQuota } from "@/lib/worksheet/rate-limit";
 import { formatGradeShort } from "@/lib/format/grade";
+import { type ThemeId } from "@/lib/themes";
 import { greetingForHour, dashboardSubLine } from "@/lib/format/dashboard";
 import {
   TopicMeta,
@@ -192,7 +193,7 @@ export default async function DashboardPage() {
         {children.length > 1 && (
           <div className="mt-4">
             <ChildSelector
-              items={children.map((c) => ({ id: c.id, name: c.name }))}
+              items={children.map((c) => ({ id: c.id, name: c.name, theme: (c.theme_preference ?? "weltraum") as ThemeId }))}
               activeId={active.id}
             />
           </div>

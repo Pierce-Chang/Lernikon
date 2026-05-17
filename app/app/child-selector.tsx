@@ -2,10 +2,12 @@
 
 import { useTransition } from "react";
 import { setActiveChild } from "@/app/app/account/profile-actions";
+import { getTheme, type ThemeId } from "@/lib/themes";
 
 export interface ChildPill {
   id: string;
   name: string;
+  theme: ThemeId;
 }
 
 /**
@@ -66,12 +68,12 @@ export const ChildSelector = ({
             }`}
           >
             <span
-              className={`inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold leading-none ${
-                active ? "bg-[#1E4A7C] text-[#F4B942]" : "bg-[#1E4A7C]/10 text-[#1E4A7C]"
+              className={`inline-flex size-5 shrink-0 items-center justify-center rounded-full text-sm leading-none ${
+                active ? "bg-[#1E4A7C]" : "bg-[#1E4A7C]/10"
               }`}
               aria-hidden
             >
-              {child.name.charAt(0).toUpperCase()}
+              {getTheme(child.theme).emoji}
             </span>
             {child.name}
           </button>
