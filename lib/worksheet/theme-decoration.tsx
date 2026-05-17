@@ -16,7 +16,7 @@ import { THEMES, type Theme, type ThemeId } from "@/lib/themes";
  * square (Einhorn), tall (Rakete) or wide (Auto).
  */
 
-const MAX_DIM = 46; // pt — longest side of the rendered illustration
+const MAX_DIM = 40; // pt — longest side of the rendered illustration
 
 const loadThemeBuffer = (theme: Theme): Buffer =>
   fs.readFileSync(
@@ -54,8 +54,8 @@ export const ThemeDecoration = ({ theme }: { theme: Theme }): ReactElement => {
     <View
       style={{
         position: "absolute",
-        bottom: 4,
-        right: 4,
+        bottom: 8,
+        right: 8,
         width: MAX_DIM,
         height: MAX_DIM,
         alignItems: "center",
