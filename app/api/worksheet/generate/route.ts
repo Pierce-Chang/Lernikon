@@ -56,6 +56,9 @@ import { formenErkennenConfigSchema, SCHWIERIGKEIT_LABELS as FORMEN_SCHWIERIGKEI
 import { generateFormenErkennen } from "@/lib/worksheet/denken-formen-erkennen/generate";
 import { renderFormenErkennenPdf } from "@/lib/worksheet/denken-formen-erkennen/pdf";
 import { SHAPE_LABELS as FORMEN_SHAPE_LABELS } from "@/lib/worksheet/denken-formen-erkennen/shapes";
+import { formenZuordnenConfigSchema } from "@/lib/worksheet/denken-formen-zuordnen/config";
+import { generateFormenZuordnen } from "@/lib/worksheet/denken-formen-zuordnen/generate";
+import { renderFormenZuordnenPdf } from "@/lib/worksheet/denken-formen-zuordnen/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -575,6 +578,30 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Denken - Formen erkennen (${zielFormLabel}, ${schwierigkeitLabel})`,
         logSubject: "denken",
         logOperation: "formen-erkennen",
+        logConfig: config,
+      };
+    }
+    case "denken-formen-zuordnen": {
+      const parsed = formenZuordnenConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateFormenZuordnen(config),
+        stream = await renderFormenZuordnenPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          paarCount: config.paarCount,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Denken - Formen zuordnen (${config.paarCount} Paare)`,
+        logSubject: "denken",
+        logOperation: "formen-zuordnen",
         logConfig: config,
       };
     }

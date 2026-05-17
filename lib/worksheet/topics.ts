@@ -56,6 +56,7 @@ export const TOPIC_IDS = [
   "deutsch-wortarten",
   "denken-muster",
   "denken-formen-erkennen",
+  "denken-formen-zuordnen",
 ] as const;
 
 export type TopicId = (typeof TOPIC_IDS)[number];
@@ -558,6 +559,17 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     href: "/app/denken/formen-erkennen",
     grades: [0],
     implemented: true,
+  },
+
+  // Stub — full JSDoc + description added in Commit 6 (topic registry).
+  "denken-formen-zuordnen": {
+    id: "denken-formen-zuordnen",
+    subject: "denken",
+    label: "Formen zuordnen",
+    description: "Farbige Formen mit ihren Silhouetten paaren",
+    href: "/app/denken/formen-zuordnen",
+    grades: [0],
+    implemented: false,
   },
 };
 
