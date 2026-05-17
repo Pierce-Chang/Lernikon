@@ -26,7 +26,8 @@
  *            |                    |                  | Diktat, Wortarten     |                            |                                  |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Denken     | Muster fortsetzen, | -                | -                     | -                          | -                                |
- *            | Formen erkennen    |                  |                       |                            |                                  |
+ *            | Formen erkennen,   |                  |                       |                            |                                  |
+ *            | Formen zuordnen    |                  |                       |                            |                                  |
  *
  * Echte Lücken (kein comingSoon, einfach nicht da):
  *   - Mathe Klasse 1-4: Zehnerübergang als eigener didaktischer Fokus
@@ -561,7 +562,23 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     implemented: true,
   },
 
-  // Stub — full JSDoc + description added in Commit 6 (topic registry).
+  /**
+   * Vorschule · Denken · Pärchen von Formen zuordnen.
+   *
+   * Aufgabentyp: 4, 6 oder 8 farbige Formen in der linken Spalte;
+   * dieselben Formen als weisse Silhouetten in einem gruenen Streifen rechts
+   * (gemischte Reihenfolge). Grauer Verbindungspunkt neben jeder Form.
+   * Das Kind verbindet jedes farbige Form-Paerchen mit seiner Silhouette
+   * per eigener Linie. Optionales Loesungsblatt zeichnet die Verbindungslinien ein.
+   *
+   * Konfig-Achsen:
+   *   - paarCount (4 / 6 / 8) — Default: 6
+   *   - solutions (an / aus) — Default: an
+   *
+   * NICHT in scope:
+   *   - Formen-Ausmal-Ubung (eine Ziel-Form suchen) → "denken-formen-erkennen"
+   *   - Form-Muster-Reihen fortsetzen → "denken-muster"
+   */
   "denken-formen-zuordnen": {
     id: "denken-formen-zuordnen",
     subject: "denken",
@@ -569,7 +586,7 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     description: "Farbige Formen mit ihren Silhouetten paaren",
     href: "/app/denken/formen-zuordnen",
     grades: [0],
-    implemented: false,
+    implemented: true,
   },
 };
 
