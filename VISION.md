@@ -39,6 +39,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 24 — Mathe Klasse 4: Schriftliche Verfahren (Phase 1c) — Addition + Subtraktion im Spaltenlayout mit Übertrag, optionales Lösungsblatt
 - [x] Task 25 — Deutsch Klasse 3: Rechtschreibung (Phase 1c) — Lückenwörter zu ie/i/ih, ss/sz, Doppelkonsonanten, Wortendungen; Gemischt-Modus; optionales Lösungsblatt
 - [x] Task 26 — Mathe Klasse 4: Brüche (Phase 1c) — Multi-Modus (Darstellen / Vergleichen / Rechnen), SVG-Kreissektor + Rechteck-Darstellung, optionales Lösungsblatt
+- [x] Task 27 — Mathe Klasse 4: Schriftliche Division (Phase 1c) — Heruntergeholt-Verfahren mit Abzieh- oder Ergänzungsmodus, optional mit Rest, optionaler Merkkasten, optionales Lösungsblatt
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -211,6 +212,7 @@ Built and working end-to-end:
    - ⏳ Vorschule — Mengen 1–10 (nächster Topic)
    - ✅ Klasse 4 — schriftliche Verfahren (Task 24, geshippt)
    - ✅ Klasse 4 — Brüche (Task 26, geshippt)
+   - ✅ Klasse 4 — schriftliche Division (Task 27, geshippt)
 4. Mehr Deutsch-Topics:
    - ✅ Klasse 1–2 — Wörter abschreiben (Task 22, geshippt)
    - ✅ Klasse 2 — Diktate (Task 23, geshippt)
@@ -457,6 +459,18 @@ Create Supabase migrations:
 - Bruch-Primitive `Bruch`/`BruchBlank` per gestapelter View+Text: Zahler oben, thin View als Bruchstrich, Nenner unten. Drei Groessen (sm/md/lg). Blank-Version: Unterstrich-Views mit sichtbarem Bruchstrich.
 - SVG-Kreissektor: Path-basiert via Polarkoordinaten. Jeder Sektor ist ein separater `<Path>` (M center L start A ... Z), damit `fill` zuverlassig greift. `large-arc-flag` korrekt aus Winkel >= PI berechnet. Kreisumriss als eigener `<Path>` on top fur saubere Sektorubergange.
 - Rechteck: N gleich breite vertikale Streifen, erste M gefullt (fill=brand), Rest weiss.
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 27 — Mathe Klasse 4: Schriftliche Division (Phase 1c)
+- Route: `/app/mathe/division`
+- Topic-ID: `mathe-division`; im Topic-Registry unter `subject: "mathe"`, `grades: [4]`
+- Konfig-UI: Stellen-Pills (3:1 / 4:1 / 4:2), Anzahl-Pills (4 / 8 / 12), Verfahren-Pills (Abziehverfahren / Erganzungsverfahren), Mit-Rest-Checkbox, Merkkasten-Checkbox, Losungsblatt-Checkbox; Defaults: 3:1, 8, Abzieh, kein Rest, kein Merkkasten, Losungen an
+- Operanden-Range: 3:1 (Dividend 100-999, Divisor 2-9), 4:1 (Dividend 1000-9999, Divisor 2-9), 4:2 (Dividend 1000-9999, Divisor 11-99)
+- `mitRest=false`: Dividend wird auf nachstkleineres Vielfaches des Divisors gerundet; wird das Ergebnis kleiner als Range-Minimum, Re-Roll
+- Pure function `generateDivision(config)`: seedable mulberry32 PRNG, Anti-Duplikat-Set auf `dividend|divisor`, deterministisch. Steps-Berechnung per MSB-to-LSB-Loop; steps.length === quotient.toString().length
+- PDF: eigener Renderer `lib/worksheet/division/pdf.tsx`. Pro Aufgabe: Gleichungszeile (Dividend : Divisor = [Quotient-Slots] [R-Slot wenn mitRest]), darunter eingerueckter Subtraktionsblock pro Schritt (Teildividend / Operator+Abzug / Linie / Rest). Abzieh: "-", Erganzung: "+". 4 Aufgaben 2x2, 8 Aufgaben 2x4, 12 Aufgaben 3x4. Optionales Losungsblatt Seite 2 (Werte in Brandblau).
+- Optionaler Merkkasten (verfahren-sensitiv): 5 Schritte + Beispiel 728:4=182 + Walkthrough
+- ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
 - Rate-Limit-Eintrag analog Mathe
 
 ---
