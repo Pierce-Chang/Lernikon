@@ -18,7 +18,8 @@
  *            | Vorschule          | Klasse 1         | Klasse 2              | Klasse 3                   | Klasse 4                         |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Mathe      | Zahlen schreiben   | Rechnen (+ -)    | Rechnen (+ -)         | Rechnen (+ -), Einmaleins  | Rechnen (+ -), Schriftlich,      |
- *            | Mengen 1-10 [*]    |                  |                       |                            | Brüche, Schriftliche Mul         |
+ *            | Mengen 1-10 [*]    |                  |                       |                            | Brüche, Schriftliche Mul,        |
+ *            |                    |                  |                       |                            | Schriftliche Div                 |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Deutsch    | Buchst. schreiben  | Buchst. schreib. | Buchst. schreiben,    | Rechtschreibung            | -                                |
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
@@ -28,7 +29,6 @@
  *
  * Echte Lücken (kein comingSoon, einfach nicht da):
  *   - Mathe Klasse 1-4: Zehnerübergang als eigener didaktischer Fokus
- *   - Mathe Klasse 4: schriftliche Division
  *   - Mathe Klasse 4: Bruchrechnen mit ungleichen Nennern, Dezimalzahlen
  *   - Deutsch Klasse 2: Lückendiktat
  *   - Deutsch Klasse 3: Leseverstehen
@@ -280,7 +280,7 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
    *   - Merkkasten (an / aus) — Default: aus, kleine Erklär-Box für Eltern oben auf dem Aufgabenblatt
    *
    * NICHT in scope:
-   *   - Schriftliche Division: existiert noch nicht
+   *   - Schriftliche Division → "mathe-division"
    *   - Multiplikation als Einmaleins-Trockenübung → "mathe-einmaleins"
    *   - Addition / Subtraktion schriftlich → "mathe-schriftlich"
    */
@@ -294,6 +294,33 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     implemented: true,
   },
 
+  /**
+   * Klasse 4 · Mathe · Schriftliche Division im Heruntergeholt-Verfahren.
+   *
+   * Aufgabentyp: Spaltenlayout mit fixbreiten Digit-Zellen (14 pt je Stelle).
+   * Pro Aufgabe: Dividend : Divisor = [Quotient-Slots] [R-Slot wenn mitRest].
+   * Darunter pro Quotient-Stelle ein Subtraktionsblock (Teildividend, Abzug,
+   * Rest). Abziehverfahren zeigt "-", Ergänzungsverfahren zeigt "+".
+   * 4 Aufgaben → 2×2, 8 → 2×4, 12 → 3×4.
+   * Optionales Lösungsblatt auf Seite 2 (Werte in Brandblau).
+   * Optionaler Merkkasten oben auf dem Aufgabenblatt, verfahren-sensitiv.
+   *
+   * Konfig-Achsen:
+   *   - Stellen ("3:1": Dividend 100-999, Divisor 2-9 /
+   *     "4:1": Dividend 1000-9999, Divisor 2-9 /
+   *     "4:2": Dividend 1000-9999, Divisor 11-99) — Default: "3:1"
+   *   - Anzahl (4 / 8 / 12) — Default: 8
+   *   - Verfahren ("abzieh" / "ergaenzung") — Default: "abzieh"
+   *   - Mit Rest (an / aus) — Default: aus (Aufgaben gehen restfrei auf)
+   *   - Merkkasten (an / aus) — Default: aus
+   *   - Lösungsblatt (an / aus) — Default: an
+   *
+   * NICHT in scope:
+   *   - Dezimalzahlen-Division: existiert nicht
+   *   - Division mit Divisor > 99: existiert nicht
+   *   - Bruchrechnung → "mathe-brueche"
+   *   - Schriftliche Multiplikation → "mathe-multiplikation"
+   */
   "mathe-division": {
     id: "mathe-division",
     subject: "mathe",
