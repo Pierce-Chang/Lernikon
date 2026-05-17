@@ -40,6 +40,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 25 — Deutsch Klasse 3: Rechtschreibung (Phase 1c) — Lückenwörter zu ie/i/ih, ss/sz, Doppelkonsonanten, Wortendungen; Gemischt-Modus; optionales Lösungsblatt
 - [x] Task 26 — Mathe Klasse 4: Brüche (Phase 1c) — Multi-Modus (Darstellen / Vergleichen / Rechnen), SVG-Kreissektor + Rechteck-Darstellung, optionales Lösungsblatt
 - [x] Task 27 — Mathe Klasse 4: Schriftliche Division (Phase 1c) — Heruntergeholt-Verfahren mit Abzieh- oder Ergänzungsmodus, optional mit Rest, optionaler Merkkasten, optionales Lösungsblatt
+- [x] Task 28 — Vorschule Denken: Formen erkennen (Phase 1c) — 7 geometrische Formen als SVG, 1 Aufgabe pro Sheet, optionales Lösungsblatt
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -470,6 +471,18 @@ Create Supabase migrations:
 - Pure function `generateDivision(config)`: seedable mulberry32 PRNG, Anti-Duplikat-Set auf `dividend|divisor`, deterministisch. Steps-Berechnung per MSB-to-LSB-Loop; steps.length === quotient.toString().length
 - PDF: eigener Renderer `lib/worksheet/division/pdf.tsx`. Pro Aufgabe: Gleichungszeile (Dividend : Divisor = [Quotient-Slots] [R-Slot wenn mitRest]), darunter eingerueckter Subtraktionsblock pro Schritt (Teildividend / Operator+Abzug / Linie / Rest). Abzieh: "-", Erganzung: "+". 4 Aufgaben 2x2, 8 Aufgaben 2x4, 12 Aufgaben 3x4. Optionales Losungsblatt Seite 2 (Werte in Brandblau).
 - Optionaler Merkkasten (verfahren-sensitiv): 5 Schritte + Beispiel 728:4=182 + Walkthrough
+- ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 28 — Denken Vorschule: Formen erkennen (Phase 1c)
+- Route: `/app/denken/formen-erkennen`
+- Topic-ID: `denken-formen-erkennen`; im Topic-Registry unter `subject: "denken"`, `grades: [0]`
+- Konfig-UI: Ziel-Form-Pills (7 Formen: Quadrat / Rechteck / Kreis / Dreieck / Raute / Stern / Sechseck), Anzahl-Pills (12 / 18), Schwierigkeit-Pills (Einfach / Mittel), Losungsblatt-Checkbox; Defaults: Quadrat, 12, Einfach, Losungen an
+- PDF: 1 Aufgabe pro Sheet. Anweisungs-Zeile oben ("Male alle Quadrate aus." etc.). 12 oder 18 geometrische Outline-Formen als SVG verstreut auf der Seite, davon 4 (bei 12) oder 6 (bei 18) die Ziel-Form. Formen-Groessen 40-90pt, manuell platzierte Slots ohne Uberlappung
+- Schwierigkeit einfach: 2-3 klar verschiedene Ablenkformen. Mittel: 4-5 Ablenkformen inkl. visuell ahnlicher Formen (z.B. Quadrat + Rechteck + Raute)
+- Lösungsblatt: identisches Slot-Layout, Ziel-Formen werden ausgefullt (fill=brand navy) gerendert
+- Pure function `generateFormenErkennen(config)`: seedable mulberry32 PRNG, statische Slot-Listen SLOTS_12 / SLOTS_18, Fisher-Yates-Shuffle
+- SVG-Primitive (shapes.tsx): 7 Komponenten mit optionalem `filled`-Prop; numerische Attribute pflichtmassig, kein gap
 - ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
 - Rate-Limit-Eintrag analog Mathe
 
