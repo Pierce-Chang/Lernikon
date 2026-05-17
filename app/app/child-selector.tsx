@@ -68,12 +68,17 @@ export const ChildSelector = ({
             }`}
           >
             <span
-              className={`inline-flex size-5 shrink-0 items-center justify-center rounded-full text-sm leading-none ${
-                active ? "bg-[#1E4A7C]" : "bg-[#1E4A7C]/10"
-              }`}
+              className="inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-current/20 p-0.5"
               aria-hidden
             >
-              {getTheme(child.theme).emoji}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={getTheme(child.theme).assetPath}
+                alt=""
+                width={28}
+                height={28}
+                className="size-full object-contain"
+              />
             </span>
             {child.name}
           </button>
