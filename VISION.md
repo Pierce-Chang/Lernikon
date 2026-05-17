@@ -207,7 +207,7 @@ Built and working end-to-end:
 ### Phase 1c — Multi-Kind + Content-Tiefe + Conversion-Mechanik (in progress)
 
 1. ✅ Multi-Kind-Support (Task 18 erledigt): Free = 1 Kind, Family Pro = bis zu 3 Kinder. Kind-Selector im Dashboard. Account-Liste statt Single-Editor.
-2. ✅ Theme-Expansion + Theme-Paywall (geshippt): 4 Themes (Weltraum, Einhorn, Pferde, Autos). Free behält „Weltraum", Pro entsperrt alle Themes. Stärkster kid-driven Conversion-Hebel.
+2. ✅ Theme-Expansion + Theme-Paywall (geshippt): 5 Themes (Weltraum, Einhorn, Pferde, Autos, Dinosaurier). Free behält „Weltraum", Pro entsperrt alle Themes. Stärkster kid-driven Conversion-Hebel.
 3. Mehr Mathe-Topics:
    - ✅ Vorschule — Zahlen schreiben 0–9 (Task 19, geshippt)
    - ✅ Klasse 3 — Einmaleins (Task 20, geshippt)
