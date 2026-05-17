@@ -1,7 +1,7 @@
 /**
  * PDF renderer for the "Formen zuordnen" worksheet.
- * Page 1: two-column layout — coloured shapes left, white silhouettes in
- *         green strip right. Child draws lines between matching pairs.
+ * Page 1: two-column layout — coloured shapes left, white silhouettes right.
+ *         Child draws lines between matching pairs.
  * Page 2 (optional): solution page with navy lines connecting each pair.
  */
 
@@ -44,7 +44,6 @@ const COLOR = {
   textDark: "#1F2937",
   textMuted: "#6B7280",
   line: "#E5E7EB",
-  rightBg: "#D9F99D",
   dot: "#9CA3AF",
 } as const;
 
@@ -186,10 +185,6 @@ const styles = StyleSheet.create({
     width: RIGHT_COL_WIDTH,
     flexDirection: "column",
     justifyContent: "space-around",
-    backgroundColor: COLOR.rightBg,
-    borderRadius: 8,
-    paddingTop: 12,
-    paddingBottom: 12,
   },
   leftItem: {
     flexDirection: "row",
@@ -310,7 +305,7 @@ const ShapeColumns = ({
       {/* Middle gap — empty, child draws lines here */}
       <View style={styles.midCol} />
 
-      {/* Right column — silhouette shapes in green strip with left-side dot */}
+      {/* Right column — silhouette shapes with left-side dot */}
       <View style={styles.rightCol}>
         {sheet.rightOrder.map((shapeId, i) => {
           const ShapeComp = SHAPE_COMPONENTS[shapeId];
