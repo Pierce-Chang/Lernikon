@@ -49,6 +49,9 @@ import { renderWortartenPdf } from "@/lib/worksheet/wortarten/pdf";
 import { multiplikationConfigSchema, STELLEN_LABELS as MUL_STELLEN_LABELS } from "@/lib/worksheet/multiplikation/config";
 import { generateMultiplikation } from "@/lib/worksheet/multiplikation/generate";
 import { renderMultiplikationPdf } from "@/lib/worksheet/multiplikation/pdf";
+import { divisionConfigSchema, STELLEN_LABELS as DIV_STELLEN_LABELS, VERFAHREN_LABELS as DIV_VERFAHREN_LABELS } from "@/lib/worksheet/division/config";
+import { generateDivision } from "@/lib/worksheet/division/generate";
+import { renderDivisionPdf } from "@/lib/worksheet/division/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -511,6 +514,35 @@ const dispatchTopic = async (
         filenameBase: `Lernikon - Mathe - Schriftliche Multiplikation (${stellenLabel})`,
         logSubject: "mathe",
         logOperation: "multiplikation",
+        logConfig: config,
+      };
+    }
+    case "mathe-division": {
+      const parsed = divisionConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        problems = generateDivision(config),
+        stellenLabel = DIV_STELLEN_LABELS[config.stellen],
+        verfahrenLabel = DIV_VERFAHREN_LABELS[config.verfahren],
+        stream = await renderDivisionPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          problems,
+          stellen: config.stellen,
+          verfahren: config.verfahren,
+          mitRest: config.mitRest,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.solutions,
+          merkkasten: config.merkkasten,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Mathe - Schriftliche Division (${stellenLabel}, ${verfahrenLabel})${config.mitRest ? " mit Rest" : ""}`,
+        logSubject: "mathe",
+        logOperation: "division",
         logConfig: config,
       };
     }
