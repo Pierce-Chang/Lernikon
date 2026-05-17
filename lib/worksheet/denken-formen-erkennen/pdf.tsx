@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   canvas: {
     position: "relative",
-    height: 620,
+    height: 565,
   },
   footer: {
     position: "absolute",
