@@ -41,6 +41,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 26 — Mathe Klasse 4: Brüche (Phase 1c) — Multi-Modus (Darstellen / Vergleichen / Rechnen), SVG-Kreissektor + Rechteck-Darstellung, optionales Lösungsblatt
 - [x] Task 27 — Mathe Klasse 4: Schriftliche Division (Phase 1c) — Heruntergeholt-Verfahren mit Abzieh- oder Ergänzungsmodus, optional mit Rest, optionaler Merkkasten, optionales Lösungsblatt
 - [x] Task 28 — Vorschule Denken: Formen erkennen (Phase 1c) — 7 geometrische Formen als SVG, 1 Aufgabe pro Sheet, optionales Lösungsblatt
+- [x] Task 29 — Vorschule Denken: Formen zuordnen (Phase 1c) — 4/6/8 Paerchen, farbige Formen links, weisse Silhouetten im gruenen Streifen rechts, optionales Loesungsblatt mit eingezeichneten Verbindungslinien
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -483,6 +484,17 @@ Create Supabase migrations:
 - Lösungsblatt: identisches Slot-Layout, Ziel-Formen werden ausgefullt (fill=brand navy) gerendert
 - Pure function `generateFormenErkennen(config)`: seedable mulberry32 PRNG, statische Slot-Listen SLOTS_12 / SLOTS_18, Fisher-Yates-Shuffle
 - SVG-Primitive (shapes.tsx): 7 Komponenten mit optionalem `filled`-Prop; numerische Attribute pflichtmassig, kein gap
+- ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 29 — Denken Vorschule: Formen zuordnen (Phase 1c)
+- Route: `/app/denken/formen-zuordnen`
+- Topic-ID: `denken-formen-zuordnen`; im Topic-Registry unter `subject: "denken"`, `grades: [0]`
+- Konfig-UI: Anzahl-Paare-Pills (4 / 6 / 8; Default 6), Losungsblatt-Checkbox (Default an)
+- PDF: Zwei-Spalten-Layout auf einer Seite. Anweisungs-Zeile: "Was passt zusammen? Verbinde die Paare mit einer Linie!". Linke Spalte (40%): paarCount farbige Formen (Pastell-Farben, jede Farbe einmalig), mit grauem Verbindungspunkt rechts daneben. Mittlere Zone (20%): leer fuer Kind-Linien. Rechte Spalte (40%): gruener Hintergrundstreifen (#D9F99D) mit denselben Formen als weisse Silhouetten in gemischter Reihenfolge, Verbindungspunkt links neben jeder Form
+- Form-Inventar (shapes.tsx): 10 Formen — Kreis, Quadrat, Dreieck, Fuenfeck, Sechseck, Raute, Rechteck, Parallelogramm, Herz, Stern. Jede Form akzeptiert beliebige fill-Farbe (statt fixed-filled-boolean wie bei formen-erkennen)
+- Loesungsblatt: gleiche Seite mit navy Verbindungslinien (1pt) als absolut positioniertes SVG-Overlay. Y-Positionen deterministisch aus space-around-Formel berechnet (kein Geometrie-Pass-through durch generate.ts)
+- Pure function `generateFormenZuordnen(config)`: seedable mulberry32 PRNG, Fisher-Yates Sample ohne Ersatz fuer Formen und Farben, Re-Shuffle bis rechte Reihenfolge != linke Reihenfolge
 - ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
 - Rate-Limit-Eintrag analog Mathe
 
