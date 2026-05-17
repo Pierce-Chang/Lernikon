@@ -46,8 +46,8 @@ yarn-error.log*
 # Letter-tracing preview output (regenerated via scripts/preview-letter-pdf.ts)
 /scripts/output/
 
-# Theme PNG originals (backup of pre-alpha-strip pipeline input — not shipped)
-/public/themes/_originals/
+# PNG originals (backup of pre-alpha-strip pipeline input — not shipped)
+public/**/_originals/
 
 # typescript
 *.tsbuildinfo
