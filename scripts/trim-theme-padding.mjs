@@ -20,7 +20,7 @@ const DEFAULT_DIR = "public/themes",
     "pferd_theme.png",
     "rakete_theme.png",
     "auto_theme_rot.png",
-    "auto_theme_blau.png",
+    "dinosaurier_theme.png",
   ];
 
 const cliDir = process.argv[2],

@@ -11,7 +11,7 @@
  *   - the three theme-picker forms (show lock badge on gated entries)
  */
 
-export type ThemeId = "weltraum" | "einhorn" | "pferde" | "autos";
+export type ThemeId = "weltraum" | "einhorn" | "pferde" | "autos" | "dinosaurier";
 
 export interface Theme {
   id: ThemeId;
@@ -61,6 +61,15 @@ export const THEMES: ReadonlyArray<Theme> = [
     description: "Sportwagen, Rennen und Motoren",
     assetPath: "/themes/auto_theme_rot.png",
     accent: "#E63946",
+    pro: true,
+  },
+  {
+    id: "dinosaurier",
+    label: "Dinosaurier",
+    emoji: "🦖",
+    description: "Dinos, Urzeit und Vulkane",
+    assetPath: "/themes/dinosaurier_theme.png",
+    accent: "#84A04E",
     pro: true,
   },
 ];
