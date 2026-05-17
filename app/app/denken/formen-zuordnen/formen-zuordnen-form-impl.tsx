@@ -18,12 +18,10 @@ export interface QuotaProps {
 
 interface FormenZuordnenSettings {
   paarCount: PaarCount;
-  solutions: boolean;
 }
 
 const DEFAULT_SETTINGS: FormenZuordnenSettings = {
   paarCount: 6,
-  solutions: true,
 };
 
 const filenameFromResponse = (response: Response, fallback: string): string => {
@@ -44,7 +42,7 @@ export const FormenZuordnenFormImpl = ({
     "lernikon.settings.denken-formen-zuordnen",
     DEFAULT_SETTINGS,
   );
-  const { paarCount, solutions = true } = settings;
+  const { paarCount } = settings;
 
   const update = <K extends keyof FormenZuordnenSettings>(
     key: K,
@@ -78,7 +76,6 @@ export const FormenZuordnenFormImpl = ({
           topic: "denken-formen-zuordnen",
           childId,
           paarCount,
-          solutions,
         }),
       });
       if (!response.ok) {
@@ -135,24 +132,6 @@ export const FormenZuordnenFormImpl = ({
               </button>
             ))}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Losungsblatt */}
-      <Card>
-        <CardContent className="pt-6">
-          <label className="border-border hover:bg-accent flex cursor-pointer items-center gap-3 rounded-md border p-3">
-            <input
-              type="checkbox"
-              checked={solutions}
-              onChange={(event) => update("solutions", event.target.checked)}
-              className="accent-brand-accent size-4"
-            />
-            <span className="text-sm font-medium">Losungsblatt mitdrucken</span>
-            <span className="text-muted-foreground ml-auto text-xs">
-              {solutions ? "ja" : "nein"}
-            </span>
-          </label>
         </CardContent>
       </Card>
 

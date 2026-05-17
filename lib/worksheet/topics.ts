@@ -569,11 +569,10 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
    * dieselben Formen als weisse Silhouetten in einem gruenen Streifen rechts
    * (gemischte Reihenfolge). Grauer Verbindungspunkt neben jeder Form.
    * Das Kind verbindet jedes farbige Form-Paerchen mit seiner Silhouette
-   * per eigener Linie. Optionales Loesungsblatt zeichnet die Verbindungslinien ein.
+   * per eigener Linie.
    *
    * Konfig-Achsen:
    *   - paarCount (4 / 6 / 8) — Default: 6
-   *   - solutions (an / aus) — Default: an
    *
    * NICHT in scope:
    *   - Formen-Ausmal-Ubung (eine Ziel-Form suchen) → "denken-formen-erkennen"

@@ -4,7 +4,6 @@ import { formenZuordnenConfigSchema, PASTELL_COLORS } from "./config";
 
 const BASE_CONFIG = {
   paarCount: 6 as const,
-  solutions: true,
   seed: 42,
 };
 
@@ -13,13 +12,6 @@ describe("formenZuordnenConfigSchema", () => {
     const result = formenZuordnenConfigSchema.safeParse({
       ...BASE_CONFIG,
       paarCount: 5,
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects missing solutions", () => {
-    const result = formenZuordnenConfigSchema.safeParse({
-      paarCount: 6,
     });
     expect(result.success).toBe(false);
   });

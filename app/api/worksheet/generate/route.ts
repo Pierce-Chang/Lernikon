@@ -595,7 +595,6 @@ const dispatchTopic = async (
           paarCount: config.paarCount,
           theme: ctx.theme,
           showWatermark: !ctx.isPaid,
-          includeSolutions: config.solutions,
         });
       return {
         stream,

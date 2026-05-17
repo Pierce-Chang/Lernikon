@@ -1,8 +1,7 @@
 /**
  * PDF renderer for the "Formen zuordnen" worksheet.
- * Page 1: two-column layout — coloured shapes left, white silhouettes right.
- *         Child draws lines between matching pairs.
- * Page 2 (optional): solution page with navy lines connecting each pair.
+ * Single page: two-column layout — coloured shapes left, white silhouettes right.
+ * Child draws lines between matching pairs.
  */
 
 import fs from "node:fs";
@@ -10,7 +9,6 @@ import path from "node:path";
 import {
   Document,
   Image,
-  Line,
   Page,
   Path,
   StyleSheet,
@@ -79,27 +77,6 @@ const shapeSize = (paarCount: number): number => {
   if (paarCount <= 6) return 50;
   return 45;
 };
-
-/**
- * Y centre of slot i (0-based) in a space-around column of height CANVAS_HEIGHT
- * containing N items. Formula: H * (2*i + 1) / (2*N).
- */
-const slotCenterY = (i: number, n: number): number =>
-  (CANVAS_HEIGHT * (2 * i + 1)) / (2 * n);
-
-/**
- * X centre of the left connection dot within the full canvas coordinate system.
- * The dot sits just outside the right edge of the left column.
- * We place it at leftColWidth + DOT_SIZE/2 so the dot centre is at the boundary.
- */
-const LEFT_DOT_CENTER_X = LEFT_COL_WIDTH + DOT_SIZE / 2;
-
-/**
- * X centre of the right connection dot within the full canvas coordinate system.
- * The right column starts at LEFT_COL_WIDTH + MID_WIDTH.
- * The dot sits just outside the left edge of the right column.
- */
-const RIGHT_DOT_CENTER_X = LEFT_COL_WIDTH + MID_WIDTH - DOT_SIZE / 2;
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
@@ -176,7 +153,7 @@ const styles = StyleSheet.create({
   leftCol: {
     width: LEFT_COL_WIDTH,
     flexDirection: "column",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
   },
   midCol: {
     width: MID_WIDTH,
@@ -184,7 +161,7 @@ const styles = StyleSheet.create({
   rightCol: {
     width: RIGHT_COL_WIDTH,
     flexDirection: "column",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
   },
   leftItem: {
     flexDirection: "row",
@@ -193,7 +170,6 @@ const styles = StyleSheet.create({
   rightItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: 8,
   },
   dot: {
     width: DOT_SIZE,
@@ -220,13 +196,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     marginTop: 6,
   },
-  solutionOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: USABLE_WIDTH,
-    height: CANVAS_HEIGHT,
-  },
 });
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -235,20 +204,16 @@ const PageHeader = ({
   childName,
   date,
   paarCount,
-  isLoesungen,
 }: {
   childName: string;
   date: string;
   paarCount: number;
-  isLoesungen: boolean;
 }): ReactElement => (
   <View style={styles.header}>
     <View>
       <Text style={styles.brand}>Lernikon</Text>
       <Text style={styles.brandDomain}>lernikon.de</Text>
-      <Text style={styles.title}>
-        {isLoesungen ? "Losungen" : "Formen lernen"}
-      </Text>
+      <Text style={styles.title}>Formen lernen</Text>
       <Text style={styles.subtitle}>{paarCount} Paare zuordnen</Text>
     </View>
     <View style={styles.metaCol}>
@@ -271,16 +236,13 @@ const PageFooter = ({ showWatermark }: { showWatermark: boolean }): ReactElement
   </View>
 );
 
-/** Renders the two-column layout for both worksheet and solution pages. */
+/** Renders the two-column worksheet layout. */
 const ShapeColumns = ({
   sheet,
   paarCount,
-  silhouette,
 }: {
   sheet: FormenZuordnenSheet;
   paarCount: number;
-  /** When true, right-side shapes render as outline-only (worksheet mode). */
-  silhouette: boolean;
 }): ReactElement => {
   const size = shapeSize(paarCount);
 
@@ -312,16 +274,12 @@ const ShapeColumns = ({
           return (
             <View key={i} style={styles.rightItem}>
               {/* Connection dot to the left of the shape */}
-              <Svg width={DOT_SIZE} height={DOT_SIZE}>
+              <Svg width={DOT_SIZE} height={DOT_SIZE} style={{ marginRight: 8 }}>
                 <CircleSvg cx={DOT_R + 1} cy={DOT_R + 1} r={DOT_R} />
               </Svg>
               {React.createElement(ShapeComp, {
                 size,
-                fill: silhouette ? "#FFFFFF" : (() => {
-                  // On solution page: fill with the paired colour
-                  const paired = sheet.leftItems.find((li) => li.shapeId === shapeId);
-                  return paired?.color ?? "#FFFFFF";
-                })(),
+                fill: "#FFFFFF",
                 stroke: "#1E4A7C",
                 strokeWidth: 2,
               })}
@@ -329,11 +287,6 @@ const ShapeColumns = ({
           );
         })}
       </View>
-
-      {/* Solution overlay: draw lines between matching dots */}
-      {!silhouette && (
-        <SolutionLines sheet={sheet} paarCount={paarCount} />
-      )}
     </View>
   );
 };
@@ -364,44 +317,6 @@ const CircleSvg = ({
   );
 };
 
-/**
- * Absolute-positioned SVG overlay that draws solution lines.
- * Y positions are computed from the space-around distribution formula so they
- * always match the flex layout without passing geometry through the sheet object.
- */
-const SolutionLines = ({
-  sheet,
-  paarCount,
-}: {
-  sheet: FormenZuordnenSheet;
-  paarCount: number;
-}): ReactElement => {
-  // For each right-side slot i, find its matching leftItem and draw a line
-  // from the left dot to the right dot.
-  const lines = sheet.rightOrder.map((shapeId, rightIdx) => {
-    const leftIdx = sheet.leftItems.findIndex((li) => li.shapeId === shapeId);
-    const leftY = slotCenterY(leftIdx, paarCount);
-    const rightY = slotCenterY(rightIdx, paarCount);
-    return { leftY, rightY, key: `${leftIdx}-${rightIdx}` };
-  });
-
-  return (
-    <Svg style={styles.solutionOverlay} width={USABLE_WIDTH} height={CANVAS_HEIGHT}>
-      {lines.map(({ leftY, rightY, key }) => (
-        <Line
-          key={key}
-          x1={LEFT_DOT_CENTER_X}
-          y1={leftY}
-          x2={RIGHT_DOT_CENTER_X}
-          y2={rightY}
-          stroke={COLOR.brand}
-          strokeWidth={1}
-        />
-      ))}
-    </Svg>
-  );
-};
-
 // ── Document ──────────────────────────────────────────────────────────────────
 
 export interface FormenZuordnenPdfProps {
@@ -411,7 +326,6 @@ export interface FormenZuordnenPdfProps {
   paarCount: number;
   theme: ThemeId;
   showWatermark: boolean;
-  includeSolutions: boolean;
 }
 
 const FormenZuordnenDocument = ({
@@ -421,7 +335,6 @@ const FormenZuordnenDocument = ({
   paarCount,
   theme,
   showWatermark,
-  includeSolutions,
 }: FormenZuordnenPdfProps): ReactElement => {
   const themeMeta = getTheme(theme);
 
@@ -432,39 +345,19 @@ const FormenZuordnenDocument = ({
       creator="Lernikon"
       producer="Lernikon"
     >
-      {/* Page 1 — Aufgabenblatt */}
       <Page size="A4" style={styles.page}>
         <ThemeDecoration theme={themeMeta} />
         <PageHeader
           childName={childName}
           date={date}
           paarCount={paarCount}
-          isLoesungen={false}
         />
         <Text style={styles.instruction}>
           Was passt zusammen? Verbinde die Paare mit einer Linie!
         </Text>
-        <ShapeColumns sheet={sheet} paarCount={paarCount} silhouette={true} />
+        <ShapeColumns sheet={sheet} paarCount={paarCount} />
         <PageFooter showWatermark={showWatermark} />
       </Page>
-
-      {/* Page 2 — Loesungsblatt (optional) */}
-      {includeSolutions && (
-        <Page size="A4" style={styles.page}>
-          <ThemeDecoration theme={themeMeta} />
-          <PageHeader
-            childName={childName}
-            date={date}
-            paarCount={paarCount}
-            isLoesungen={true}
-          />
-          <Text style={styles.instruction}>
-            Was passt zusammen? Verbinde die Paare mit einer Linie!
-          </Text>
-          <ShapeColumns sheet={sheet} paarCount={paarCount} silhouette={false} />
-          <PageFooter showWatermark={showWatermark} />
-        </Page>
-      )}
     </Document>
   );
 };

@@ -27,7 +27,6 @@ export const PASTELL_COLORS = [
 
 export const formenZuordnenConfigSchema = z.object({
   paarCount: z.union([z.literal(4), z.literal(6), z.literal(8)]),
-  solutions: z.boolean(),
   seed: z.number().int().optional(),
 });
 
