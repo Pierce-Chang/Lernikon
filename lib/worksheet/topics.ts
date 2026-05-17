@@ -25,7 +25,8 @@
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
  *            |                    |                  | Diktat, Wortarten     |                            |                                  |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
- * Denken     | Muster fortsetzen  | -                | -                     | -                          | -                                |
+ * Denken     | Muster fortsetzen, | -                | -                     | -                          | -                                |
+ *            | Formen erkennen    |                  |                       |                            |                                  |
  *
  * Echte Lücken (kein comingSoon, einfach nicht da):
  *   - Mathe Klasse 1-4: Zehnerübergang als eigener didaktischer Fokus
@@ -529,7 +530,25 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
   },
 
   /**
-   * Stub — full JSDoc and coverage matrix update added in registry commit.
+   * Vorschule · Denken · Geometrische Formen erkennen und ausmalen.
+   *
+   * Aufgabentyp: 12 oder 18 geometrische Outline-Formen sind auf der Seite
+   * verstreut. 4 bzw. 6 davon sind die Ziel-Form. Das Kind erkennt die
+   * Ziel-Formen und malt sie aus. Optionales Lösungsblatt zeigt die ausgefüllten
+   * Ziel-Formen in Brandblau.
+   *
+   * Konfig-Achsen:
+   *   - Ziel-Form (Quadrat / Rechteck / Kreis / Dreieck / Raute / Stern /
+   *     Sechseck) — Default: Quadrat
+   *   - Anzahl Formen (12 / 18) — Default: 12
+   *   - Schwierigkeit (Einfach / Mittel) — Default: Einfach
+   *     Einfach: 2-3 klar verschiedene Ablenkformen
+   *     Mittel: 4-5 Ablenkformen inkl. visuell ähnlicher Formen
+   *   - Lösungsblatt (an / aus) — Default: an
+   *
+   * NICHT in scope:
+   *   - Form-Muster-Reihen fortsetzen: → "denken-muster"
+   *   - Formen zählen: kein Topic vorhanden
    */
   "denken-formen-erkennen": {
     id: "denken-formen-erkennen",
