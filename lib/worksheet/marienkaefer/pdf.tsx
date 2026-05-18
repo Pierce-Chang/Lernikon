@@ -274,6 +274,7 @@ const TaskRow = ({
           style={{
             fontFamily: "PlaywriteDEGrund",
             fontSize: fontSize + 2,
+            lineHeight: 1,
             color: COLOR.navy,
           }}
         >
@@ -295,6 +296,7 @@ const TaskRow = ({
           style={{
             fontFamily: "PlaywriteDEGrund",
             fontSize: fontSize + 2,
+            lineHeight: 1,
             color: COLOR.navy,
           }}
         >
