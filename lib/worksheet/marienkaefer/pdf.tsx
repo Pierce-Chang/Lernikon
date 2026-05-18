@@ -94,7 +94,7 @@ const CELL_LAYOUT = {
   10: {
     imageWidth: 110,                                       // <- Bug-Größe count=10 tweaken
     imageHeight: Math.round(110 * ASPECT_RATIO),
-    fontSize: 72,                                          // <- Ziffer-Größe count=10
+    fontSize: 56,                                          // <- Ziffer-Größe count=10
     rows: 5,
     bugColWidth: 120,
     digitColWidth: 125,
