@@ -19,13 +19,11 @@ export interface QuotaProps {
 interface MengenSettings {
   range: RangeId;
   count: CountOption;
-  showSolutions: boolean;
 }
 
 const DEFAULT_SETTINGS: MengenSettings = {
   range: "1-10",
   count: 12,
-  showSolutions: true,
 };
 
 const filenameFromResponse = (response: Response, fallback: string): string => {
@@ -46,7 +44,7 @@ export const MengenFormImpl = ({
     "lernikon.settings.mathe-mengen",
     DEFAULT_SETTINGS,
   );
-  const { range, count, showSolutions = true } = settings;
+  const { range, count } = settings;
   const update = <K extends keyof MengenSettings>(
     key: K,
     nextValue: MengenSettings[K],
@@ -78,7 +76,6 @@ export const MengenFormImpl = ({
             childId,
             range,
             count,
-            showSolutions,
           }),
         });
       if (!response.ok) {
@@ -155,23 +152,6 @@ export const MengenFormImpl = ({
               </button>
             ))}
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Losungsblatt</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <label className="flex cursor-pointer items-center gap-3">
-            <input
-              type="checkbox"
-              checked={showSolutions}
-              onChange={(e) => update("showSolutions", e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300"
-            />
-            <span className="text-sm">Losungsblatt mit drucken</span>
-          </label>
         </CardContent>
       </Card>
 

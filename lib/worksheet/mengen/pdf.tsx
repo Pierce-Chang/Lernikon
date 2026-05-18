@@ -70,7 +70,6 @@ export interface MengenPdfProps {
   range: "1-5" | "1-10";
   theme: ThemeId;
   showWatermark: boolean;
-  showSolutions: boolean;
 }
 
 // ── Brand palette ────────────────────────────────────────────────────────────
@@ -194,19 +193,17 @@ const quantityRows = (quantity: number): number[][] => {
   ];
 };
 
-/** One cell with the shape group on top and an answer box below. */
+/** One cell with the shape group on top and an empty answer box below. */
 const TaskCell = ({
   shape,
   quantity,
   shapeSize,
   cellWidth,
-  solutionMode,
 }: {
   shape: ShapeId;
   quantity: number;
   shapeSize: number;
   cellWidth: number;
-  solutionMode: boolean;
 }) => {
   const rows = quantityRows(quantity);
   return (
@@ -256,19 +253,7 @@ const TaskCell = ({
           alignItems: "center",
           justifyContent: "center",
         }}
-      >
-        {solutionMode && (
-          <Text
-            style={{
-              fontFamily: "PlaywriteDEGrund",
-              fontSize: 24,
-              color: COLOR.brand,
-            }}
-          >
-            {String(quantity)}
-          </Text>
-        )}
-      </View>
+      />
     </View>
   );
 };
@@ -277,12 +262,10 @@ const PageHeader = ({
   childName,
   date,
   range,
-  solutionMode,
 }: {
   childName: string;
   date: string;
   range: "1-5" | "1-10";
-  solutionMode: boolean;
 }) => {
   const rangeMax = range === "1-5" ? 5 : 10;
   return (
@@ -290,14 +273,8 @@ const PageHeader = ({
       <View>
         <Text style={styles.brand}>Lernikon</Text>
         <Text style={styles.brandDomain}>lernikon.de</Text>
-        <Text style={styles.title}>
-          {solutionMode ? "Losungen" : `Mengen 1-${rangeMax}`}
-        </Text>
-        <Text style={styles.subtitle}>
-          {solutionMode
-            ? "Vorschule · Mathe · Mengen erkennen"
-            : "Vorschule · Mathe · Mengen erkennen"}
-        </Text>
+        <Text style={styles.title}>{`Mengen 1-${rangeMax}`}</Text>
+        <Text style={styles.subtitle}>Vorschule · Mathe · Mengen erkennen</Text>
       </View>
       <View style={styles.metaCol}>
         <Text style={styles.metaLabel}>Name</Text>
@@ -327,7 +304,6 @@ const MengenDocument = ({
   range,
   theme,
   showWatermark,
-  showSolutions,
 }: MengenPdfProps): ReactElement => {
   const themeMeta = getTheme(theme),
     count = sheet.tasks.length,
@@ -343,16 +319,10 @@ const MengenDocument = ({
       creator="Lernikon"
       producer="Lernikon"
     >
-      {/* Page 1: worksheet */}
       <Page size="A4" style={styles.page}>
         <ThemeDecoration theme={themeMeta} />
 
-        <PageHeader
-          childName={childName}
-          date={date}
-          range={range}
-          solutionMode={false}
-        />
+        <PageHeader childName={childName} date={date} range={range} />
 
         <Text style={styles.instruction}>
           Wie viele sind es? Schreibe die Zahl in das Kastchen.
@@ -366,42 +336,12 @@ const MengenDocument = ({
               quantity={task.quantity}
               shapeSize={shapeSize}
               cellWidth={cellWidth}
-              solutionMode={false}
             />
           ))}
         </View>
 
         <PageFooter showWatermark={showWatermark} />
       </Page>
-
-      {/* Page 2: optional solution sheet */}
-      {showSolutions && (
-        <Page size="A4" style={styles.page}>
-          <ThemeDecoration theme={themeMeta} />
-
-          <PageHeader
-            childName={childName}
-            date={date}
-            range={range}
-            solutionMode={true}
-          />
-
-          <View style={styles.grid}>
-            {sheet.tasks.map((task, i) => (
-              <TaskCell
-                key={i}
-                shape={task.shape}
-                quantity={task.quantity}
-                shapeSize={shapeSize}
-                cellWidth={cellWidth}
-                solutionMode={true}
-              />
-            ))}
-          </View>
-
-          <PageFooter showWatermark={showWatermark} />
-        </Page>
-      )}
     </Document>
   );
 };

@@ -164,17 +164,18 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
    *
    * Aufgabentyp: Pro Aufgabe eine Gruppe identischer geometrischer Formen
    * (Bereich 1-5 oder 1-10 Stück). Das Kind zahlt die Formen und tragt die
-   * Ziffer in ein Kastchen ein. Optionales Losungsblatt auf Seite 2.
+   * Ziffer in ein Kastchen ein.
    * Formen stammen aus dem Geometrics-PNG-Set (filled, theme-agnostisch).
    *
    * Konfig-Achsen:
    *   - Bereich ("1-5" / "1-10") — Default: "1-10"
    *   - Anzahl (6 / 12 / 18) — Default: 12
-   *   - Losungsblatt (an / aus) — Default: an
    *
    * NICHT in scope:
    *   - Mengen-Vergleich (mehr/weniger): existiert nicht
    *   - Ziffern nachschreiben → "mathe-zahlen-schreiben"
+   *   - Losungsblatt: gibt es nicht (Eltern zahlen die Form-Gruppen mit,
+   *     Aufgabe ist visuell selbst-uberpruefbar)
    */
   "mathe-mengen": {
     id: "mathe-mengen",

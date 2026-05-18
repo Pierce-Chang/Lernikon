@@ -45,7 +45,6 @@ export const mengenConfigSchema = z.object({
   topic: z.literal("mathe-mengen"),
   range: z.enum(RANGE_IDS).default("1-10"),
   count: z.union([z.literal(6), z.literal(12), z.literal(18)]).default(12),
-  showSolutions: z.boolean().default(true),
   seed: z.number().int().optional(),
 });
 

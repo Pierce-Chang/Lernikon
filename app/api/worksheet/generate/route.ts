@@ -602,14 +602,13 @@ const dispatchTopic = async (
           range: config.range,
           theme: ctx.theme,
           showWatermark: !ctx.isPaid,
-          showSolutions: config.showSolutions,
         });
       return {
         stream,
         filenameBase: `mengen-1-bis-${rangeMax}-${config.count}-aufgaben`,
         logSubject: "mathe",
         logOperation: `mengen-1-bis-${rangeMax}`,
-        logConfig: { range: config.range, count: config.count, showSolutions: config.showSolutions, seed: sheet.seed },
+        logConfig: { range: config.range, count: config.count, seed: sheet.seed },
       };
     }
     case "mathe-marienkaefer": {

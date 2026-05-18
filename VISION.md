@@ -42,7 +42,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 27 — Mathe Klasse 4: Schriftliche Division (Phase 1c) — Heruntergeholt-Verfahren mit Abzieh- oder Ergänzungsmodus, optional mit Rest, optionaler Merkkasten, optionales Lösungsblatt
 - [x] Task 28 — Vorschule Denken: Formen erkennen (Phase 1c) — 7 geometrische Formen als SVG, 1 Aufgabe pro Sheet, optionales Lösungsblatt
 - [x] Task 29 — Vorschule Denken: Formen zuordnen (Phase 1c) — 4/6/8 Paerchen, farbige Formen links, weisse Silhouetten rechts
-- [x] Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c) — geometrische Form-Gruppen mit Ziffer-Eintrags-Kastchen, Bereich 1-5/1-10, 6/12/18 Aufgaben, optionales Losungsblatt
+- [x] Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c) — geometrische Form-Gruppen mit Ziffer-Eintrags-Kastchen, Bereich 1-5/1-10, 6/12/18 Aufgaben
 - [x] Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c) — Ziffer 1-10 erkennen und entsprechend viele Punkte selbst auf einen Marienkaefer malen, schwarz-weiss druckfreundlich, 6 oder 10 Aufgaben
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
@@ -504,11 +504,11 @@ Create Supabase migrations:
 ### Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c)
 - Route: `/app/mathe/mengen`
 - Topic-ID: `mathe-mengen`; im Topic-Registry unter `subject: "mathe"`, `grades: [0]`
-- Konfig-UI: Bereich-Pills ("1 bis 5" / "1 bis 10"; Default "1-10"), Anzahl-Pills (6 / 12 / 18; Default 12), Losungsblatt-Toggle (Default an)
-- PDF: Aufgabenblatt (Seite 1) + optionales Losungsblatt (Seite 2). Anweisungs-Zeile: "Wie viele sind es? Schreibe die Zahl in das Kastchen." Grid: 6 Aufgaben 2x3, 12 und 18 Aufgaben 3-spaltig. Pro Aufgabe-Cell: Form-Gruppe oben (quantity <= 5: eine Reihe horizontal; 6-10: zwei Reihen 5+Rest), darunter 40x40pt Antwort-Kastchen (Brand-Navy-Rahmen, borderRadius 6). Losungsblatt: gleicher Grid, Kastchen mit zentrierter Ziffer in Brand-Navy.
+- Konfig-UI: Bereich-Pills ("1 bis 5" / "1 bis 10"; Default "1-10"), Anzahl-Pills (6 / 12 / 18; Default 12)
+- PDF: Eine Seite. Anweisungs-Zeile: "Wie viele sind es? Schreibe die Zahl in das Kastchen." Grid: 6 Aufgaben 2x3, 12 und 18 Aufgaben 3-spaltig. Pro Aufgabe-Cell: Form-Gruppe oben (quantity <= 5: eine Reihe horizontal; 6-10: zwei Reihen 5+Rest), darunter 40x40pt leeres Antwort-Kastchen (Brand-Navy-Rahmen, borderRadius 6). Kein Losungsblatt (Eltern zahlen die Form-Gruppen mit, Aufgabe ist visuell selbst-uberpruefbar).
 - Formen: 8 filled Geometrics-PNGs aus `public/geometrics/` (kreis_gelb, dreieck_gruen, viereck_gruen, rechteck_blau, raute_blau, fuenfteck_rot, sechseck_rot, stern_gelb). Theme-agnostisch.
 - Pure function `generateMengen(config)`: seedable mulberry32 PRNG, Anti-Duplikat-Set auf `shape|quantity`, Shape-Rotation uber 8 Formen. Kein Duplicate-Pair erlaubt.
-- ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
+- ThemeDecoration auf der Page
 - Rate-Limit-Eintrag analog Mathe
 
 ### Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c)
