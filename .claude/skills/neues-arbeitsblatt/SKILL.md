@@ -195,6 +195,7 @@ Legal + devops sind nicht betroffen.
   entfernt — nicht wieder einführen.
 - **Rate-Limit:** das Insert in `worksheets_log` ist die Quota-Quelle. Der Dispatcher
   loggt VOR dem Stream-Start, damit ein vom Client gecanceltes Generate trotzdem zählt.
+- **Kid-Display-Schrift:** Ziffern in Aufgaben/Lösungen + Buchstaben/Wörter in Schreib-Übungen → `fontFamily: "PlaywriteDEGrund"`. Helvetica nur für Header, Anweisung, Brand, Footer, Eltern-Vorleseblätter. Pattern für Font-Registrierung: `lib/worksheet/letter-tracing/pdf.tsx`. Nie `fontWeight: "bold"` auf PlaywriteDE-Familien.
 - **Brand-Presence Pflicht (auch Pro-User):** `Lernikon` + `lernikon.de` oben links,
   paperplane-Lockup unten zentriert. Nur die `showWatermark`-Zeile darunter ist
   Free-only.
