@@ -32,34 +32,67 @@ const randInt = (rng: () => number, min: number, max: number): number =>
   Math.floor(rng() * (max - min + 1)) + min;
 
 /**
+ * Fisher-Yates shuffle in place. Returns the same array for convenience.
+ */
+const shuffle = <T>(arr: T[], rng: () => number): T[] => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const tmp = arr[i];
+    arr[i] = arr[j] as T;
+    arr[j] = tmp as T;
+  }
+  return arr;
+};
+
+/**
  * Generates Mengen counting tasks for Vorschule.
  * Each task shows a group of identical shapes; the child counts and writes the number.
- * Shapes rotate evenly across the 8 available types. No duplicate (shape, quantity) pairs.
+ *
+ * Round-robin over the quantity pool: quantities [1..rangeMax] are shuffled into a
+ * round, exhausted in order, then the pool is reshuffled for the next round.
+ * At round boundaries the new round is rotated so its first element differs from the
+ * last quantity already placed — this prevents cross-round adjacency conflicts without
+ * any post-hoc swapping. Within a round the sequence is already collision-free because
+ * every quantity appears exactly once.
+ *
+ * When count <= rangeMax every quantity on the sheet is distinct.
+ * When count > rangeMax each quantity reappears only after a full round.
+ * Shapes rotate independently via a pointer + small random offset for even distribution.
  */
 export const generateMengen = (rawConfig: MengenConfig, explicitSeed?: number): MengenSheet => {
   const config = mengenConfigSchema.parse(rawConfig),
     seed = explicitSeed ?? config.seed ?? Math.floor(Math.random() * 2 ** 31),
     rng = mulberry32(seed),
-    rangeMax = config.range === "1-5" ? 5 : 10,
-    seen = new Set<string>(),
-    tasks: MengenTask[] = [];
+    rangeMax = config.range === "1-5" ? 5 : 10;
 
-  // Shape rotation pointer — keeps distribution even across the 8 shapes.
-  let shapePointer = 0;
-  const maxAttempts = config.count * 100;
-  let attempts = 0;
+  // Build the initial quantity pool [1..rangeMax].
+  const basePool: number[] = Array.from({ length: rangeMax }, (_, i) => i + 1);
 
-  while (tasks.length < config.count && attempts < maxAttempts) {
-    attempts += 1;
+  const tasks: MengenTask[] = [];
+  let shapePointer = 0,
+    roundPool: number[] = [];
 
-    // Rotate through shapes in order, with a small random offset to break monotony.
-    const shapeIndex = (shapePointer + randInt(rng, 0, 1)) % SHAPE_IDS.length,
-      shape = SHAPE_IDS[shapeIndex],
-      quantity = randInt(rng, 1, rangeMax),
-      key = `${shape}|${quantity}`;
+  while (tasks.length < config.count) {
+    // Refill and reshuffle the pool when exhausted.
+    if (roundPool.length === 0) {
+      roundPool = shuffle([...basePool], rng);
 
-    if (seen.has(key)) continue;
-    seen.add(key);
+      // Rotate the new round so its first element differs from the last placed quantity.
+      // With rangeMax >= 2 this always succeeds within rangeMax-1 rotations.
+      if (tasks.length > 0) {
+        const lastQuantity = tasks[tasks.length - 1]!.quantity;
+        let rotations = 0;
+        while (roundPool[0] === lastQuantity && rotations < rangeMax - 1) {
+          roundPool.push(roundPool.shift() as number);
+          rotations++;
+        }
+      }
+    }
+
+    const quantity = roundPool.shift() as number,
+      shapeIndex = (shapePointer + randInt(rng, 0, 1)) % SHAPE_IDS.length,
+      shape = SHAPE_IDS[shapeIndex] as ShapeId;
+
     tasks.push({ shape, quantity });
     shapePointer = (shapePointer + 1) % SHAPE_IDS.length;
   }
