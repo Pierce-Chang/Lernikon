@@ -21,7 +21,7 @@
  *            | Mengen 1-10        |                  |                       |                            | Brüche, Schriftliche Mul,        |
  *            | Marienkäfer zählen |                  |                       |                            | Schriftliche Div                 |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
- * Deutsch    | Buchst. schreiben  | Buchst. schreib. | Buchst. schreiben,    | Rechtschreibung            | -                                |
+ * Deutsch    | Buchst. schreiben  | Buchst. schreib. | Buchst. schreiben,    | Rechtschreibung            | 4 Fälle                          |
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
  *            |                    |                  | Diktat, Wortarten     |                            |                                  |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
@@ -34,7 +34,7 @@
  *   - Mathe Klasse 4: Bruchrechnen mit ungleichen Nennern, Dezimalzahlen
  *   - Deutsch Klasse 2: Lückendiktat
  *   - Deutsch Klasse 3: Leseverstehen
- *   - Deutsch Klasse 4: komplett ohne Topic
+ *   - Deutsch Klasse 4: Aufsatz-Bausteine, Wortbildung, Zeitformen, Wörtliche Rede
  *   - Denken Klasse 1-4: Zahlen-Reihen-Fortsetzung, Logik-Rätsel
  *
  * Wenn du ein Topic hinzufügst oder entfernst, MUSS diese Matrix manuell
@@ -540,7 +540,35 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     implemented: true,
   },
 
-  /** Stub — full JSDoc added in commit 5 (topic registry + coverage matrix). */
+  /**
+   * Klasse 4 · Deutsch · Lückentexte zu den vier deutschen Fällen.
+   *
+   * Aufgabentyp: Zweispaltige Satzliste. Pro Satz eine Unterstrich-Lücke
+   * (borderBottom-View mit weißem Spacer-Text) für die fehlende deklinierte
+   * Form. Daneben in kursiver Helvetica die Fragewort-Hilfe (z. B. "wem?").
+   * Optionales Lösungsblatt auf Seite 2 (ausgefüllter Satz in PlaywriteDEGrund,
+   * Brand-Navy). Satz-Text auf Aufgabenblatt und Lösung in PlaywriteDEGrund.
+   *
+   * Korpus (lib/worksheet/faelle/corpus.ts): ~88 Einträge über vier Fälle:
+   *   - Nominativ: 22 Einträge (Satzanfang-Lücken, "wer oder was?")
+   *   - Genitiv: 22 Einträge (Genitiv-Konstruktionen "des/der + Noun", "wessen?")
+   *   - Dativ: 22 Einträge (indirektes Objekt, "wem?")
+   *   - Akkusativ: 22 Einträge (direktes Objekt, "wen oder was?")
+   * Gemischt-Modus verteilt count gleichmäßig auf alle vier Fälle.
+   * Corpus: Klasse-4-Wortschatz (Familie, Tiere, Schule, Sport, Natur, Alltag).
+   *
+   * Konfig-Achsen:
+   *   - Modus (Nominativ / Genitiv / Dativ / Akkusativ / Gemischt)
+   *     — Default: Gemischt
+   *   - Anzahl (10 / 15 / 20) — Default: 15
+   *   - Lösungsblatt (an / aus) — Default: an
+   *
+   * NICHT in scope:
+   *   - Satzglieder (Subjekt / Prädikat / Objekt): existiert nicht
+   *   - Deklinationstabellen: existiert nicht
+   *   - Zeitformen, Wortbildung: existiert nicht (geplant Klasse 4 Phase 2)
+   *   - Rechtschreibregeln → "deutsch-rechtschreibung"
+   */
   "deutsch-faelle": {
     id: "deutsch-faelle",
     subject: "deutsch",
