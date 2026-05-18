@@ -7,7 +7,7 @@ import { formatGradeShort } from "@/lib/format/grade";
 import { Button } from "@/components/ui/button";
 import { MarienkaeferForm } from "./marienkaefer-form";
 
-export const metadata = { title: "Mathe · Zahlen mit Marienkaefern" };
+export const metadata = { title: "Mathe · Zählen mit Marienkäfern" };
 
 export default async function MarienkaeferPage() {
   const user = await getCurrentUser();
@@ -29,7 +29,7 @@ export default async function MarienkaeferPage() {
         </Button>
       </div>
       <h1 className="text-3xl font-bold tracking-tight">
-        Zahlen mit Marienkaefern
+        Zählen mit Marienkäfern
       </h1>
       <p className="text-muted-foreground mt-1 text-sm">
         Fur <span className="font-medium">{child.name}</span> ·{" "}

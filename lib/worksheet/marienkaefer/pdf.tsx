@@ -180,9 +180,9 @@ const PageHeader = ({
     <View>
       <Text style={styles.brand}>Lernikon</Text>
       <Text style={styles.brandDomain}>lernikon.de</Text>
-      <Text style={styles.title}>Zahlen mit Marienkaefern</Text>
+      <Text style={styles.title}>Zählen mit Marienkäfern</Text>
       <Text style={styles.subtitle}>
-        Vorschule - Mathe - Zahlen erkennen und Mengen darstellen
+        Vorschule · Mathe · Zahlen erkennen und Mengen darstellen
       </Text>
     </View>
     <View style={styles.metaCol}>
@@ -302,7 +302,7 @@ const MarienkaeferDocument = ({
 
   return (
     <Document
-      title={`Zahlen mit Marienkaefern fur ${childName}`}
+      title={`Zählen mit Marienkäfern fur ${childName}`}
       author="Lernikon"
       creator="Lernikon"
       producer="Lernikon"
@@ -313,7 +313,7 @@ const MarienkaeferDocument = ({
         <PageHeader childName={childName} date={date} />
 
         <Text style={styles.instruction}>
-          Male auf jeden Marienkaefer so viele Punkte, wie die Zahl rechts
+          Male auf jeden Marienkäfer so viele Punkte, wie die Zahl rechts
           daneben zeigt.
         </Text>
 

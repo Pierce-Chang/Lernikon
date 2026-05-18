@@ -19,7 +19,7 @@
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Mathe      | Zahlen schreiben   | Rechnen (+ -)    | Rechnen (+ -)         | Rechnen (+ -), Einmaleins  | Rechnen (+ -), Schriftlich,      |
  *            | Mengen 1-10        |                  |                       |                            | Brüche, Schriftliche Mul,        |
- *            | Marienkaefer zaehl.|                  |                       |                            | Schriftliche Div                 |
+ *            | Marienkäfer zählen |                  |                       |                            | Schriftliche Div                 |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Deutsch    | Buchst. schreiben  | Buchst. schreib. | Buchst. schreiben,    | Rechtschreibung            | -                                |
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
@@ -188,10 +188,10 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
 
   /**
    * Vorschule · Mathe · Ziffer 1-10 erkennen und passend viele Punkte auf
-   * einen Marienkaefer malen.
+   * einen Marienkäfer malen.
    *
    * Aufgabentyp: Das Kind sieht eine Ziffer 1-10 neben einem schwarz-weissen
-   * Marienkaefer ohne Punkte und malt selbst die entsprechende Anzahl Punkte
+   * Marienkäfer ohne Punkte und malt selbst die entsprechende Anzahl Punkte
    * auf die Flugel. Inverse Richtung zu mathe-mengen (dort: Gruppe sehen
    * und Ziffer eintragen). Kein Losungsblatt (Eltern zahlen die Punkte des Kindes).
    *
@@ -208,8 +208,8 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
   "mathe-marienkaefer": {
     id: "mathe-marienkaefer",
     subject: "mathe",
-    label: "Zahlen mit Marienkaefern",
-    description: "Ziffer erkennen und passend viele Punkte auf den Marienkaefer malen.",
+    label: "Zählen mit Marienkäfern",
+    description: "Ziffer erkennen und passend viele Punkte auf den Marienkäfer malen.",
     href: "/app/mathe/marienkaefer",
     grades: [0],
     implemented: true,
