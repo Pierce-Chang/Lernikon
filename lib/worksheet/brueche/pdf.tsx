@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   Document,
+  Font,
   Image,
   Page,
   Path,
@@ -32,6 +33,18 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
     "lockup-horizontal-navy-800.png",
   ),
 );
+
+// Kid-display font: single-storey German schoolbook print script (Grundschrift).
+// Multi-char <Text> renders cleanly — no shaping bug unlike PlaywriteDESAS.
+Font.register({
+  family: "PlaywriteDEGrund",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "PlaywriteDEGrund-Regular.ttf",
+  ),
+});
 
 // ── Brand palette ─────────────────────────────────────────────────────────────
 const COLOR = {
@@ -213,7 +226,7 @@ const Bruch = ({
   const { fontSize, barWidth, barThick } = BRUCH_SIZES[size];
   return (
     <View style={{ alignItems: "center" }}>
-      <Text style={{ fontSize, fontFamily: "Helvetica", color }}>{String(n)}</Text>
+      <Text style={{ fontSize, fontFamily: "PlaywriteDEGrund", color }}>{String(n)}</Text>
       <View
         style={{
           width: barWidth,
@@ -223,7 +236,7 @@ const Bruch = ({
           marginBottom: 1,
         }}
       />
-      <Text style={{ fontSize, fontFamily: "Helvetica", color }}>{String(d)}</Text>
+      <Text style={{ fontSize, fontFamily: "PlaywriteDEGrund", color }}>{String(d)}</Text>
     </View>
   );
 };
