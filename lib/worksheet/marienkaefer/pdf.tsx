@@ -254,6 +254,7 @@ const TaskRow = ({
     borderColor: COLOR.navy,
     marginLeft: -1,
     marginTop: -1,
+    flexShrink: 0,
     alignItems: "center" as const,
     justifyContent: "center" as const,
   };
