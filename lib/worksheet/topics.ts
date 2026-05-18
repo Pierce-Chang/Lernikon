@@ -19,7 +19,7 @@
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Mathe      | Zahlen schreiben   | Rechnen (+ -)    | Rechnen (+ -)         | Rechnen (+ -), Einmaleins  | Rechnen (+ -), Schriftlich,      |
  *            | Mengen 1-10        |                  |                       |                            | Brüche, Schriftliche Mul,        |
- *            |                    |                  |                       |                            | Schriftliche Div                 |
+ *            | Marienkaefer zaehl.|                  |                       |                            | Schriftliche Div                 |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Deutsch    | Buchst. schreiben  | Buchst. schreib. | Buchst. schreiben,    | Rechtschreibung            | -                                |
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
