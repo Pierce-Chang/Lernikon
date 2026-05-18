@@ -138,29 +138,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   // Sentence text in kid-display font.
-  sentenceWrap: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    flexWrap: "wrap",
-  },
   sentenceText: {
     fontSize: 12,
     color: COLOR.textDark,
     fontFamily: "PlaywriteDEGrund",
-  },
-  // Blank underline segment used on page 1.
-  blankUnderline: {
-    borderBottomWidth: 1,
-    borderBottomColor: COLOR.blank,
-    paddingBottom: 1,
-    marginLeft: 1,
-    marginRight: 1,
-  },
-  blankText: {
-    fontSize: 12,
-    color: "#FFFFFF",
-    fontFamily: "PlaywriteDEGrund",
-    letterSpacing: 1,
   },
   // Helper question in small italic Helvetica.
   frageText: {
@@ -199,23 +180,6 @@ const styles = StyleSheet.create({
 });
 
 /**
- * Splits a sentence template (containing one or more underscores) into
- * before/blank/after segments for inline rendering.
- */
-const splitTemplate = (
-  template: string,
-): Array<{ text: string; isBlank: boolean }> => {
-  const match = template.match(/^([\s\S]*?)(_+)([\s\S]*)$/);
-  if (!match) return [{ text: template, isBlank: false }];
-  const [, before, underscores, after] = match;
-  const segments: Array<{ text: string; isBlank: boolean }> = [];
-  if (before) segments.push({ text: before, isBlank: false });
-  segments.push({ text: underscores, isBlank: true });
-  if (after) segments.push({ text: after, isBlank: false });
-  return segments;
-};
-
-/**
  * One sentence item rendered as a numbered row.
  * Aufgabenblatt: blank shown as underscored whitespace + helper question.
  * Losungsblatt: full sentence replaced with loesung in brand blue.
@@ -243,29 +207,16 @@ const SentenceItem = ({
     );
   }
 
-  const segments = splitTemplate(task.template);
-  // Width of blank line scales proportionally to loesung length, minimum 3.
+  // Replace the blank placeholder with proportional underscores in one atomic string.
   const underscoreCount = Math.max(task.loesung.length + 2, 3),
-    padded = "_".repeat(underscoreCount);
+    displaySentence = task.template.replace(/_+/, "_".repeat(underscoreCount));
 
   return (
     <View style={styles.cell} wrap={false}>
       <View style={styles.itemRow}>
         <Text style={styles.itemNumber}>{task.id}.</Text>
         <View style={styles.itemContent}>
-          <View style={styles.sentenceWrap}>
-            {segments.map((seg, i) =>
-              seg.isBlank ? (
-                <View key={i} style={styles.blankUnderline}>
-                  <Text style={styles.blankText}>{padded}</Text>
-                </View>
-              ) : (
-                <Text key={i} style={styles.sentenceText}>
-                  {seg.text}
-                </Text>
-              ),
-            )}
-          </View>
+          <Text style={styles.sentenceText}>{displaySentence}</Text>
           <Text style={styles.frageText}>({task.frage})</Text>
         </View>
       </View>
