@@ -43,6 +43,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 28 — Vorschule Denken: Formen erkennen (Phase 1c) — 7 geometrische Formen als SVG, 1 Aufgabe pro Sheet, optionales Lösungsblatt
 - [x] Task 29 — Vorschule Denken: Formen zuordnen (Phase 1c) — 4/6/8 Paerchen, farbige Formen links, weisse Silhouetten rechts
 - [x] Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c) — geometrische Form-Gruppen mit Ziffer-Eintrags-Kastchen, Bereich 1-5/1-10, 6/12/18 Aufgaben, optionales Losungsblatt
+- [x] Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c) — Ziffer 1-10 erkennen und entsprechend viele Punkte selbst auf einen Marienkaefer malen, schwarz-weiss druckfreundlich, 6 oder 10 Aufgaben
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -213,6 +214,7 @@ Built and working end-to-end:
    - ✅ Vorschule — Zahlen schreiben 0–9 (Task 19, geshippt)
    - ✅ Klasse 3 — Einmaleins (Task 20, geshippt)
    - ✅ Vorschule — Mengen 1-10 (Task 30, geshippt)
+   - ✅ Vorschule — Zahlen mit Marienkaefern (Task 31, geshippt)
    - ✅ Klasse 4 — schriftliche Verfahren (Task 24, geshippt)
    - ✅ Klasse 4 — Brüche (Task 26, geshippt)
    - ✅ Klasse 4 — schriftliche Division (Task 27, geshippt)
@@ -506,6 +508,16 @@ Create Supabase migrations:
 - Formen: 8 filled Geometrics-PNGs aus `public/geometrics/` (kreis_gelb, dreieck_gruen, viereck_gruen, rechteck_blau, raute_blau, fuenfteck_rot, sechseck_rot, stern_gelb). Theme-agnostisch.
 - Pure function `generateMengen(config)`: seedable mulberry32 PRNG, Anti-Duplikat-Set auf `shape|quantity`, Shape-Rotation uber 8 Formen. Kein Duplicate-Pair erlaubt.
 - ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c)
+- Route: `/app/mathe/marienkaefer`
+- Topic-ID: `mathe-marienkaefer`; im Topic-Registry unter `subject: "mathe"`, `grades: [0]`
+- Konfig-UI: Anzahl-Pills (6 / 10; Default 10). Kein Losungsblatt (Eltern zahlen die gemalten Punkte des Kindes).
+- Asset: `public/images/blacknwhite/blacknwhite_marienkaefer_ohne_punkte.png` (835x717, schwarz-weiss, ohne Punkte auf den Flugeln). Geladen als Buffer via `fs.readFileSync` in Modul-Level-Cache.
+- PDF: Eine Seite. Anweisungs-Zeile: "Male auf jeden Marienkaefer so viele Punkte, wie die Zahl rechts daneben zeigt." Grid: 2 Spalten x 3 Reihen (count=6) oder 2 Spalten x 5 Reihen (count=10). Pro Cell: Marienkaefer-PNG links (count=6: 100x86pt, count=10: 70x60pt), Ziffer Helvetica-Bold rechts zentriert (count=6: 72pt, count=10: 52pt), alles navy. Cell-Border: 1pt Brand-Navy, kollabiert durch `borderWidth:1, marginLeft:-1, marginTop:-1` je Cell.
+- Kein Losungsblatt - Aufgabe ist visuell selbsterklaerend.
+- ThemeDecoration als erstes Kind der Page. Kein topAccent-Streifen.
 - Rate-Limit-Eintrag analog Mathe
 
 ---
