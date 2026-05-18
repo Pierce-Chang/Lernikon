@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   Document,
+  Font,
   Image,
   Page,
   StyleSheet,
@@ -39,6 +40,18 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
     "lockup-horizontal-navy-800.png",
   ),
 );
+
+// Kid-display font: single-storey German schoolbook print script (Grundschrift).
+// Multi-char <Text> renders cleanly — no shaping bug unlike PlaywriteDESAS.
+Font.register({
+  family: "PlaywriteDEGrund",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "PlaywriteDEGrund-Regular.ttf",
+  ),
+});
 
 const SHAPE_BUFFERS: Record<ShapeId, Buffer> = SHAPE_IDS.reduce(
   (acc, id) => {
@@ -247,8 +260,8 @@ const TaskCell = ({
         {solutionMode && (
           <Text
             style={{
-              fontFamily: "Helvetica-Bold",
-              fontSize: 22,
+              fontFamily: "PlaywriteDEGrund",
+              fontSize: 24,
               color: COLOR.brand,
             }}
           >
