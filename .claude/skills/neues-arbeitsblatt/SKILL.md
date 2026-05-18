@@ -196,6 +196,7 @@ Legal + devops sind nicht betroffen.
 - **Rate-Limit:** das Insert in `worksheets_log` ist die Quota-Quelle. Der Dispatcher
   loggt VOR dem Stream-Start, damit ein vom Client gecanceltes Generate trotzdem zählt.
 - **Kid-Display-Schrift:** Ziffern in Aufgaben/Lösungen + Buchstaben/Wörter in Schreib-Übungen → `fontFamily: "PlaywriteDEGrund"`. Helvetica nur für Header, Anweisung, Brand, Footer, Eltern-Vorleseblätter. Pattern für Font-Registrierung: `lib/worksheet/letter-tracing/pdf.tsx`. Nie `fontWeight: "bold"` auf PlaywriteDE-Familien.
+- **Achtung Grund-Umlaut-Bug:** Multi-Char-Strings mit ä/ö/ü/ß durch `<Text fontFamily="PlaywriteDEGrund">` rendern die Diakritika falsch positioniert oder gar nicht ("Schüler" → "Schuler"). Reine Ziffern und ASCII-Wörter funktionieren. Falls dein Topic deutsche Wörter mit Umlauten als Kid-Display zeigt (Sätze, Vokabeln, Lösungswörter), nutze den fontkit-Outline-Workaround. Referenz: `OutlinedGrundText` in `lib/worksheet/faelle/pdf.tsx`. Topics ohne Umlaute (mathe-rechnen, mathe-mengen, mathe-marienkaefer etc.) sind nicht betroffen.
 - **Brand-Presence Pflicht (auch Pro-User):** `Lernikon` + `lernikon.de` oben links,
   paperplane-Lockup unten zentriert. Nur die `showWatermark`-Zeile darunter ist
   Free-only.
