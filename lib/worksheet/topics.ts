@@ -45,6 +45,7 @@ export const TOPIC_IDS = [
   "mathe-rechnen",
   "mathe-zahlen-schreiben",
   "mathe-mengen",
+  "mathe-marienkaefer",
   "mathe-einmaleins",
   "mathe-schriftlich",
   "mathe-brueche",
@@ -181,6 +182,35 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     label: "Mengen 1-10",
     description: "Mengen erkennen und Ziffern eintragen.",
     href: "/app/mathe/mengen",
+    grades: [0],
+    implemented: true,
+  },
+
+  /**
+   * Vorschule · Mathe · Ziffer 1-10 erkennen und passend viele Punkte auf
+   * einen Marienkaefer malen.
+   *
+   * Aufgabentyp: Das Kind sieht eine Ziffer 1-10 neben einem schwarz-weissen
+   * Marienkaefer ohne Punkte und malt selbst die entsprechende Anzahl Punkte
+   * auf die Flugel. Inverse Richtung zu mathe-mengen (dort: Gruppe sehen
+   * und Ziffer eintragen). Kein Losungsblatt (Eltern zahlen die Punkte des Kindes).
+   *
+   * Konfig-Achsen:
+   *   - Anzahl (6 / 10) — Default: 10
+   *     6: 6 verschiedene Ziffern aus [1..10], geshuffelt
+   *     10: alle Ziffern [1..10] geshuffelt, keine Duplikate
+   *
+   * NICHT in scope:
+   *   - Mengen sehen und Ziffer eintragen -> "mathe-mengen"
+   *   - Ziffern nachschreiben -> "mathe-zahlen-schreiben"
+   *   - Grosser/Kleiner-Vergleich: existiert nicht
+   */
+  "mathe-marienkaefer": {
+    id: "mathe-marienkaefer",
+    subject: "mathe",
+    label: "Zahlen mit Marienkaefern",
+    description: "Ziffer erkennen und passend viele Punkte auf den Marienkaefer malen.",
+    href: "/app/mathe/marienkaefer",
     grades: [0],
     implemented: true,
   },

@@ -62,6 +62,9 @@ import { renderFormenZuordnenPdf } from "@/lib/worksheet/denken-formen-zuordnen/
 import { mengenConfigSchema } from "@/lib/worksheet/mengen/config";
 import { generateMengen } from "@/lib/worksheet/mengen/generate";
 import { renderMengenPdf } from "@/lib/worksheet/mengen/pdf";
+import { marienkaeferConfigSchema } from "@/lib/worksheet/marienkaefer/config";
+import { generateMarienkaefer } from "@/lib/worksheet/marienkaefer/generate";
+import { renderMarienkaeferPdf } from "@/lib/worksheet/marienkaefer/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -607,6 +610,28 @@ const dispatchTopic = async (
         logSubject: "mathe",
         logOperation: `mengen-1-bis-${rangeMax}`,
         logConfig: { range: config.range, count: config.count, showSolutions: config.showSolutions, seed: sheet.seed },
+      };
+    }
+    case "mathe-marienkaefer": {
+      const parsed = marienkaeferConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateMarienkaefer(config),
+        stream = await renderMarienkaeferPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+        });
+      return {
+        stream,
+        filenameBase: `marienkaefer-zaehlen-${config.count}-aufgaben`,
+        logSubject: "mathe",
+        logOperation: "marienkaefer-zaehlen",
+        logConfig: { count: config.count, seed: sheet.seed },
       };
     }
     case "denken-formen-zuordnen": {
