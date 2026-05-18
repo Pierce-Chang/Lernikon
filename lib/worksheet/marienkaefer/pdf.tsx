@@ -54,24 +54,30 @@ const COLOR = {
 } as const;
 
 // Natural dimensions of the marienkaefer PNG: 835 x 717.
-// count=6 uses width 100 → height = 100 * (717/835) ≈ 86
-// count=10 uses width 70  → height = 70  * (717/835) ≈ 60
 const ASPECT_RATIO = 717 / 835;
 
+// 4-column layout per row: [bug | digit | bug | digit].
+// Usable row width: 491pt (A4 595 - 2*52 padding).
+// bug col ~170pt, digit col ~73pt → 2*(170+73) = 486pt.
+// The 5pt gap is absorbed by the 1pt border-collapse offset on the outer wrapper.
 const CELL_LAYOUT = {
   6: {
-    imageWidth: 100,
-    imageHeight: Math.round(100 * ASPECT_RATIO),
-    fontSize: 72,
-    cols: 2,
+    imageWidth: 140,
+    imageHeight: Math.round(140 * ASPECT_RATIO),
+    fontSize: 90,
     rows: 3,
+    bugColWidth: 170,
+    digitColWidth: 73,
+    rowHeight: 146,
   },
   10: {
-    imageWidth: 70,
-    imageHeight: Math.round(70 * ASPECT_RATIO),
-    fontSize: 52,
-    cols: 2,
+    imageWidth: 95,
+    imageHeight: Math.round(95 * ASPECT_RATIO),
+    fontSize: 70,
     rows: 5,
+    bugColWidth: 170,
+    digitColWidth: 73,
+    rowHeight: 88,
   },
 } as const;
 
@@ -200,75 +206,83 @@ const PageFooter = ({ showWatermark }: { showWatermark: boolean }) => (
 );
 
 /**
- * One cell: ladybird image on the left third, digit on the right two-thirds.
- * The outer border forms a table together with neighbouring cells by using
- * borderWidth:1 on each cell with marginLeft:-1, marginTop:-1 to collapse
- * the shared borders.
+ * One row of the 4-column table: [bug cell | digit cell | bug cell | digit cell].
+ * Each cell has its own border; marginLeft:-1 / marginTop:-1 collapses shared borders.
  */
-const TaskCell = ({
-  number,
+const TaskRow = ({
+  leftNum,
+  rightNum,
   imageWidth,
   imageHeight,
   fontSize,
-  cellWidth,
-  cellHeight,
+  bugColWidth,
+  digitColWidth,
+  rowHeight,
 }: {
-  number: number;
+  leftNum: number;
+  rightNum: number;
   imageWidth: number;
   imageHeight: number;
   fontSize: number;
-  cellWidth: number;
-  cellHeight: number;
-}) => (
-  <View
-    wrap={false}
-    style={{
-      width: cellWidth,
-      height: cellHeight,
-      borderWidth: 1,
-      borderColor: COLOR.navy,
-      marginLeft: -1,
-      marginTop: -1,
-      flexDirection: "row",
-      alignItems: "center",
-      paddingLeft: 12,
-      paddingRight: 12,
-    }}
-  >
-    {/* Left third: ladybird image */}
-    <View
-      style={{
-        width: imageWidth + 12,
-        alignItems: "flex-start",
-        justifyContent: "center",
-      }}
-    >
-      <Image
-        src={MARIENKAEFER_BUFFER}
-        style={{ width: imageWidth, height: imageHeight }}
-      />
-    </View>
+  bugColWidth: number;
+  digitColWidth: number;
+  rowHeight: number;
+}) => {
+  const cellBase = {
+    borderWidth: 1,
+    borderColor: COLOR.navy,
+    marginLeft: -1,
+    marginTop: -1,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+  };
 
-    {/* Right portion: digit */}
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Text
-        style={{
-          fontFamily: "Helvetica-Bold",
-          fontSize,
-          color: COLOR.navy,
-        }}
-      >
-        {String(number)}
-      </Text>
+  return (
+    <View wrap={false} style={{ flexDirection: "row" }}>
+      {/* Left bug cell */}
+      <View style={{ ...cellBase, width: bugColWidth, height: rowHeight }}>
+        <Image
+          src={MARIENKAEFER_BUFFER}
+          style={{ width: imageWidth, height: imageHeight }}
+        />
+      </View>
+
+      {/* Left digit cell */}
+      <View style={{ ...cellBase, width: digitColWidth, height: rowHeight }}>
+        <Text
+          style={{
+            fontFamily: "Helvetica-Bold",
+            fontSize,
+            color: COLOR.navy,
+          }}
+        >
+          {String(leftNum)}
+        </Text>
+      </View>
+
+      {/* Right bug cell */}
+      <View style={{ ...cellBase, width: bugColWidth, height: rowHeight }}>
+        <Image
+          src={MARIENKAEFER_BUFFER}
+          style={{ width: imageWidth, height: imageHeight }}
+        />
+      </View>
+
+      {/* Right digit cell */}
+      <View style={{ ...cellBase, width: digitColWidth, height: rowHeight }}>
+        <Text
+          style={{
+            fontFamily: "Helvetica-Bold",
+            fontSize,
+            color: COLOR.navy,
+          }}
+        >
+          {String(rightNum)}
+        </Text>
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const MarienkaeferDocument = ({
   childName,
@@ -279,12 +293,12 @@ const MarienkaeferDocument = ({
 }: MarienkaeferPdfProps): ReactElement => {
   const themeMeta = getTheme(theme),
     layout = CELL_LAYOUT[sheet.count as 6 | 10],
-    // Usable width: A4 595 - 2*52 padding = 491pt
-    // Two columns with collapsed borders: each cell gets half the usable width + 1 for border overlap
-    cellWidth = Math.floor((491 + 1) / layout.cols),
-    // Usable height between header and footer: approximately 680 - header(~90) - footer(~50) = ~540
-    // Distribute across rows with some padding
-    cellHeight = Math.floor(440 / layout.rows);
+    // Pair up numbers into rows of 2 for the 4-column layout.
+    rows: [number, number][] = [];
+
+  for (let i = 0; i < sheet.numbers.length; i += 2) {
+    rows.push([sheet.numbers[i], sheet.numbers[i + 1] ?? 0]);
+  }
 
   return (
     <Document
@@ -304,23 +318,18 @@ const MarienkaeferDocument = ({
         </Text>
 
         {/* Table grid: outer wrapper adds 1pt offset so first row/col borders sit flush */}
-        <View
-          style={{
-            marginLeft: 1,
-            marginTop: 1,
-            flexDirection: "row",
-            flexWrap: "wrap",
-          }}
-        >
-          {sheet.numbers.map((num, i) => (
-            <TaskCell
+        <View style={{ marginLeft: 1, marginTop: 1 }}>
+          {rows.map(([left, right], i) => (
+            <TaskRow
               key={i}
-              number={num}
+              leftNum={left}
+              rightNum={right}
               imageWidth={layout.imageWidth}
               imageHeight={layout.imageHeight}
               fontSize={layout.fontSize}
-              cellWidth={cellWidth}
-              cellHeight={cellHeight}
+              bugColWidth={layout.bugColWidth}
+              digitColWidth={layout.digitColWidth}
+              rowHeight={layout.rowHeight}
             />
           ))}
         </View>
