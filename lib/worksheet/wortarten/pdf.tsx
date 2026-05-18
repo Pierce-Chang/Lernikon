@@ -15,6 +15,7 @@ import type { WortartenSheet, WortartenItem } from "./generate";
 import type { Wortart } from "./corpus";
 import { getTheme, type ThemeId } from "@/lib/themes";
 import { ThemeDecoration } from "@/lib/worksheet/theme-decoration";
+import { OutlinedGrundText } from "@/lib/worksheet/outlined-grund-text";
 
 const LOGO_LOCKUP_BUFFER = fs.readFileSync(
   path.join(
@@ -220,7 +221,12 @@ const TableRow = ({
     <View style={styles.wordCol}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Text style={styles.rowNumber}>{item.id}.</Text>
-        <Text style={styles.rowWord}>{item.word}</Text>
+        <OutlinedGrundText
+          text={item.word}
+          fontSize={14}
+          color={COLOR.textDark}
+          lineHeight={1}
+        />
       </View>
     </View>
     {COLUMNS.map((col) => (
