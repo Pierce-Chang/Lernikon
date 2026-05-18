@@ -19,6 +19,7 @@ import type { LetterStyle } from "./config";
 import { STYLE_LABELS } from "./config";
 import { getTheme, type ThemeId } from "@/lib/themes";
 import { ThemeDecoration } from "../theme-decoration";
+import { OutlinedGrundText } from "@/lib/worksheet/outlined-grund-text";
 
 interface FontkitGlyph {
   path: {
@@ -334,17 +335,12 @@ const LineaturRow = ({
         {style === "schreib" ? (
           <OutlinedGhostWord word={word} fontSize={GHOST_FONT_SIZE[style]} />
         ) : (
-          <Text
-            style={[
-              styles.ghostWord,
-              {
-                fontFamily: STYLE_FONT_FAMILY[style],
-                fontSize: GHOST_FONT_SIZE[style],
-              },
-            ]}
-          >
-            {word}
-          </Text>
+          <OutlinedGrundText
+            text={word}
+            fontSize={GHOST_FONT_SIZE[style]}
+            color={COLOR.wordGhost}
+            lineHeight={1}
+          />
         )}
       </View>
     )}
