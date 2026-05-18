@@ -16,6 +16,7 @@ import type { RechtschreibRule } from "./config";
 import { RULE_SUBTITLES, BLANK_PLACEHOLDER } from "./config";
 import { getTheme, type ThemeId } from "@/lib/themes";
 import { ThemeDecoration } from "@/lib/worksheet/theme-decoration";
+import { OutlinedGrundText } from "@/lib/worksheet/outlined-grund-text";
 
 const LOGO_LOCKUP_BUFFER = fs.readFileSync(
   path.join(
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
   // Row inside a cell: number + word display.
   itemRow: {
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "center",
   },
   itemNumber: {
     fontSize: 12,
@@ -221,7 +222,7 @@ const WordItem = ({
       <View style={styles.cell} wrap={false}>
         <View style={styles.itemRow}>
           <Text style={styles.itemNumber}>{item.id}.</Text>
-          <Text style={styles.answerText}>{item.word}</Text>
+          <OutlinedGrundText text={item.word} fontSize={16} color={COLOR.brand} lineHeight={1} />
         </View>
       </View>
     );
@@ -232,16 +233,20 @@ const WordItem = ({
     <View style={styles.cell} wrap={false}>
       <View style={styles.itemRow}>
         <Text style={styles.itemNumber}>{item.id}.</Text>
-        <View style={{ flexDirection: "row", alignItems: "baseline", flexWrap: "wrap" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap" }}>
           {segments.map((seg, i) =>
             seg.isBlank ? (
               <View key={i} style={styles.blankUnderline}>
-                <Text style={styles.blankText}>{seg.text}</Text>
+                <OutlinedGrundText text={seg.text} fontSize={14} color="#FFFFFF" lineHeight={1} />
               </View>
             ) : (
-              <Text key={i} style={styles.itemText}>
-                {seg.text}
-              </Text>
+              <OutlinedGrundText
+                key={i}
+                text={seg.text}
+                fontSize={14}
+                color={COLOR.textDark}
+                lineHeight={1}
+              />
             ),
           )}
         </View>
