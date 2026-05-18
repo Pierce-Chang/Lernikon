@@ -42,6 +42,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 27 — Mathe Klasse 4: Schriftliche Division (Phase 1c) — Heruntergeholt-Verfahren mit Abzieh- oder Ergänzungsmodus, optional mit Rest, optionaler Merkkasten, optionales Lösungsblatt
 - [x] Task 28 — Vorschule Denken: Formen erkennen (Phase 1c) — 7 geometrische Formen als SVG, 1 Aufgabe pro Sheet, optionales Lösungsblatt
 - [x] Task 29 — Vorschule Denken: Formen zuordnen (Phase 1c) — 4/6/8 Paerchen, farbige Formen links, weisse Silhouetten rechts
+- [x] Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c) — geometrische Form-Gruppen mit Ziffer-Eintrags-Kastchen, Bereich 1-5/1-10, 6/12/18 Aufgaben, optionales Losungsblatt
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -211,7 +212,7 @@ Built and working end-to-end:
 3. Mehr Mathe-Topics:
    - ✅ Vorschule — Zahlen schreiben 0–9 (Task 19, geshippt)
    - ✅ Klasse 3 — Einmaleins (Task 20, geshippt)
-   - ⏳ Vorschule — Mengen 1–10 (nächster Topic)
+   - ✅ Vorschule — Mengen 1-10 (Task 30, geshippt)
    - ✅ Klasse 4 — schriftliche Verfahren (Task 24, geshippt)
    - ✅ Klasse 4 — Brüche (Task 26, geshippt)
    - ✅ Klasse 4 — schriftliche Division (Task 27, geshippt)
@@ -495,6 +496,16 @@ Create Supabase migrations:
 - Form-Inventar (shapes.tsx): 10 Formen — Kreis, Quadrat, Dreieck, Fuenfeck, Sechseck, Raute, Rechteck, Parallelogramm, Herz, Stern. Jede Form akzeptiert beliebige fill-Farbe (statt fixed-filled-boolean wie bei formen-erkennen)
 - Pure function `generateFormenZuordnen(config)`: seedable mulberry32 PRNG, Fisher-Yates Sample ohne Ersatz fuer Formen und Farben, Re-Shuffle bis rechte Reihenfolge != linke Reihenfolge
 - ThemeDecoration auf Aufgabenblatt
+- Rate-Limit-Eintrag analog Mathe
+
+### Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c)
+- Route: `/app/mathe/mengen`
+- Topic-ID: `mathe-mengen`; im Topic-Registry unter `subject: "mathe"`, `grades: [0]`
+- Konfig-UI: Bereich-Pills ("1 bis 5" / "1 bis 10"; Default "1-10"), Anzahl-Pills (6 / 12 / 18; Default 12), Losungsblatt-Toggle (Default an)
+- PDF: Aufgabenblatt (Seite 1) + optionales Losungsblatt (Seite 2). Anweisungs-Zeile: "Wie viele sind es? Schreibe die Zahl in das Kastchen." Grid: 6 Aufgaben 2x3, 12 und 18 Aufgaben 3-spaltig. Pro Aufgabe-Cell: Form-Gruppe oben (quantity <= 5: eine Reihe horizontal; 6-10: zwei Reihen 5+Rest), darunter 40x40pt Antwort-Kastchen (Brand-Navy-Rahmen, borderRadius 6). Losungsblatt: gleicher Grid, Kastchen mit zentrierter Ziffer in Brand-Navy.
+- Formen: 8 filled Geometrics-PNGs aus `public/geometrics/` (kreis_gelb, dreieck_gruen, viereck_gruen, rechteck_blau, raute_blau, fuenfteck_rot, sechseck_rot, stern_gelb). Theme-agnostisch.
+- Pure function `generateMengen(config)`: seedable mulberry32 PRNG, Anti-Duplikat-Set auf `shape|quantity`, Shape-Rotation uber 8 Formen. Kein Duplicate-Pair erlaubt.
+- ThemeDecoration auf jeder Page (Aufgabenblatt + Losungsblatt)
 - Rate-Limit-Eintrag analog Mathe
 
 ---
