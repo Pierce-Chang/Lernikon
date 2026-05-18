@@ -37,14 +37,14 @@ export const RANGE_LABELS: Record<RangeId, string> = {
 };
 
 /** Number of tasks per worksheet. */
-export const COUNT_OPTIONS = [6, 12, 18] as const;
+export const COUNT_OPTIONS = [6, 12] as const;
 export type CountOption = (typeof COUNT_OPTIONS)[number];
 
 /** Zod schema for the mengen generator config. */
 export const mengenConfigSchema = z.object({
   topic: z.literal("mathe-mengen"),
   range: z.enum(RANGE_IDS).default("1-10"),
-  count: z.union([z.literal(6), z.literal(12), z.literal(18)]).default(12),
+  count: z.union([z.literal(6), z.literal(12)]).default(12),
   seed: z.number().int().optional(),
 });
 

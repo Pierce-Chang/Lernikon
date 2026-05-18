@@ -40,10 +40,15 @@ export const MengenFormImpl = ({
   childId: string;
   quota: QuotaProps;
 }) => {
-  const [settings, setSettings] = useLocalSettings<MengenSettings>(
+  const [rawSettings, setSettings] = useLocalSettings<MengenSettings>(
     "lernikon.settings.mathe-mengen",
     DEFAULT_SETTINGS,
   );
+  // Sanitize a stale count=18 that may linger in localStorage.
+  const settings: MengenSettings = {
+    ...rawSettings,
+    count: (rawSettings.count as number) === 18 ? 12 : rawSettings.count,
+  };
   const { range, count } = settings;
   const update = <K extends keyof MengenSettings>(
     key: K,
@@ -135,7 +140,7 @@ export const MengenFormImpl = ({
           <CardTitle className="text-base">Anzahl der Aufgaben</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {COUNT_OPTIONS.map((n) => (
               <button
                 key={n}

@@ -169,7 +169,7 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
    *
    * Konfig-Achsen:
    *   - Bereich ("1-5" / "1-10") — Default: "1-10"
-   *   - Anzahl (6 / 12 / 18) — Default: 12
+   *   - Anzahl (6 / 12) — Default: 12
    *
    * NICHT in scope:
    *   - Mengen-Vergleich (mehr/weniger): existiert nicht

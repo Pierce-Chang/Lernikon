@@ -31,8 +31,8 @@ describe("generateMengen", () => {
   });
 
   it("returns exactly count tasks for range 1-10", () => {
-    const sheet = generateMengen({ ...BASE, range: "1-10", count: 18 }, 2);
-    expect(sheet.tasks).toHaveLength(18);
+    const sheet = generateMengen({ ...BASE, range: "1-10", count: 12 }, 2);
+    expect(sheet.tasks).toHaveLength(12);
   });
 
   it("all quantities are in [1..5] for range 1-5", () => {
@@ -44,7 +44,7 @@ describe("generateMengen", () => {
   });
 
   it("all quantities are in [1..10] for range 1-10", () => {
-    const sheet = generateMengen({ ...BASE, range: "1-10", count: 18 }, 4);
+    const sheet = generateMengen({ ...BASE, range: "1-10", count: 12 }, 4);
     sheet.tasks.forEach((t) => {
       expect(t.quantity).toBeGreaterThanOrEqual(1);
       expect(t.quantity).toBeLessThanOrEqual(10);
@@ -84,10 +84,8 @@ describe("generateMengen", () => {
     const configs = [
       { range: "1-5" as const, count: 6 as const },
       { range: "1-5" as const, count: 12 as const },
-      { range: "1-5" as const, count: 18 as const },
       { range: "1-10" as const, count: 6 as const },
       { range: "1-10" as const, count: 12 as const },
-      { range: "1-10" as const, count: 18 as const },
     ];
     const seeds = [1, 2, 3, 42, 100, 999, 12345];
     configs.forEach((cfg) => {

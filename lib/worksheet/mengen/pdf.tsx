@@ -83,7 +83,7 @@ const COLOR = {
 } as const;
 
 // Grid columns per task-count setting.
-const COLS_BY_COUNT: Record<number, number> = { 6: 2, 12: 3, 18: 3 };
+const COLS_BY_COUNT: Record<number, number> = { 6: 2, 12: 3 };
 
 // Shape image size per column count — more columns = smaller shapes.
 const SHAPE_SIZE_BY_COLS: Record<number, number> = { 2: 36, 3: 26 };
