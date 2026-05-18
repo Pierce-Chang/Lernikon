@@ -1,14 +1,11 @@
 import fs from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import {
   Document,
   Font,
   Image,
   Page,
-  Path,
   StyleSheet,
-  Svg,
   Text,
   View,
   renderToStream,
@@ -19,34 +16,10 @@ import type { FaelleMode } from "./config";
 import { MODE_SUBTITLES } from "./config";
 import { getTheme, type ThemeId } from "@/lib/themes";
 import { ThemeDecoration } from "@/lib/worksheet/theme-decoration";
-
-interface FontkitGlyph {
-  path: {
-    toSVG: () => string;
-  };
-}
-
-interface FontkitPosition {
-  xAdvance: number;
-  xOffset: number;
-  yOffset: number;
-}
-
-interface FontkitRun {
-  glyphs: FontkitGlyph[];
-  positions: FontkitPosition[];
-}
-
-interface FontkitFont {
-  ascent: number;
-  descent: number;
-  unitsPerEm: number;
-  layout: (text: string) => FontkitRun;
-}
-
-interface FontkitModule {
-  openSync: (fontPath: string) => FontkitFont;
-}
+import {
+  OutlinedGrundText,
+  PLAYWRITE_DEGRUND_FONT_PATH,
+} from "@/lib/worksheet/outlined-grund-text";
 
 const LOGO_LOCKUP_BUFFER = fs.readFileSync(
   path.join(
@@ -59,19 +32,9 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
   ),
 );
 
-const require = createRequire(import.meta.url),
-  fontkit = require("fontkit") as FontkitModule,
-  PLAYWRITE_DEGRUND_FONT_PATH = path.join(
-    process.cwd(),
-    "public",
-    "fonts",
-    "PlaywriteDEGrund-Regular.ttf",
-  ),
-  PLAYWRITE_DEGRUND_FONT = fontkit.openSync(PLAYWRITE_DEGRUND_FONT_PATH);
-
 // Kid-display font: single-storey German schoolbook print script (Grundschrift).
 // React-PDF misplaces combining mark glyphs for umlauts in this font, so
-// sentence text below is rendered as fontkit outlines.
+// sentence text below is rendered as fontkit outlines via OutlinedGrundText.
 // Never set fontWeight: "bold" on this family.
 Font.register({
   family: "PlaywriteDEGrund",
@@ -204,83 +167,8 @@ const styles = StyleSheet.create({
   },
 });
 
+/** Fixed sentence column width in points — passed to OutlinedGrundText for line wrapping. */
 const OUTLINE_TEXT_WIDTH = 205;
-
-const OUTLINE_LINE_HEIGHT_FACTOR = 1.45;
-
-/** Returns the rendered width of a Playwrite DE Grund string at the given size. */
-const measureGrundText = (text: string, fontSize: number): number => {
-  const run = PLAYWRITE_DEGRUND_FONT.layout(text),
-    scale = fontSize / PLAYWRITE_DEGRUND_FONT.unitsPerEm;
-
-  return run.positions.reduce((total, position) => total + position.xAdvance * scale, 0);
-};
-
-/** Wraps Playwrite DE Grund text to the fixed sentence column width. */
-const wrapGrundText = (text: string, fontSize: number): string[] => {
-  const words = text.split(/\s+/).filter((word) => word.length > 0),
-    lines: string[] = [];
-  let current = "";
-
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (current && measureGrundText(candidate, fontSize) > OUTLINE_TEXT_WIDTH) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = candidate;
-    }
-  }
-
-  if (current) lines.push(current);
-  return lines.length > 0 ? lines : [text];
-};
-
-/** Renders Playwrite DE Grund text as outlines so umlaut dots sit above the base glyph. */
-const OutlinedGrundText = ({
-  text,
-  fontSize,
-  color,
-}: {
-  text: string;
-  fontSize: number;
-  color: string;
-}): ReactElement => {
-  const lines = wrapGrundText(text, fontSize),
-    scale = fontSize / PLAYWRITE_DEGRUND_FONT.unitsPerEm,
-    baseline = PLAYWRITE_DEGRUND_FONT.ascent * scale,
-    lineHeight = fontSize * OUTLINE_LINE_HEIGHT_FACTOR,
-    height = lineHeight * lines.length;
-
-  const paths = lines.flatMap((line, lineIndex) => {
-    const run = PLAYWRITE_DEGRUND_FONT.layout(line),
-      lineTop = lineIndex * lineHeight;
-    let cursorX = 0;
-
-    return run.glyphs.map((glyph, glyphIndex) => {
-      const position = run.positions[glyphIndex],
-        translateX = (cursorX + position.xOffset) * scale,
-        translateY = lineTop + baseline - position.yOffset * scale,
-        transform = `matrix(${scale} 0 0 ${-scale} ${translateX} ${translateY})`;
-      cursorX += position.xAdvance;
-
-      return (
-        <Path
-          key={`${lineIndex}-${glyphIndex}`}
-          d={glyph.path.toSVG()}
-          fill={color}
-          transform={transform}
-        />
-      );
-    });
-  });
-
-  return (
-    <Svg width={OUTLINE_TEXT_WIDTH} height={height} viewBox={`0 0 ${OUTLINE_TEXT_WIDTH} ${height}`}>
-      {paths}
-    </Svg>
-  );
-};
 
 /**
  * One sentence item rendered as a numbered row.
@@ -302,7 +190,7 @@ const SentenceItem = ({
         <View style={styles.itemRow}>
           <Text style={styles.itemNumber}>{task.id}.</Text>
           <View style={styles.itemContent}>
-            <OutlinedGrundText text={filled} fontSize={13} color={COLOR.brand} />
+            <OutlinedGrundText text={filled} fontSize={13} color={COLOR.brand} width={OUTLINE_TEXT_WIDTH} />
             <Text style={styles.frageText}>({task.frage})</Text>
           </View>
         </View>
@@ -319,7 +207,7 @@ const SentenceItem = ({
       <View style={styles.itemRow}>
         <Text style={styles.itemNumber}>{task.id}.</Text>
         <View style={styles.itemContent}>
-          <OutlinedGrundText text={displaySentence} fontSize={12} color={COLOR.textDark} />
+          <OutlinedGrundText text={displaySentence} fontSize={12} color={COLOR.textDark} width={OUTLINE_TEXT_WIDTH} />
           <Text style={styles.frageText}>({task.frage})</Text>
         </View>
       </View>
