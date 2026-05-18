@@ -87,22 +87,22 @@ const CELL_LAYOUT = {
   6: {
     imageWidth: 145,                                       // <- Bug-Größe count=6 tweaken
     imageHeight: Math.round(145 * ASPECT_RATIO),
-    fontSize: 75,                                          // <- Ziffer-Größe count=6
+    fontSize: 60,                                          // <- Ziffer-Größe count=6
     rows: 3,
     bugColWidth: 155,
     digitColWidth: 90,
     rowHeight: 160,
-    digitPaddingBottom: 0,                                 // <- Ziffer nach oben schieben count=6
+    digitPaddingBottom: 34,                                 // <- Ziffer nach oben schieben count=6
   },
   10: {
-    imageWidth: 110,                                       // <- Bug-Größe count=10 tweaken
-    imageHeight: Math.round(110 * ASPECT_RATIO),
-    fontSize: 56,                                          // <- Ziffer-Größe count=10
+    imageWidth: 100,                                       // <- Bug-Größe count=10 tweaken
+    imageHeight: Math.round(100 * ASPECT_RATIO),
+    fontSize: 60,                                          // <- Ziffer-Größe count=10
     rows: 5,
     bugColWidth: 120,
     digitColWidth: 125,
-    rowHeight: 100,
-    digitPaddingBottom: 12,                                // <- Ziffer nach oben schieben count=10
+    rowHeight: 110,
+    digitPaddingBottom: 46,                                // <- Ziffer nach oben schieben count=10
   },
 } as const;
 
