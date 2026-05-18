@@ -230,6 +230,7 @@ Stage nur die jeweils berührten Files, niemals `git add -A`.
 - Keine em/en-dashes in User-Facing Strings.
 - React-PDF: kein `gap`, SVG-Attribute numerisch, lokale Bilder als Buffer.
 - PlaywriteDE SAS: mehrzeichige Wörter via fontkit-Outline (siehe `OutlinedGhostWord` in `lib/worksheet/woerter-abschreiben/pdf.tsx`), Single-Char durch `<Text>` ok.
+- **Kid-Display-Schrift:** Ziffern in Aufgaben/Lösungen + Buchstaben/Wörter in Schreib-Übungen → `fontFamily: "PlaywriteDEGrund"`. Helvetica nur für Header, Anweisung, Brand, Footer, Eltern-Vorleseblätter. Pattern für Font-Registrierung: `lib/worksheet/letter-tracing/pdf.tsx`. Nie `fontWeight: "bold"` auf PlaywriteDE-Familien.
 - Kein `fontWeight: "bold"` auf PlaywriteDE-Familien.
 - ThemeDecoration als erstes Kind in JEDER Page (auch Lösungsblatt).
 - Kein topAccent-Streifen.
