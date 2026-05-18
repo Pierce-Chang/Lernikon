@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   Document,
+  Font,
   Image,
   Page,
   StyleSheet,
@@ -26,6 +27,18 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
     "lockup-horizontal-navy-800.png",
   ),
 );
+
+// Kid-display font: single-storey German schoolbook print script (Grundschrift).
+// Multi-char <Text> renders cleanly — no shaping bug unlike PlaywriteDESAS.
+Font.register({
+  family: "PlaywriteDEGrund",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "PlaywriteDEGrund-Regular.ttf",
+  ),
+});
 
 // ── Merkkasten step arrays (chosen per stellen mode) ──────────────────────
 const STEPS_3X1 = [
@@ -238,14 +251,14 @@ const styles = StyleSheet.create({
   digitCell: {
     width: DIGIT_W,
     fontSize: 20,
-    fontFamily: "Helvetica",
+    fontFamily: "PlaywriteDEGrund",
     color: COLOR.textDark,
     textAlign: "center",
   },
   digitCellBrand: {
     width: DIGIT_W,
     fontSize: 20,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "PlaywriteDEGrund",
     color: COLOR.brand,
     textAlign: "center",
   },
