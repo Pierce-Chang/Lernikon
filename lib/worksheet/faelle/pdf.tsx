@@ -1,11 +1,14 @@
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import {
   Document,
   Font,
   Image,
   Page,
+  Path,
   StyleSheet,
+  Svg,
   Text,
   View,
   renderToStream,
@@ -16,6 +19,34 @@ import type { FaelleMode } from "./config";
 import { MODE_SUBTITLES } from "./config";
 import { getTheme, type ThemeId } from "@/lib/themes";
 import { ThemeDecoration } from "@/lib/worksheet/theme-decoration";
+
+interface FontkitGlyph {
+  path: {
+    toSVG: () => string;
+  };
+}
+
+interface FontkitPosition {
+  xAdvance: number;
+  xOffset: number;
+  yOffset: number;
+}
+
+interface FontkitRun {
+  glyphs: FontkitGlyph[];
+  positions: FontkitPosition[];
+}
+
+interface FontkitFont {
+  ascent: number;
+  descent: number;
+  unitsPerEm: number;
+  layout: (text: string) => FontkitRun;
+}
+
+interface FontkitModule {
+  openSync: (fontPath: string) => FontkitFont;
+}
 
 const LOGO_LOCKUP_BUFFER = fs.readFileSync(
   path.join(
@@ -28,17 +59,23 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
   ),
 );
 
-// Kid-display font: single-storey German schoolbook print script (Grundschrift).
-// Multi-char <Text> renders cleanly — no shaping bug unlike PlaywriteDESAS.
-// Never set fontWeight: "bold" on this family.
-Font.register({
-  family: "PlaywriteDEGrund",
-  src: path.join(
+const require = createRequire(import.meta.url),
+  fontkit = require("fontkit") as FontkitModule,
+  PLAYWRITE_DEGRUND_FONT_PATH = path.join(
     process.cwd(),
     "public",
     "fonts",
     "PlaywriteDEGrund-Regular.ttf",
   ),
+  PLAYWRITE_DEGRUND_FONT = fontkit.openSync(PLAYWRITE_DEGRUND_FONT_PATH);
+
+// Kid-display font: single-storey German schoolbook print script (Grundschrift).
+// React-PDF misplaces combining mark glyphs for umlauts in this font, so
+// sentence text below is rendered as fontkit outlines.
+// Never set fontWeight: "bold" on this family.
+Font.register({
+  family: "PlaywriteDEGrund",
+  src: PLAYWRITE_DEGRUND_FONT_PATH,
 });
 
 const COLOR = {
@@ -137,24 +174,12 @@ const styles = StyleSheet.create({
   itemContent: {
     flex: 1,
   },
-  // Sentence text in kid-display font.
-  sentenceText: {
-    fontSize: 12,
-    color: COLOR.textDark,
-    fontFamily: "PlaywriteDEGrund",
-  },
   // Helper question in small italic Helvetica.
   frageText: {
     fontSize: 9,
     color: COLOR.textMuted,
     fontFamily: "Helvetica-Oblique",
     marginTop: 3,
-  },
-  // Answer text color on page 2.
-  answerText: {
-    fontSize: 13,
-    color: COLOR.brand,
-    fontFamily: "PlaywriteDEGrund",
   },
   footer: {
     position: "absolute",
@@ -179,10 +204,88 @@ const styles = StyleSheet.create({
   },
 });
 
+const OUTLINE_TEXT_WIDTH = 205;
+
+const OUTLINE_LINE_HEIGHT_FACTOR = 1.45;
+
+/** Returns the rendered width of a Playwrite DE Grund string at the given size. */
+const measureGrundText = (text: string, fontSize: number): number => {
+  const run = PLAYWRITE_DEGRUND_FONT.layout(text),
+    scale = fontSize / PLAYWRITE_DEGRUND_FONT.unitsPerEm;
+
+  return run.positions.reduce((total, position) => total + position.xAdvance * scale, 0);
+};
+
+/** Wraps Playwrite DE Grund text to the fixed sentence column width. */
+const wrapGrundText = (text: string, fontSize: number): string[] => {
+  const words = text.split(/\s+/).filter((word) => word.length > 0),
+    lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (current && measureGrundText(candidate, fontSize) > OUTLINE_TEXT_WIDTH) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+
+  if (current) lines.push(current);
+  return lines.length > 0 ? lines : [text];
+};
+
+/** Renders Playwrite DE Grund text as outlines so umlaut dots sit above the base glyph. */
+const OutlinedGrundText = ({
+  text,
+  fontSize,
+  color,
+}: {
+  text: string;
+  fontSize: number;
+  color: string;
+}): ReactElement => {
+  const lines = wrapGrundText(text, fontSize),
+    scale = fontSize / PLAYWRITE_DEGRUND_FONT.unitsPerEm,
+    baseline = PLAYWRITE_DEGRUND_FONT.ascent * scale,
+    lineHeight = fontSize * OUTLINE_LINE_HEIGHT_FACTOR,
+    height = lineHeight * lines.length;
+
+  const paths = lines.flatMap((line, lineIndex) => {
+    const run = PLAYWRITE_DEGRUND_FONT.layout(line),
+      lineTop = lineIndex * lineHeight;
+    let cursorX = 0;
+
+    return run.glyphs.map((glyph, glyphIndex) => {
+      const position = run.positions[glyphIndex],
+        translateX = (cursorX + position.xOffset) * scale,
+        translateY = lineTop + baseline - position.yOffset * scale,
+        transform = `matrix(${scale} 0 0 ${-scale} ${translateX} ${translateY})`;
+      cursorX += position.xAdvance;
+
+      return (
+        <Path
+          key={`${lineIndex}-${glyphIndex}`}
+          d={glyph.path.toSVG()}
+          fill={color}
+          transform={transform}
+        />
+      );
+    });
+  });
+
+  return (
+    <Svg width={OUTLINE_TEXT_WIDTH} height={height} viewBox={`0 0 ${OUTLINE_TEXT_WIDTH} ${height}`}>
+      {paths}
+    </Svg>
+  );
+};
+
 /**
  * One sentence item rendered as a numbered row.
- * Aufgabenblatt: blank shown as underscored whitespace + helper question.
- * Losungsblatt: full sentence replaced with loesung in brand blue.
+ * Worksheet page: blank shown as underscored whitespace + helper question.
+ * Answer key: full sentence replaced with loesung in brand blue.
  */
 const SentenceItem = ({
   task,
@@ -199,7 +302,7 @@ const SentenceItem = ({
         <View style={styles.itemRow}>
           <Text style={styles.itemNumber}>{task.id}.</Text>
           <View style={styles.itemContent}>
-            <Text style={styles.answerText}>{filled}</Text>
+            <OutlinedGrundText text={filled} fontSize={13} color={COLOR.brand} />
             <Text style={styles.frageText}>({task.frage})</Text>
           </View>
         </View>
@@ -216,7 +319,7 @@ const SentenceItem = ({
       <View style={styles.itemRow}>
         <Text style={styles.itemNumber}>{task.id}.</Text>
         <View style={styles.itemContent}>
-          <Text style={styles.sentenceText}>{displaySentence}</Text>
+          <OutlinedGrundText text={displaySentence} fontSize={12} color={COLOR.textDark} />
           <Text style={styles.frageText}>({task.frage})</Text>
         </View>
       </View>
@@ -248,12 +351,12 @@ const FaelleDocument = ({
 
   return (
     <Document
-      title={`4 Faelle fuer ${childName}`}
+      title={`4 Fälle für ${childName}`}
       author="Lernikon"
       creator="Lernikon"
       producer="Lernikon"
     >
-      {/* Page 1 - Aufgabenblatt */}
+      {/* Page 1 - worksheet */}
       <Page size="A4" style={styles.page}>
         <ThemeDecoration theme={themeMeta} />
 
@@ -261,7 +364,7 @@ const FaelleDocument = ({
           <View>
             <Text style={styles.brand}>Lernikon</Text>
             <Text style={styles.brandDomain}>lernikon.de</Text>
-            <Text style={styles.title}>4 Faelle</Text>
+            <Text style={styles.title}>4 Fälle</Text>
             <Text style={styles.subtitle}>{subtitle}</Text>
           </View>
           <View style={styles.metaCol}>
@@ -288,7 +391,7 @@ const FaelleDocument = ({
         </View>
       </Page>
 
-      {/* Page 2 - Losungsblatt (optional) */}
+      {/* Page 2 - answer key (optional) */}
       {includeSolutions && (
         <Page size="A4" style={styles.page}>
           <ThemeDecoration theme={themeMeta} />
@@ -297,7 +400,7 @@ const FaelleDocument = ({
             <View>
               <Text style={styles.brand}>Lernikon</Text>
               <Text style={styles.brandDomain}>lernikon.de</Text>
-              <Text style={styles.title}>Losungen</Text>
+              <Text style={styles.title}>Lösungen</Text>
               <Text style={styles.subtitle}>{subtitle}</Text>
             </View>
             <View style={styles.metaCol}>
@@ -329,7 +432,5 @@ const FaelleDocument = ({
 };
 
 /** Renders the 4-Fälle worksheet to a Node.js readable stream. */
-export const renderFaellePdf = async (
-  props: FaellePdfProps,
-): Promise<NodeJS.ReadableStream> =>
+export const renderFaellePdf = async (props: FaellePdfProps): Promise<NodeJS.ReadableStream> =>
   renderToStream(<FaelleDocument {...props} />);
