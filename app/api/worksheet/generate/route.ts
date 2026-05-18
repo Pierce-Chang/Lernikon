@@ -59,6 +59,9 @@ import { SHAPE_LABELS as FORMEN_SHAPE_LABELS } from "@/lib/worksheet/denken-form
 import { formenZuordnenConfigSchema } from "@/lib/worksheet/denken-formen-zuordnen/config";
 import { generateFormenZuordnen } from "@/lib/worksheet/denken-formen-zuordnen/generate";
 import { renderFormenZuordnenPdf } from "@/lib/worksheet/denken-formen-zuordnen/pdf";
+import { mengenConfigSchema } from "@/lib/worksheet/mengen/config";
+import { generateMengen } from "@/lib/worksheet/mengen/generate";
+import { renderMengenPdf } from "@/lib/worksheet/mengen/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -579,6 +582,31 @@ const dispatchTopic = async (
         logSubject: "denken",
         logOperation: "formen-erkennen",
         logConfig: config,
+      };
+    }
+    case "mathe-mengen": {
+      const parsed = mengenConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        rangeMax = config.range === "1-5" ? 5 : 10,
+        sheet = generateMengen(config),
+        stream = await renderMengenPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          range: config.range,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          showSolutions: config.showSolutions,
+        });
+      return {
+        stream,
+        filenameBase: `mengen-1-bis-${rangeMax}-${config.count}-aufgaben`,
+        logSubject: "mathe",
+        logOperation: `mengen-1-bis-${rangeMax}`,
+        logConfig: { range: config.range, count: config.count, showSolutions: config.showSolutions, seed: sheet.seed },
       };
     }
     case "denken-formen-zuordnen": {
