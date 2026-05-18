@@ -56,6 +56,7 @@ export const TOPIC_IDS = [
   "deutsch-diktate",
   "deutsch-rechtschreibung",
   "deutsch-wortarten",
+  "deutsch-faelle",
   "denken-muster",
   "denken-formen-erkennen",
   "denken-formen-zuordnen",
@@ -536,6 +537,17 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     description: "Nomen, Verb oder Adjektiv ankreuzen - mit gemischtem Wortschatz.",
     href: "/app/deutsch/wortarten",
     grades: [2],
+    implemented: true,
+  },
+
+  /** Stub — full JSDoc added in commit 5 (topic registry + coverage matrix). */
+  "deutsch-faelle": {
+    id: "deutsch-faelle",
+    subject: "deutsch",
+    label: "4 Fälle",
+    description: "Lückenform einsetzen zu Nominativ, Genitiv, Dativ, Akkusativ",
+    href: "/app/deutsch/faelle",
+    grades: [4],
     implemented: true,
   },
 

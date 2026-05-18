@@ -65,6 +65,9 @@ import { renderMengenPdf } from "@/lib/worksheet/mengen/pdf";
 import { marienkaeferConfigSchema } from "@/lib/worksheet/marienkaefer/config";
 import { generateMarienkaefer } from "@/lib/worksheet/marienkaefer/generate";
 import { renderMarienkaeferPdf } from "@/lib/worksheet/marienkaefer/pdf";
+import { faelleConfigSchema, MODE_LABELS } from "@/lib/worksheet/faelle/config";
+import { generateFaelle } from "@/lib/worksheet/faelle/generate";
+import { renderFaellePdf } from "@/lib/worksheet/faelle/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -654,6 +657,31 @@ const dispatchTopic = async (
         logSubject: "denken",
         logOperation: "formen-zuordnen",
         logConfig: config,
+      };
+    }
+    case "deutsch-faelle": {
+      const parsed = faelleConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateFaelle(config),
+        modeLabel = MODE_LABELS[config.mode],
+        stream = await renderFaellePdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          mode: config.mode,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.showSolutions,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Deutsch - 4 Faelle - ${modeLabel}`,
+        logSubject: "deutsch",
+        logOperation: `faelle-${config.mode}`,
+        logConfig: { mode: config.mode, count: config.count, showSolutions: config.showSolutions, seed: sheet.seed },
       };
     }
     default:
