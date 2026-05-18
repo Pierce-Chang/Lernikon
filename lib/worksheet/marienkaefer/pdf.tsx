@@ -56,28 +56,36 @@ const COLOR = {
 // Natural dimensions of the marienkaefer PNG: 835 x 717.
 const ASPECT_RATIO = 717 / 835;
 
-// 4-column layout per row: [bug | digit | bug | digit].
-// Usable row width: 491pt (A4 595 - 2*52 padding).
-// bug col ~170pt, digit col ~73pt → 2*(170+73) = 486pt.
-// The 5pt gap is absorbed by the 1pt border-collapse offset on the outer wrapper.
+// ── Layout-Tuning ─────────────────────────────────────────────────────────────
+// Founder-tweakable Größen pro count-Variante.
+//
+// imageWidth = PNG-Breite des Marienkäfers in Punkten.
+// imageHeight = wird aus ASPECT_RATIO (717/835) berechnet, NICHT manuell setzen.
+// fontSize = Ziffergröße. Beachte: "10" braucht ~1.1 × fontSize Breite in
+//            der digit-Cell. digitColWidth muss daher >= 1.1 × fontSize + Margin.
+// bugColWidth / rowHeight ≈ 1:1 für quadratische Bug-Cells.
+//
+// 4-Spalten-Row-Budget: 2 × (bugColWidth + digitColWidth) muss <= 491pt sein
+// (A4 595pt - 2×52pt Padding). Body-Höhe-Budget: rows × rowHeight muss
+// <= ~500pt sein (Page minus Header, Instruction, Footer).
 const CELL_LAYOUT = {
   6: {
-    imageWidth: 140,
-    imageHeight: Math.round(140 * ASPECT_RATIO),
-    fontSize: 90,
+    imageWidth: 145,                                       // <- Bug-Größe count=6 tweaken
+    imageHeight: Math.round(145 * ASPECT_RATIO),
+    fontSize: 75,                                          // <- Ziffer-Größe count=6
     rows: 3,
-    bugColWidth: 170,
-    digitColWidth: 73,
-    rowHeight: 146,
+    bugColWidth: 155,
+    digitColWidth: 90,
+    rowHeight: 160,
   },
   10: {
-    imageWidth: 95,
-    imageHeight: Math.round(95 * ASPECT_RATIO),
-    fontSize: 70,
+    imageWidth: 110,                                       // <- Bug-Größe count=10 tweaken
+    imageHeight: Math.round(110 * ASPECT_RATIO),
+    fontSize: 72,                                          // <- Ziffer-Größe count=10
     rows: 5,
-    bugColWidth: 170,
-    digitColWidth: 73,
-    rowHeight: 88,
+    bugColWidth: 120,
+    digitColWidth: 125,
+    rowHeight: 100,
   },
 } as const;
 
