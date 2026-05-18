@@ -77,6 +77,8 @@ const ASPECT_RATIO = 717 / 835;
 // fontSize = Ziffergröße. Beachte: "10" braucht ~1.1 × fontSize Breite in
 //            der digit-Cell. digitColWidth muss daher >= 1.1 × fontSize + Margin.
 // bugColWidth / rowHeight ≈ 1:1 für quadratische Bug-Cells.
+// digitPaddingBottom = schiebt die zentrierte Ziffer optisch nach oben (gegen
+//                      Descender-Clipping bei engen rowHeight-Werten).
 //
 // 4-Spalten-Row-Budget: 2 × (bugColWidth + digitColWidth) muss <= 491pt sein
 // (A4 595pt - 2×52pt Padding). Body-Höhe-Budget: rows × rowHeight muss
@@ -90,6 +92,7 @@ const CELL_LAYOUT = {
     bugColWidth: 155,
     digitColWidth: 90,
     rowHeight: 160,
+    digitPaddingBottom: 0,                                 // <- Ziffer nach oben schieben count=6
   },
   10: {
     imageWidth: 110,                                       // <- Bug-Größe count=10 tweaken
@@ -99,6 +102,7 @@ const CELL_LAYOUT = {
     bugColWidth: 120,
     digitColWidth: 125,
     rowHeight: 100,
+    digitPaddingBottom: 12,                                // <- Ziffer nach oben schieben count=10
   },
 } as const;
 
@@ -239,6 +243,7 @@ const TaskRow = ({
   bugColWidth,
   digitColWidth,
   rowHeight,
+  digitPaddingBottom,
 }: {
   leftNum: number;
   rightNum: number;
@@ -248,6 +253,7 @@ const TaskRow = ({
   bugColWidth: number;
   digitColWidth: number;
   rowHeight: number;
+  digitPaddingBottom: number;
 }) => {
   const cellBase = {
     borderWidth: 1,
@@ -270,7 +276,7 @@ const TaskRow = ({
       </View>
 
       {/* Left digit cell */}
-      <View style={{ ...cellBase, width: digitColWidth, height: rowHeight }}>
+      <View style={{ ...cellBase, width: digitColWidth, height: rowHeight, paddingBottom: digitPaddingBottom }}>
         <Text
           style={{
             fontFamily: "PlaywriteDEGrund",
@@ -292,7 +298,7 @@ const TaskRow = ({
       </View>
 
       {/* Right digit cell */}
-      <View style={{ ...cellBase, width: digitColWidth, height: rowHeight }}>
+      <View style={{ ...cellBase, width: digitColWidth, height: rowHeight, paddingBottom: digitPaddingBottom }}>
         <Text
           style={{
             fontFamily: "PlaywriteDEGrund",
@@ -354,6 +360,7 @@ const MarienkaeferDocument = ({
               bugColWidth={layout.bugColWidth}
               digitColWidth={layout.digitColWidth}
               rowHeight={layout.rowHeight}
+              digitPaddingBottom={layout.digitPaddingBottom}
             />
           ))}
         </View>
