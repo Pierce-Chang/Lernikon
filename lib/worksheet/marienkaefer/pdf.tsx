@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   Document,
+  Font,
   Image,
   Page,
   StyleSheet,
@@ -36,6 +37,18 @@ const MARIENKAEFER_BUFFER = fs.readFileSync(
     "blacknwhite_marienkaefer_ohne_punkte.png",
   ),
 );
+
+// Kid-display font: single-storey German schoolbook print script (Grundschrift).
+// Multi-char <Text> renders cleanly — no shaping bug unlike PlaywriteDESAS.
+Font.register({
+  family: "PlaywriteDEGrund",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "PlaywriteDEGrund-Regular.ttf",
+  ),
+});
 
 export interface MarienkaeferPdfProps {
   childName: string;
@@ -259,8 +272,8 @@ const TaskRow = ({
       <View style={{ ...cellBase, width: digitColWidth, height: rowHeight }}>
         <Text
           style={{
-            fontFamily: "Helvetica-Bold",
-            fontSize,
+            fontFamily: "PlaywriteDEGrund",
+            fontSize: fontSize + 2,
             color: COLOR.navy,
           }}
         >
@@ -280,8 +293,8 @@ const TaskRow = ({
       <View style={{ ...cellBase, width: digitColWidth, height: rowHeight }}>
         <Text
           style={{
-            fontFamily: "Helvetica-Bold",
-            fontSize,
+            fontFamily: "PlaywriteDEGrund",
+            fontSize: fontSize + 2,
             color: COLOR.navy,
           }}
         >
