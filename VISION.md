@@ -169,6 +169,7 @@ The agent MUST follow these conventions in all generated code:
 8. **Server Actions over API routes** for mutations whenever possible.
 9. **One component per file.** Colocate tests and hooks next to components.
 10. **No CSS-in-JS or CSS modules.** Tailwind only.
+11. **Kid-Display-Schrift in PDFs:** Ziffern und Buchstaben, die Kinder direkt lesen oder schreiben (Aufgaben-Operanden, Lösungs-Antworten, Tracing-Glyphen, Lückenwörter), rendern in `PlaywriteDEGrund`. Header/Anweisungen/Brand/Footer bleiben Helvetica. SAS nur für Schreibschrift-Toggle in Tracing-Topics. SAS-Multi-Char braucht fontkit-Outline-Workaround; Grund-Multi-Char läuft sauber durch `<Text>`.
 
 ---
 
