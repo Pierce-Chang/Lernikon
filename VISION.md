@@ -44,6 +44,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 29 — Vorschule Denken: Formen zuordnen (Phase 1c) — 4/6/8 Paerchen, farbige Formen links, weisse Silhouetten rechts
 - [x] Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c) — geometrische Form-Gruppen mit Ziffer-Eintrags-Kastchen, Bereich 1-5/1-10, 6/12 Aufgaben
 - [x] Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c) — Ziffer 1-10 erkennen und entsprechend viele Punkte selbst auf einen Marienkaefer malen, schwarz-weiss druckfreundlich, 6 oder 10 Aufgaben
+- [x] Task 32 — Deutsch Klasse 4: 4 Fälle (Phase 1c) — Lückentext für Nominativ/Genitiv/Dativ/Akkusativ mit Fragewort-Hilfe, Gemischt-Modus, optionales Lösungsblatt
 
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
@@ -225,6 +226,7 @@ Built and working end-to-end:
    - ⏳ Klasse 2 — Wortarten
    - ✅ Klasse 3 — Rechtschreibung (Task 25, geshippt)
    - ⏳ Klasse 3 — Leseverstehen
+   - ✅ Klasse 4 — 4 Fälle (Task 32, geshippt)
    - ⏳ Klasse 4 — Aufsatz-Bausteine, Grammatik
 5. Neues Fach „Denken" (Phase 1c):
    - ✅ Vorschule — Muster fortsetzen (Task 21, geshippt). Fach-Farbe lila (`#9333EA`), unabhängig von Mathe/Deutsch positioniert.
@@ -520,6 +522,15 @@ Create Supabase migrations:
 - Kein Losungsblatt - Aufgabe ist visuell selbsterklaerend.
 - ThemeDecoration als erstes Kind der Page. Kein topAccent-Streifen.
 - Rate-Limit-Eintrag analog Mathe
+
+### Task 32 — Deutsch Klasse 4: 4 Fälle (Phase 1c)
+- Route: `/app/deutsch/faelle`
+- Topic-ID: `deutsch-faelle`; im Topic-Registry unter `subject: "deutsch"`, `grades: [4]`
+- Konfig-UI: Modus-Pills (Nominativ / Genitiv / Dativ / Akkusativ / Gemischt; Default Gemischt), Anzahl-Pills (10 / 15 / 20; Default 15), Losungsblatt-Toggle (Default an)
+- Korpus in `lib/worksheet/faelle/corpus.ts`: ~88 Einträge gleichmäßig auf vier Fälle verteilt (~22 pro Fall). Eintrag-Schema: `{ fall, template, loesung, frage }`. Template enthält genau einen Unterstrich-Platzhalter. Klasse-4-Wortschatz (Familie, Tiere, Schule, Sport, Natur, Alltag). Keine en/em-Dashes im Korpus.
+- Pure function `generateFaelle(config, explicitSeed?)`: seedable mulberry32 PRNG, Einzelfall-Modus filtert auf Fall, Gemischt-Modus verteilt `count` gleichmäßig auf 4 Fälle (Remainder zu ersten Fällen), dann Fisher-Yates-Shuffle der Gesamtliste.
+- PDF: Pattern-Klon von `lib/worksheet/rechtschreibung/pdf.tsx`. Zweispaltige Liste (50/50). Pro Eintrag: Nummerierung + Satz mit Unterstrich-Lücke in PlaywriteDEGrund (Aufgabenblatt) oder vollem Satz in PlaywriteDEGrund Brand-Navy (Losungsblatt). Fragewort-Hilfe in kleiner kursiver Helvetica darunter (z. B. "(wem?)"). ThemeDecoration als erstes Kind jeder Page. Kein topAccent-Streifen.
+- Kein topAccent-Streifen. Rate-Limit-Eintrag analog Mathe.
 
 ---
 
