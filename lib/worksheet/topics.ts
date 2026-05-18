@@ -18,7 +18,7 @@
  *            | Vorschule          | Klasse 1         | Klasse 2              | Klasse 3                   | Klasse 4                         |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Mathe      | Zahlen schreiben   | Rechnen (+ -)    | Rechnen (+ -)         | Rechnen (+ -), Einmaleins  | Rechnen (+ -), Schriftlich,      |
- *            | Mengen 1-10 [*]    |                  |                       |                            | Brüche, Schriftliche Mul,        |
+ *            | Mengen 1-10        |                  |                       |                            | Brüche, Schriftliche Mul,        |
  *            |                    |                  |                       |                            | Schriftliche Div                 |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Deutsch    | Buchst. schreiben  | Buchst. schreib. | Buchst. schreiben,    | Rechtschreibung            | -                                |
@@ -159,24 +159,30 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
   },
 
   /**
-   * Vorschule · Mathe · Mengen erkennen und Ziffern zuordnen.
+   * Vorschule · Mathe · Mengen erkennen und Ziffern eintragen.
    *
-   * Status: NOCH NICHT IMPLEMENTIERT. Erscheint als "Bald"-Karte im Dashboard.
-   * Geplantes Format: Bildkarten mit Objekt-Gruppen (z.B. 3 Äpfel), Kind trägt
-   * die passende Ziffer ein. Kein Lösungsblatt geplant.
+   * Aufgabentyp: Pro Aufgabe eine Gruppe identischer geometrischer Formen
+   * (Bereich 1-5 oder 1-10 Stück). Das Kind zahlt die Formen und tragt die
+   * Ziffer in ein Kastchen ein. Optionales Losungsblatt auf Seite 2.
+   * Formen stammen aus dem Geometrics-PNG-Set (filled, theme-agnostisch).
    *
-   * NICHT in scope (derzeit):
-   *   - Ziffern nachschreiben → "mathe-zahlen-schreiben" (implementiert)
+   * Konfig-Achsen:
+   *   - Bereich ("1-5" / "1-10") — Default: "1-10"
+   *   - Anzahl (6 / 12 / 18) — Default: 12
+   *   - Losungsblatt (an / aus) — Default: an
+   *
+   * NICHT in scope:
+   *   - Mengen-Vergleich (mehr/weniger): existiert nicht
+   *   - Ziffern nachschreiben → "mathe-zahlen-schreiben"
    */
   "mathe-mengen": {
     id: "mathe-mengen",
     subject: "mathe",
     label: "Mengen 1-10",
-    description: "Mengen erkennen und Ziffern zuordnen.",
+    description: "Mengen erkennen und Ziffern eintragen.",
     href: "/app/mathe/mengen",
     grades: [0],
-    implemented: false,
-    comingSoon: true,
+    implemented: true,
   },
 
   /**

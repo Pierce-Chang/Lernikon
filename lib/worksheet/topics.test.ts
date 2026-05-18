@@ -14,8 +14,9 @@ describe("topicsForGradeWithRoadmap", () => {
       expect(lastImplementedIdx).toBeLessThan(firstComingSoonIdx);
     }
 
+    // mathe-mengen is now implemented — all Vorschule topics are implemented
     expect(implementedTopics.length).toBeGreaterThan(0);
-    expect(comingSoonTopics.length).toBeGreaterThan(0);
+    // comingSoon may be 0 once all planned Vorschule topics are shipped
   });
 
   it("sorts mathe before deutsch within each bucket for Vorschule", () => {
