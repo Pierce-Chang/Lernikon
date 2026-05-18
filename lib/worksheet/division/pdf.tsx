@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   Document,
+  Font,
   Image,
   Page,
   StyleSheet,
@@ -26,6 +27,18 @@ const LOGO_LOCKUP_BUFFER = fs.readFileSync(
     "lockup-horizontal-navy-800.png",
   ),
 );
+
+// Kid-display font: single-storey German schoolbook print script (Grundschrift).
+// Multi-char <Text> renders cleanly — no shaping bug unlike PlaywriteDESAS.
+Font.register({
+  family: "PlaywriteDEGrund",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "PlaywriteDEGrund-Regular.ttf",
+  ),
+});
 
 // ── Merkkasten step arrays ────────────────────────────────────────────────────
 
@@ -200,14 +213,14 @@ const styles = StyleSheet.create({
   digitCell: {
     width: DIGIT_W,
     fontSize: 16,
-    fontFamily: "Helvetica",
+    fontFamily: "PlaywriteDEGrund",
     color: COLOR.textDark,
     textAlign: "center",
   },
   digitCellBrand: {
     width: DIGIT_W,
     fontSize: 16,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "PlaywriteDEGrund",
     color: COLOR.brand,
     textAlign: "center",
   },
@@ -243,14 +256,14 @@ const styles = StyleSheet.create({
   stepDigitCell: {
     width: DIGIT_W,
     fontSize: 11,
-    fontFamily: "Helvetica",
+    fontFamily: "PlaywriteDEGrund",
     color: COLOR.textDark,
     textAlign: "center",
   },
   stepDigitCellBrand: {
     width: DIGIT_W,
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "PlaywriteDEGrund",
     color: COLOR.brand,
     textAlign: "center",
   },
@@ -445,8 +458,8 @@ const DigitCells = ({
     w = cellWidth ?? DIGIT_W,
     fs = fontSize ?? 16,
     cellStyle = brand
-      ? { width: w, fontSize: fs, fontFamily: "Helvetica-Bold" as const, color: COLOR.brand, textAlign: "center" as const }
-      : { width: w, fontSize: fs, fontFamily: "Helvetica" as const, color: COLOR.textDark, textAlign: "center" as const };
+      ? { width: w, fontSize: fs, fontFamily: "PlaywriteDEGrund" as const, color: COLOR.brand, textAlign: "center" as const }
+      : { width: w, fontSize: fs, fontFamily: "PlaywriteDEGrund" as const, color: COLOR.textDark, textAlign: "center" as const };
 
   return (
     <>
