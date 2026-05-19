@@ -714,7 +714,6 @@ const dispatchTopic = async (
           date: formatDate(),
           sheet,
           theme: ctx.theme,
-          schrift: config.schrift,
           bucketLabels: bucketLabelsList,
           showWatermark: !ctx.isPaid,
         });
@@ -727,7 +726,6 @@ const dispatchTopic = async (
           buckets: canonicalBuckets,
           count: config.count,
           linesPerWord: config.linesPerWord,
-          schrift: config.schrift,
           seed: sheet.seed,
         },
       };

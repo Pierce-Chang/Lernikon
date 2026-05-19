@@ -8,7 +8,6 @@ describe("vokabelnConfigSchema", () => {
       buckets: [],
       count: 8,
       linesPerWord: 2,
-      schrift: "helvetica",
     });
     expect(result.success).toBe(false);
   });
@@ -18,7 +17,6 @@ describe("vokabelnConfigSchema", () => {
       buckets: ["tiere"],
       count: 7,
       linesPerWord: 2,
-      schrift: "helvetica",
     });
     expect(result.success).toBe(false);
   });
@@ -28,17 +26,6 @@ describe("vokabelnConfigSchema", () => {
       buckets: ["farben"],
       count: 5,
       linesPerWord: 4,
-      schrift: "helvetica",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects unknown schrift value", () => {
-    const result = vokabelnConfigSchema.safeParse({
-      buckets: ["zahlen"],
-      count: 5,
-      linesPerWord: 1,
-      schrift: "sas",
     });
     expect(result.success).toBe(false);
   });
@@ -49,7 +36,6 @@ describe("generateVokabelnAbschreiben", () => {
     buckets: [...BUCKET_IDS] as typeof BUCKET_IDS[number][],
     count: 8 as const,
     linesPerWord: 2 as const,
-    schrift: "helvetica" as const,
   };
 
   it("returns exactly count items", () => {

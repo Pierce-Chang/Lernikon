@@ -8,10 +8,7 @@ import { WorksheetPreview } from "@/components/worksheet-preview";
 import {
   BUCKET_IDS,
   BUCKET_LABELS,
-  SCHRIFT_OPTIONS,
-  SCHRIFT_LABELS,
   type BucketId,
-  type Schrift,
 } from "@/lib/worksheet/englisch-vokabeln-abschreiben/config";
 import { useLocalSettings } from "@/lib/hooks/use-local-settings";
 import { capture } from "@/lib/analytics/client";
@@ -21,7 +18,6 @@ interface VokabelnSettings {
   buckets: BucketId[];
   count: 5 | 8 | 10;
   linesPerWord: 1 | 2 | 3;
-  schrift: Schrift;
 }
 
 const COUNT_OPTIONS = [5, 8, 10] as const;
@@ -31,7 +27,6 @@ const DEFAULT_SETTINGS: VokabelnSettings = {
   buckets: [...BUCKET_IDS],
   count: 8,
   linesPerWord: 2,
-  schrift: "helvetica",
 };
 
 const filenameFromResponse = (response: Response, fallback: string): string => {
@@ -56,7 +51,6 @@ export const VokabelnFormImpl = ({
     buckets = [...BUCKET_IDS],
     count = 8,
     linesPerWord = 2,
-    schrift = "helvetica",
   } = settings;
 
   const update = <K extends keyof VokabelnSettings>(
@@ -103,7 +97,6 @@ export const VokabelnFormImpl = ({
           buckets,
           count,
           linesPerWord,
-          schrift,
         }),
       });
       if (!response.ok) {
@@ -207,32 +200,6 @@ export const VokabelnFormImpl = ({
                 }`}
               >
                 {n}
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Schrift */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Schrift</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {SCHRIFT_OPTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => update("schrift", s)}
-                aria-pressed={schrift === s}
-                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
-                  schrift === s
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border hover:bg-accent"
-                }`}
-              >
-                {SCHRIFT_LABELS[s]}
               </button>
             ))}
           </div>

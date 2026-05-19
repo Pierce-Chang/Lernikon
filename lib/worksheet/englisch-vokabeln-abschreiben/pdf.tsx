@@ -12,7 +12,6 @@ import {
 } from "@react-pdf/renderer";
 import type { ReactElement } from "react";
 import type { VokabelnSheet, VocabularyEntry } from "./generate";
-import type { Schrift } from "./config";
 import { BUCKET_LABELS } from "./config";
 import { getTheme, type ThemeId } from "@/lib/themes";
 import { ThemeDecoration } from "../theme-decoration";
@@ -46,7 +45,6 @@ export interface VokabelnPdfProps {
   date: string;
   sheet: VokabelnSheet;
   theme: ThemeId;
-  schrift: Schrift;
   bucketLabels: string[];
   showWatermark: boolean;
 }
@@ -67,22 +65,8 @@ const BAND_HEIGHT = 20, // pt per band
   ROW_GAP = 8, // pt between rows inside one word block
   WORD_GAP = 20; // pt between word blocks
 
-// Ghost word font sizing for each schrift option.
-// PlaywriteDEGrund uses the same values as in woerter-abschreiben.
-// Helvetica-Bold is slightly taller for the same point size, so we reduce it
-// slightly to keep the ghost text comfortably inside the 40pt lineature.
-const GHOST_FONT_SIZE: Record<Schrift, number> = {
-  helvetica: 28,
-  "playwrite-grund": 43.5,
-};
-const GHOST_TOP: Record<Schrift, number> = {
-  helvetica: -2,
-  "playwrite-grund": -17,
-};
-const GHOST_FONT_FAMILY: Record<Schrift, string> = {
-  helvetica: "Helvetica-Bold",
-  "playwrite-grund": "PlaywriteDEGrund",
-};
+const GHOST_FONT_SIZE = 43.5,
+  GHOST_TOP = -17;
 
 const styles = StyleSheet.create({
   page: {
@@ -218,24 +202,22 @@ const styles = StyleSheet.create({
 const LineaturRow = ({
   word,
   isFirst,
-  schrift,
 }: {
   word: string;
   isFirst: boolean;
-  schrift: Schrift;
 }) => (
   <View style={styles.row} wrap={false}>
     <View style={styles.lineTop} />
     <View style={styles.lineMid} />
     <View style={styles.lineBottom} />
     {isFirst && (
-      <View style={[styles.ghostWordContainer, { top: GHOST_TOP[schrift] }]}>
+      <View style={[styles.ghostWordContainer, { top: GHOST_TOP }]}>
         <Text
           style={[
             styles.ghostWord,
             {
-              fontFamily: GHOST_FONT_FAMILY[schrift],
-              fontSize: GHOST_FONT_SIZE[schrift],
+              fontFamily: "PlaywriteDEGrund",
+              fontSize: GHOST_FONT_SIZE,
             },
           ]}
         >
@@ -250,11 +232,9 @@ const LineaturRow = ({
 const WordBlock = ({
   entry,
   linesPerWord,
-  schrift,
 }: {
   entry: VocabularyEntry;
   linesPerWord: number;
-  schrift: Schrift;
 }) => {
   const rows = Array.from({ length: linesPerWord }, (_, i) => i);
   return (
@@ -264,7 +244,6 @@ const WordBlock = ({
           key={i}
           word={entry.english}
           isFirst={i === 0}
-          schrift={schrift}
         />
       ))}
       <Text style={styles.germanLine}>{entry.german}</Text>
@@ -277,7 +256,6 @@ const VokabelnDocument = ({
   date,
   sheet,
   theme,
-  schrift,
   bucketLabels,
   showWatermark,
 }: VokabelnPdfProps): ReactElement => {
@@ -312,7 +290,6 @@ const VokabelnDocument = ({
             key={i}
             entry={entry}
             linesPerWord={sheet.linesPerWord}
-            schrift={schrift}
           />
         ))}
 
