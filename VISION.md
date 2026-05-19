@@ -46,6 +46,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c) — Ziffer 1-10 erkennen und entsprechend viele Punkte selbst auf einen Marienkaefer malen, schwarz-weiss druckfreundlich, 6 oder 10 Aufgaben
 - [x] Task 32 — Deutsch Klasse 4: 4 Fälle (Phase 1c) — Lückentext für Nominativ/Genitiv/Dativ/Akkusativ mit Fragewort-Hilfe, Gemischt-Modus, optionales Lösungsblatt
 - [x] Task 33 — Englisch Klasse 3: Vokabeln abschreiben (Phase 1c) — Druck-Variante Helvetica + PlaywriteDEGrund, Pattern-Klon von deutsch-woerter-abschreiben, mit deutscher Übersetzung. Erstes Topic im neuen Subject Englisch.
+- [x] Task 34 — Englisch Klasse 4: Simple Sentences (Phase 1c) — Luckentext am/is/are mit Infinitiv-Hilfe "(to be)" in Helvetica-Oblique, PlaywriteDEGrund fur Satz-Text (ASCII sicher), Korpus 28 Einträge, optionales Lösungsblatt, Pattern-Klon von deutsch-faelle/rechtschreibung.
 
 **Scope-Erweiterung 2026-05-19 (founder decision):** Englisch wird vorgezogen aus Phase 2 in Phase 1c. Reasoning: vor-Launch ist Englisch ab Klasse 3 ein realer DACH-curriculum-relevanter Eltern-Wunsch, der nicht auf 50+ aktive Konten warten muss. Klasse 5-10 + weitere Fächer (Sachunterricht, Musik, ...) bleiben Phase 2.
 
@@ -233,7 +234,7 @@ Built and working end-to-end:
    - ⏳ Klasse 4 — Aufsatz-Bausteine, Grammatik
 5. Mehr Englisch-Topics (neues Fach, vorgezogen aus Phase 2):
    - ✅ Klasse 3 — Vokabeln abschreiben (Task 33, geshippt). Fach-Farbe gelb (`#EAB308`). Themen-Buckets: Familie, Tiere, Farben, Zahlen, Schule.
-   - ⏳ Klasse 3 — Simple Sentences
+   - ✅ Klasse 4 — Simple Sentences (Task 34, geshippt). Luckentext am/is/are, PlaywriteDEGrund, 28 Korpus-Einträge, optionales Lösungsblatt.
    - ⏳ Klasse 3 — Hoerverstehen-Vokabeln
    - ⏳ Klasse 4 — Vokabel-Matching
    - ⏳ Klasse 1-2 — Erste Vokabeln
@@ -549,6 +550,15 @@ Create Supabase migrations:
 - Pure function `generateVokabelnAbschreiben(config, seed?)`: seedable mulberry32 PRNG, Fisher-Yates ohne Duplikate, Server-seitiger kanonischer Bucket-Sort.
 - PDF: `lib/worksheet/englisch-vokabeln-abschreiben/pdf.tsx`. 3-Linien-Lineatur wie woerter-abschreiben. Ghost-Wort in erster Lineatur-Zeile (Helvetica-Bold oder PlaywriteDEGrund; ASCII-only daher kein Grund-Umlaut-Bug), Rest leer. Deutsche Ubersetzung klein darunter (Helvetica 9pt textMuted), ausserhalb der Lineatur. Kein Losungsblatt. ThemeDecoration als erstes Kind der Page (themenagnostisch, nur als globales Dekor-Element). Kein topAccent-Streifen.
 - Erstes Topic im neuen Subject Englisch (Fach-Farbe `#EAB308`, yellow-500).
+- Rate-Limit-Eintrag analog Mathe.
+
+### Task 34 — Englisch Klasse 4: Simple Sentences (Phase 1c)
+- Route: `/app/englisch/simple-sentences`
+- Topic-ID: `englisch-simple-sentences`; im Topic-Registry unter `subject: "englisch"`, `grades: [4]`
+- Konfig-UI: Anzahl-Pills (10 / 15 / 20; Default 15), Losungsblatt-Toggle (Default an). Kein Modus-Multiselect im Erstwurf (nur "to be" im Korpus; struct-Discriminator ist vorbereitet fur spatere Erweiterung).
+- Korpus in `lib/worksheet/englisch-simple-sentences/corpus.ts`: 28 Einträge, alle `struct: "to-be"`. Verteilung: 8x am, 10x is, 10x are. K4-Wortschatz, Vokabular verankert im englisch-vokabeln-abschreiben-Korpus. ASCII-only, WinAnsi-safe.
+- Pure function `generateEnglischSimpleSentences(config, explicitSeed?)`: seedable mulberry32 PRNG, pool-Filterung auf `struct === "to-be"`, Fisher-Yates-Shuffle. Forward-Compat: struct-Filter-Hook fur spatere Multi-Struct-Erweiterung.
+- PDF: Pattern-Klon von `lib/worksheet/faelle/pdf.tsx`. Zweispaltige Liste (50/50). Satz-Text in PlaywriteDEGrund (normales `<Text>` -- ASCII triggert Combining-Mark-Bug nicht). Lücke als proportionale Unterstriche (`"_".repeat(answer.length + 2)`). Losungsseite: ausgeflullter Satz in PlaywriteDEGrund Brand-Navy. Infinitiv-Hilfe "(to be)" in Helvetica-Oblique 9pt textMuted marginTop 3 -- identisches Pattern wie `frageText` in faelle. ThemeDecoration als erstes Kind jeder Page. Kein topAccent-Streifen.
 - Rate-Limit-Eintrag analog Mathe.
 
 ---
