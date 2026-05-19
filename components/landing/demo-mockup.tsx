@@ -30,19 +30,19 @@ const RANGE_LABEL: Record<DemoRange, string> = {
 };
 
 // Width of the LHS-column, tuned per range so the "=" signs stay vertically
-// aligned. Sized for the widest actual LHS in each bucket. Numbers are
-// rendered in Playwrite (proportional, kid-style handwriting) with
-// tabular-nums for consistent digit widths.
+// aligned. Responsive: narrower on mobile, original width on sm+.
 const LHS_COL_CLASS: Record<DemoRange, string> = {
-  "10": "w-16", // up to "10 − X" (6 chars)
-  "20": "w-20", // up to "19 − 11" (7 chars)
-  "100": "w-20", // up to "XX − XX" (7 chars)
+  "10": "w-12 sm:w-16",
+  "20": "w-14 sm:w-20",
+  "100": "w-16 sm:w-20",
 };
 
-// Hardcoded problem strings per bucket. Each list has 10 unique problems.
+// Hardcoded problem strings per bucket. Each list has 20 unique problems
+// (matches the real "count: 20" option in the Lernikon math generator).
 // Addition: both operands and result within range max.
 // Subtraction: minuend <= range max, subtrahend < minuend (never negative).
-// Mixed: alternating 5 plus + 5 minus.
+// Mixed: 10 plus + 10 minus in asymmetric order (clumps and gaps, not
+// alternating) so the 2-col grid looks like an actually-generated mix.
 const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
   "10-plus": [
     "2 + 3 = ___",
@@ -55,6 +55,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "1 + 9 = ___",
     "4 + 4 = ___",
     "7 + 2 = ___",
+    "3 + 7 = ___",
+    "5 + 5 = ___",
+    "6 + 4 = ___",
+    "2 + 6 = ___",
+    "1 + 6 = ___",
+    "3 + 4 = ___",
+    "5 + 3 = ___",
+    "4 + 6 = ___",
+    "2 + 5 = ___",
+    "1 + 8 = ___",
   ],
   "10-minus": [
     "9 − 3 = ___",
@@ -67,10 +77,18 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "8 − 1 = ___",
     "10 − 4 = ___",
     "7 − 5 = ___",
+    "9 − 2 = ___",
+    "8 − 3 = ___",
+    "10 − 7 = ___",
+    "6 − 4 = ___",
+    "7 − 1 = ___",
+    "9 − 5 = ___",
+    "10 − 3 = ___",
+    "8 − 6 = ___",
+    "6 − 3 = ___",
+    "10 − 8 = ___",
   ],
   "10-gemischt": [
-    // Asymmetric +/− order so the 2-col grid looks like an actually-generated
-    // mix (clumps and gaps), not a tidy alternation. 5 plus + 5 minus total.
     "3 + 5 = ___",
     "1 + 8 = ___",
     "9 − 4 = ___",
@@ -81,6 +99,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "8 − 5 = ___",
     "5 + 4 = ___",
     "6 − 1 = ___",
+    "4 + 5 = ___",
+    "9 − 6 = ___",
+    "3 + 6 = ___",
+    "10 − 7 = ___",
+    "1 + 7 = ___",
+    "8 − 3 = ___",
+    "2 + 8 = ___",
+    "7 − 4 = ___",
+    "6 + 3 = ___",
+    "10 − 5 = ___",
   ],
   "20-plus": [
     "7 + 8 = ___",
@@ -93,6 +121,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "8 + 11 = ___",
     "15 + 4 = ___",
     "10 + 9 = ___",
+    "13 + 6 = ___",
+    "5 + 15 = ___",
+    "7 + 12 = ___",
+    "14 + 5 = ___",
+    "2 + 17 = ___",
+    "9 + 8 = ___",
+    "11 + 8 = ___",
+    "6 + 13 = ___",
+    "4 + 14 = ___",
+    "16 + 3 = ___",
   ],
   "20-minus": [
     "17 − 8 = ___",
@@ -105,6 +143,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "11 − 3 = ___",
     "16 − 8 = ___",
     "13 − 7 = ___",
+    "20 − 13 = ___",
+    "17 − 5 = ___",
+    "14 − 9 = ___",
+    "19 − 6 = ___",
+    "12 − 8 = ___",
+    "18 − 11 = ___",
+    "15 − 4 = ___",
+    "20 − 9 = ___",
+    "16 − 7 = ___",
+    "13 − 5 = ___",
   ],
   "20-gemischt": [
     "17 − 5 = ___",
@@ -117,6 +165,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "9 + 10 = ___",
     "7 + 12 = ___",
     "18 − 9 = ___",
+    "3 + 16 = ___",
+    "15 − 6 = ___",
+    "12 + 5 = ___",
+    "19 − 11 = ___",
+    "6 + 14 = ___",
+    "20 − 8 = ___",
+    "4 + 15 = ___",
+    "13 − 7 = ___",
+    "10 + 9 = ___",
+    "17 − 4 = ___",
   ],
   "100-plus": [
     "23 + 45 = ___",
@@ -129,6 +187,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "66 + 27 = ___",
     "39 + 51 = ___",
     "72 + 23 = ___",
+    "18 + 76 = ___",
+    "53 + 41 = ___",
+    "27 + 63 = ___",
+    "44 + 55 = ___",
+    "31 + 67 = ___",
+    "58 + 36 = ___",
+    "13 + 82 = ___",
+    "69 + 28 = ___",
+    "46 + 43 = ___",
+    "25 + 74 = ___",
   ],
   "100-minus": [
     "87 − 34 = ___",
@@ -141,6 +209,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "55 − 27 = ___",
     "78 − 43 = ___",
     "69 − 31 = ___",
+    "84 − 56 = ___",
+    "97 − 42 = ___",
+    "61 − 24 = ___",
+    "76 − 38 = ___",
+    "90 − 53 = ___",
+    "83 − 47 = ___",
+    "68 − 35 = ___",
+    "94 − 61 = ___",
+    "57 − 29 = ___",
+    "75 − 48 = ___",
   ],
   "100-gemischt": [
     "42 + 35 = ___",
@@ -153,6 +231,16 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "72 − 54 = ___",
     "28 + 63 = ___",
     "90 − 45 = ___",
+    "34 + 52 = ___",
+    "67 − 33 = ___",
+    "19 + 76 = ___",
+    "84 − 61 = ___",
+    "46 + 48 = ___",
+    "71 − 27 = ___",
+    "53 + 44 = ___",
+    "88 − 39 = ___",
+    "25 + 71 = ___",
+    "96 − 58 = ___",
   ],
 };
 
@@ -203,8 +291,9 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
       </div>
 
       {/* Problems grid with crossfade on key change. flex-1 so it absorbs
-          the remaining height inside the A4-ratio card. */}
-      <div className="relative flex-1 px-5 py-4">
+          the remaining height inside the A4-ratio card. flex+justify-center
+          keeps the grid vertically centred regardless of problem count. */}
+      <div className="relative flex flex-1 flex-col justify-center px-5 py-4">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={key}
@@ -212,7 +301,7 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mx-auto grid max-w-xs grid-cols-2 gap-x-6 gap-y-3"
+            className="mx-auto grid max-w-[280px] grid-cols-2 gap-x-3 gap-y-1.5 sm:max-w-xs sm:gap-x-6 sm:gap-y-2"
           >
             {problems.map((problem, i) => {
               // Split each problem into "LHS" and "RHS" around the equals sign
@@ -223,15 +312,15 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
               return (
                 <div key={i} className="flex items-center gap-2">
                   {/* Gold number badge */}
-                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-brand-accent text-[8px] font-bold text-brand">
+                  <span className="flex size-3.5 shrink-0 items-center justify-center rounded-full bg-brand-accent text-[7px] font-bold text-brand sm:size-4 sm:text-[8px]">
                     {i + 1}
                   </span>
                   <span
-                    className={`${LHS_COL_CLASS[range]} font-playwrite text-right text-base tabular-nums text-foreground`}
+                    className={`${LHS_COL_CLASS[range]} font-playwrite text-right text-[13px] tabular-nums text-foreground sm:text-base`}
                   >
                     {lhs}
                   </span>
-                  <span className="font-playwrite text-base tabular-nums text-foreground">
+                  <span className="font-playwrite text-[13px] tabular-nums text-foreground sm:text-base">
                     = {rhs}
                   </span>
                 </div>
