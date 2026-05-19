@@ -45,6 +45,7 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 30 — Mathe Vorschule: Mengen 1-10 (Phase 1c) — geometrische Form-Gruppen mit Ziffer-Eintrags-Kastchen, Bereich 1-5/1-10, 6/12 Aufgaben
 - [x] Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c) — Ziffer 1-10 erkennen und entsprechend viele Punkte selbst auf einen Marienkaefer malen, schwarz-weiss druckfreundlich, 6 oder 10 Aufgaben
 - [x] Task 32 — Deutsch Klasse 4: 4 Fälle (Phase 1c) — Lückentext für Nominativ/Genitiv/Dativ/Akkusativ mit Fragewort-Hilfe, Gemischt-Modus, optionales Lösungsblatt
+- [x] Task 33 — Englisch Klasse 3: Vokabeln abschreiben (Phase 1c) — Druck-Variante Helvetica + PlaywriteDEGrund, Pattern-Klon von deutsch-woerter-abschreiben, mit deutscher Übersetzung. Erstes Topic im neuen Subject Englisch.
 
 **Scope-Erweiterung 2026-05-19 (founder decision):** Englisch wird vorgezogen aus Phase 2 in Phase 1c. Reasoning: vor-Launch ist Englisch ab Klasse 3 ein realer DACH-curriculum-relevanter Eltern-Wunsch, der nicht auf 50+ aktive Konten warten muss. Klasse 5-10 + weitere Fächer (Sachunterricht, Musik, ...) bleiben Phase 2.
 
@@ -539,6 +540,16 @@ Create Supabase migrations:
 - Pure function `generateFaelle(config, explicitSeed?)`: seedable mulberry32 PRNG, Einzelfall-Modus filtert auf Fall, Gemischt-Modus verteilt `count` gleichmäßig auf 4 Fälle (Remainder zu ersten Fällen), dann Fisher-Yates-Shuffle der Gesamtliste.
 - PDF: Pattern-Klon von `lib/worksheet/rechtschreibung/pdf.tsx`. Zweispaltige Liste (50/50). Pro Eintrag: Nummerierung + Satz mit Unterstrich-Lücke in PlaywriteDEGrund (Aufgabenblatt) oder vollem Satz in PlaywriteDEGrund Brand-Navy (Losungsblatt). Fragewort-Hilfe in kleiner kursiver Helvetica darunter (z. B. "(wem?)"). ThemeDecoration als erstes Kind jeder Page. Kein topAccent-Streifen.
 - Kein topAccent-Streifen. Rate-Limit-Eintrag analog Mathe.
+
+### Task 33 — Englisch Klasse 3: Vokabeln abschreiben (Phase 1c)
+- Route: `/app/englisch/vokabeln-abschreiben`
+- Topic-ID: `englisch-vokabeln-abschreiben`; im Topic-Registry unter `subject: "englisch"`, `grades: [3]`
+- Konfig-UI: Themen-Multiselect (Familie / Tiere / Farben / Zahlen / Schule; alle Default an), Anzahl-Pills (5 / 8 / 10; Default 8), Zeilen-Pills (1 / 2 / 3; Default 2), Schrift-Pills (Druck Helvetica / Druck Schulschrift PlaywriteDEGrund; Default Helvetica). Kein Losungsblatt-Toggle.
+- Korpus in `lib/worksheet/englisch-vokabeln-abschreiben/corpus.ts`: 80 Einträge (16 pro Bucket), ASCII-only englische Seite, deutsche Seite in Helvetica. Typ: `{ bucket, english, german }`.
+- Pure function `generateVokabelnAbschreiben(config, seed?)`: seedable mulberry32 PRNG, Fisher-Yates ohne Duplikate, Server-seitiger kanonischer Bucket-Sort.
+- PDF: `lib/worksheet/englisch-vokabeln-abschreiben/pdf.tsx`. 3-Linien-Lineatur wie woerter-abschreiben. Ghost-Wort in erster Lineatur-Zeile (Helvetica-Bold oder PlaywriteDEGrund; ASCII-only daher kein Grund-Umlaut-Bug), Rest leer. Deutsche Ubersetzung klein darunter (Helvetica 9pt textMuted), ausserhalb der Lineatur. Kein Losungsblatt. ThemeDecoration als erstes Kind der Page (themenagnostisch, nur als globales Dekor-Element). Kein topAccent-Streifen.
+- Erstes Topic im neuen Subject Englisch (Fach-Farbe `#EAB308`, yellow-500).
+- Rate-Limit-Eintrag analog Mathe.
 
 ---
 
