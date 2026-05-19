@@ -29,6 +29,8 @@ const RANGE_LABEL: Record<DemoRange, string> = {
   "100": "1 bis 100",
 };
 
+const ANSWER_LINE = "____";
+
 /**
  * Founder-tweakable layout variables for the demo mockup.
  * All values in pixels. `mobile` applies below 640 px, `desktop` at 640 px and
@@ -36,29 +38,21 @@ const RANGE_LABEL: Record<DemoRange, string> = {
  * class hunting needed.
  */
 const DEMO_LAYOUT = {
-  // Font size for the problem text (LHS operands + "= ___" RHS)
+  // Font size for the problem text
   problemFontSize: { mobile: 14, desktop: 18 },
 
   // Gold badge that carries the problem number
-  badgeSize:     { mobile: 16, desktop: 20 },
-  badgeFontSize: { mobile: 8,  desktop: 9 },
-
-  // Fixed width of the LHS column before "=" — tuned per range so "=" signs
-  // stay vertically aligned within each grid column
-  lhsWidth: {
-    "10":  { mobile: 48, desktop: 80 },
-    "20":  { mobile: 56, desktop: 96 },
-    "100": { mobile: 56, desktop: 96 },
-  } as Record<DemoRange, { mobile: number; desktop: number }>,
+  badgeSize: { mobile: 16, desktop: 20 },
+  badgeFontSize: { mobile: 8, desktop: 9 },
 
   // Column gap and row gap BETWEEN the two columns of problems in the grid
   gap: {
-    x: { mobile: 12, desktop: 18 },
-    y: { mobile: 8,  desktop: 12 },
+    x: { mobile: 12, desktop: 42 },
+    y: { mobile: 8, desktop: 12 },
   },
 
-  // Inner gap WITHIN a single problem: Badge | LHS | RHS
-  badgeGap: { mobile: 12, desktop: 18 },
+  // Inner gap WITHIN a single problem: Badge | equation
+  problemGap: { mobile: 6, desktop: 9 },
 
   // Vertical padding (top + bottom) of the problems body area
   bodyPadding: { mobile: 24, desktop: 32 },
@@ -74,12 +68,9 @@ const DEMO_CSS = `
   --demo-fs: ${DEMO_LAYOUT.problemFontSize.mobile}px;
   --demo-badge: ${DEMO_LAYOUT.badgeSize.mobile}px;
   --demo-badge-fs: ${DEMO_LAYOUT.badgeFontSize.mobile}px;
-  --demo-lhs-10: ${DEMO_LAYOUT.lhsWidth["10"].mobile}px;
-  --demo-lhs-20: ${DEMO_LAYOUT.lhsWidth["20"].mobile}px;
-  --demo-lhs-100: ${DEMO_LAYOUT.lhsWidth["100"].mobile}px;
   --demo-gap-x: ${DEMO_LAYOUT.gap.x.mobile}px;
   --demo-gap-y: ${DEMO_LAYOUT.gap.y.mobile}px;
-  --demo-badge-gap: ${DEMO_LAYOUT.badgeGap.mobile}px;
+  --demo-problem-gap: ${DEMO_LAYOUT.problemGap.mobile}px;
   --demo-body-py: ${DEMO_LAYOUT.bodyPadding.mobile}px;
   --demo-grid-max: ${DEMO_LAYOUT.gridMaxWidth.mobile}px;
 }
@@ -88,12 +79,9 @@ const DEMO_CSS = `
     --demo-fs: ${DEMO_LAYOUT.problemFontSize.desktop}px;
     --demo-badge: ${DEMO_LAYOUT.badgeSize.desktop}px;
     --demo-badge-fs: ${DEMO_LAYOUT.badgeFontSize.desktop}px;
-    --demo-lhs-10: ${DEMO_LAYOUT.lhsWidth["10"].desktop}px;
-    --demo-lhs-20: ${DEMO_LAYOUT.lhsWidth["20"].desktop}px;
-    --demo-lhs-100: ${DEMO_LAYOUT.lhsWidth["100"].desktop}px;
     --demo-gap-x: ${DEMO_LAYOUT.gap.x.desktop}px;
     --demo-gap-y: ${DEMO_LAYOUT.gap.y.desktop}px;
-    --demo-badge-gap: ${DEMO_LAYOUT.badgeGap.desktop}px;
+    --demo-problem-gap: ${DEMO_LAYOUT.problemGap.desktop}px;
     --demo-body-py: ${DEMO_LAYOUT.bodyPadding.desktop}px;
     --demo-grid-max: ${DEMO_LAYOUT.gridMaxWidth.desktop}px;
   }
@@ -228,46 +216,41 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
   return (
     // A4 portrait aspect ratio (210:297) so the mockup never goes landscape
     // regardless of viewport width.
-    <div className="demo-mockup-tune relative flex aspect-[210/297] w-full flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-lg">
+    <div className="demo-mockup-tune border-border relative flex aspect-[210/297] w-full flex-col overflow-hidden rounded-2xl border bg-white shadow-lg">
       <style>{DEMO_CSS}</style>
 
       {/* Top navy accent strip — matches the real PDF */}
       <div className="bg-brand h-1.5 w-full" />
 
       {/* Header: brand+title left, child meta right */}
-      <div className="relative border-b border-border px-5 pt-4 pb-4">
+      <div className="border-border relative border-b px-5 pt-4 pb-4">
         <div className="flex items-start justify-between gap-4">
           {/* Brand + title block */}
           <div>
-            <div className="text-[9px] font-bold uppercase tracking-[0.15em] text-brand">
+            <div className="text-brand text-[9px] font-bold tracking-[0.15em] uppercase">
               Lernikon
             </div>
-            <div className="text-[9px] text-muted-foreground">lernikon.de</div>
-            <h3 className="mt-2 text-lg font-bold leading-tight text-foreground">
-              Übungsblatt
-            </h3>
-            <p className="mt-0.5 text-[11px] font-semibold text-brand">
+            <div className="text-muted-foreground text-[9px]">lernikon.de</div>
+            <h3 className="text-foreground mt-2 text-lg leading-tight font-bold">Übungsblatt</h3>
+            <p className="text-brand mt-0.5 text-[11px] font-semibold">
               {OPERATION_SUBTITLE[operation]} · Zahlenraum {RANGE_LABEL[range]}
             </p>
           </div>
 
           {/* Meta column: NAME + KLASSE */}
           <div className="text-right">
-            <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
-              Name
-            </div>
-            <div className="text-sm font-bold text-foreground">{DEMO_CHILD_NAME}</div>
-            <div className="mt-1.5 text-[9px] uppercase tracking-wider text-muted-foreground">
+            <div className="text-muted-foreground text-[9px] tracking-wider uppercase">Name</div>
+            <div className="text-foreground text-sm font-bold">{DEMO_CHILD_NAME}</div>
+            <div className="text-muted-foreground mt-1.5 text-[9px] tracking-wider uppercase">
               Klasse
             </div>
-            <div className="text-sm font-bold text-foreground">1. Klasse</div>
+            <div className="text-foreground text-sm font-bold">1. Klasse</div>
           </div>
         </div>
       </div>
 
       {/* Problems grid with crossfade on key change. flex-1 so it absorbs
-          the remaining height inside the A4-ratio card. justify-between
-          distributes the 5 rows evenly across the full body height. */}
+          the remaining height inside the A4-ratio card. */}
       <div
         className="relative flex flex-1 flex-col justify-between px-5"
         style={{
@@ -282,28 +265,26 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mx-auto grid grid-cols-2"
+            className="mx-auto grid w-full flex-1 grid-cols-2 items-center"
             style={{
               maxWidth: "var(--demo-grid-max)",
               columnGap: "var(--demo-gap-x)",
               rowGap: "var(--demo-gap-y)",
+              gridTemplateRows: "repeat(5, minmax(0, 1fr))",
             }}
           >
             {problems.map((problem, i) => {
-              // Split each problem into "LHS" and "RHS" around the equals sign
-              // so the LHS can sit right-aligned in a fixed-width column. That
-              // keeps all "=" signs vertically aligned per grid-column without
-              // pushing the LHS away from the badge.
-              const [lhs, rhs] = problem.split(" = ");
+              const displayProblem = problem.replace("___", ANSWER_LINE);
+
               return (
                 <div
                   key={i}
-                  className="flex items-center"
-                  style={{ gap: "var(--demo-badge-gap)" }}
+                  className="flex min-w-0 items-center"
+                  style={{ gap: "var(--demo-problem-gap)" }}
                 >
                   {/* Gold number badge */}
                   <span
-                    className="flex shrink-0 items-center justify-center rounded-full bg-brand-accent font-bold text-brand"
+                    className="bg-brand-accent text-brand flex shrink-0 items-center justify-center rounded-full font-bold"
                     style={{
                       width: "var(--demo-badge)",
                       height: "var(--demo-badge)",
@@ -313,19 +294,10 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
                     {i + 1}
                   </span>
                   <span
-                    className="font-playwrite text-right tabular-nums text-foreground"
-                    style={{
-                      width: `var(--demo-lhs-${range})`,
-                      fontSize: "var(--demo-fs)",
-                    }}
-                  >
-                    {lhs}
-                  </span>
-                  <span
-                    className="font-playwrite tabular-nums text-foreground"
+                    className="font-playwrite text-foreground min-w-0 whitespace-nowrap tabular-nums"
                     style={{ fontSize: "var(--demo-fs)" }}
                   >
-                    = {rhs}
+                    {displayProblem}
                   </span>
                 </div>
               );
@@ -336,16 +308,16 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
         {/* Theme decoration: rocket bottom-right of the worksheet */}
         <span
           aria-hidden
-          className="pointer-events-none absolute bottom-2 right-3 select-none text-3xl"
+          className="pointer-events-none absolute right-3 bottom-2 text-3xl select-none"
         >
           🚀
         </span>
       </div>
 
       {/* Card footer */}
-      <div className="flex items-center justify-between border-t border-border px-5 py-2">
-        <span className="text-xs font-semibold text-brand">Lernikon</span>
-        <span className="rounded-full bg-brand-accent/20 px-2.5 py-0.5 text-[10px] font-medium text-brand-accent">
+      <div className="border-border flex items-center justify-between border-t px-5 py-2">
+        <span className="text-brand text-xs font-semibold">Lernikon</span>
+        <span className="bg-brand-accent/20 text-brand-accent rounded-full px-2.5 py-0.5 text-[10px] font-medium">
           Demo-Ansicht
         </span>
       </div>
