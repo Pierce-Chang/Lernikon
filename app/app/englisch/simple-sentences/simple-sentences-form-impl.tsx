@@ -84,7 +84,7 @@ export const SimpleSentencesFormImpl = ({
           const text = await response.text();
           console.warn("generate failed:", response.status, text);
           setError(
-            "Konnte das Ubungsblatt nicht erstellen. Bitte erneut versuchen.",
+            "Konnte das Übungsblatt nicht erstellen. Bitte erneut versuchen.",
           );
         }
         return;
@@ -108,7 +108,7 @@ export const SimpleSentencesFormImpl = ({
       {/* Anzahl Satze */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Anzahl Satze</CardTitle>
+          <CardTitle className="text-base">Anzahl Sätze</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
@@ -131,10 +131,10 @@ export const SimpleSentencesFormImpl = ({
         </CardContent>
       </Card>
 
-      {/* Losungsblatt */}
+      {/* Lösungsblatt */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Losungsblatt</CardTitle>
+          <CardTitle className="text-base">Lösungsblatt</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
@@ -150,7 +150,7 @@ export const SimpleSentencesFormImpl = ({
                     : "border-border hover:bg-accent"
                 }`}
               >
-                {val ? "Mit Losungen" : "Ohne Losungen"}
+                {val ? "Mit Lösungen" : "Ohne Lösungen"}
               </button>
             ))}
           </div>
@@ -162,7 +162,7 @@ export const SimpleSentencesFormImpl = ({
           <p className="text-muted-foreground text-sm">
             Heute noch{" "}
             <span className="text-foreground font-medium">{quota.remaining}</span>{" "}
-            von {quota.limit} Arbeitsblattern verfugbar.
+            von {quota.limit} Arbeitsblättern verfügbar.
           </p>
         )}
         {blocked ? (

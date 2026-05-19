@@ -241,7 +241,7 @@ const EnglischSimpleSentencesDocument = ({
 
   return (
     <Document
-      title={`Simple Sentences fuer ${childName}`}
+      title={`Simple Sentences für ${childName}`}
       author="Lernikon"
       creator="Lernikon"
       producer="Lernikon"
@@ -290,7 +290,7 @@ const EnglischSimpleSentencesDocument = ({
             <View>
               <Text style={styles.brand}>Lernikon</Text>
               <Text style={styles.brandDomain}>lernikon.de</Text>
-              <Text style={styles.title}>Loesungen</Text>
+              <Text style={styles.title}>Lösungen</Text>
               <Text style={styles.subtitle}>to be (am, is, are)</Text>
             </View>
             <View style={styles.metaCol}>
