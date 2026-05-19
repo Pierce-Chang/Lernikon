@@ -51,11 +51,14 @@ const DEMO_LAYOUT = {
     "100": { mobile: 56, desktop: 96 },
   } as Record<DemoRange, { mobile: number; desktop: number }>,
 
-  // Column gap and row gap inside the problem grid
+  // Column gap and row gap BETWEEN the two columns of problems in the grid
   gap: {
-    x: { mobile: 12, desktop: 28 },
+    x: { mobile: 12, desktop: 18 },
     y: { mobile: 8,  desktop: 12 },
   },
+
+  // Inner gap WITHIN a single problem: Badge | LHS | RHS
+  badgeGap: { mobile: 12, desktop: 18 },
 
   // Vertical padding (top + bottom) of the problems body area
   bodyPadding: { mobile: 24, desktop: 32 },
@@ -76,6 +79,7 @@ const DEMO_CSS = `
   --demo-lhs-100: ${DEMO_LAYOUT.lhsWidth["100"].mobile}px;
   --demo-gap-x: ${DEMO_LAYOUT.gap.x.mobile}px;
   --demo-gap-y: ${DEMO_LAYOUT.gap.y.mobile}px;
+  --demo-badge-gap: ${DEMO_LAYOUT.badgeGap.mobile}px;
   --demo-body-py: ${DEMO_LAYOUT.bodyPadding.mobile}px;
   --demo-grid-max: ${DEMO_LAYOUT.gridMaxWidth.mobile}px;
 }
@@ -89,6 +93,7 @@ const DEMO_CSS = `
     --demo-lhs-100: ${DEMO_LAYOUT.lhsWidth["100"].desktop}px;
     --demo-gap-x: ${DEMO_LAYOUT.gap.x.desktop}px;
     --demo-gap-y: ${DEMO_LAYOUT.gap.y.desktop}px;
+    --demo-badge-gap: ${DEMO_LAYOUT.badgeGap.desktop}px;
     --demo-body-py: ${DEMO_LAYOUT.bodyPadding.desktop}px;
     --demo-grid-max: ${DEMO_LAYOUT.gridMaxWidth.desktop}px;
   }
@@ -294,7 +299,7 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
                 <div
                   key={i}
                   className="flex items-center"
-                  style={{ gap: "var(--demo-gap-x)" }}
+                  style={{ gap: "var(--demo-badge-gap)" }}
                 >
                   {/* Gold number badge */}
                   <span
