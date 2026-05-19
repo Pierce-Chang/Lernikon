@@ -46,6 +46,8 @@ Phase 1a code complete (Tasks 1–13). Local dev runs end-to-end on `npx supabas
 - [x] Task 31 — Mathe Vorschule: Zahlen mit Marienkaefern (Phase 1c) — Ziffer 1-10 erkennen und entsprechend viele Punkte selbst auf einen Marienkaefer malen, schwarz-weiss druckfreundlich, 6 oder 10 Aufgaben
 - [x] Task 32 — Deutsch Klasse 4: 4 Fälle (Phase 1c) — Lückentext für Nominativ/Genitiv/Dativ/Akkusativ mit Fragewort-Hilfe, Gemischt-Modus, optionales Lösungsblatt
 
+**Scope-Erweiterung 2026-05-19 (founder decision):** Englisch wird vorgezogen aus Phase 2 in Phase 1c. Reasoning: vor-Launch ist Englisch ab Klasse 3 ein realer DACH-curriculum-relevanter Eltern-Wunsch, der nicht auf 50+ aktive Konten warten muss. Klasse 5-10 + weitere Fächer (Sachunterricht, Musik, ...) bleiben Phase 2.
+
 Repo: https://github.com/Pierce-Chang/Lernikon (branch `main`).
 
 ---
@@ -130,7 +132,7 @@ To stay focused, the MVP explicitly does NOT include:
 - Photo scan + auto-correction (Phase 4)
 - Sharing worksheets between parents / community library
 - Klasse 5–10 content (Phase 2 — current implementation phase is Vorschule bis Klasse 4)
-- Weitere Fächer jenseits von Mathe + Deutsch (Englisch, Sachunterricht etc. = Phase 2)
+- Weitere Fächer jenseits von Mathe + Deutsch + Englisch (Sachunterricht, Musik etc. = Phase 2)
 - Weitere Themes über Weltraum hinaus (kommt in Phase 1c/2, nicht jetzt)
 
 If the founder requests any of these during MVP build, the agent should respond with: "This is out of MVP scope per VISION.md. Adding to Phase 2 backlog. Continuing with current task."
@@ -228,7 +230,13 @@ Built and working end-to-end:
    - ⏳ Klasse 3 — Leseverstehen
    - ✅ Klasse 4 — 4 Fälle (Task 32, geshippt)
    - ⏳ Klasse 4 — Aufsatz-Bausteine, Grammatik
-5. Neues Fach „Denken" (Phase 1c):
+5. Mehr Englisch-Topics (neues Fach, vorgezogen aus Phase 2):
+   - ✅ Klasse 3 — Vokabeln abschreiben (Task 33, geshippt). Fach-Farbe gelb (`#EAB308`). Themen-Buckets: Familie, Tiere, Farben, Zahlen, Schule.
+   - ⏳ Klasse 3 — Simple Sentences
+   - ⏳ Klasse 3 — Hoerverstehen-Vokabeln
+   - ⏳ Klasse 4 — Vokabel-Matching
+   - ⏳ Klasse 1-2 — Erste Vokabeln
+6. Neues Fach „Denken" (Phase 1c):
    - ✅ Vorschule — Muster fortsetzen (Task 21, geshippt). Fach-Farbe lila (`#9333EA`), unabhängig von Mathe/Deutsch positioniert.
 
 ### Conversion-Strategie (Stand 2026-05-12, vom CEO entschieden)
@@ -236,7 +244,7 @@ Built and working end-to-end:
 Pre-Launch-Posture: **wenig restrictivity, viel Daten sammeln**. Reasoning: ohne aktive User ist jede Paywall-Härtegrad-Entscheidung Spekulation. Erst Funnel-Daten, dann tunen.
 
 - **Quota bleibt bei 3/Tag** (nicht 2). Reduktion erst wenn `paywall_hit{trigger:rate_limit}` zeigt dass aktive User regelmäßig dran scheitern.
-- **Deutsch bleibt komplett free** (nicht ab Klasse 1 Pro). Top-of-Funnel-Schutz für die frische Multi-Subject-Botschaft. Re-evaluate in Phase 2 mit 50+ aktiven Konten.
+- **Deutsch + Englisch bleiben komplett free** (nicht ab Klasse 1 Pro). Top-of-Funnel-Schutz für die frische Multi-Subject-Botschaft. Re-evaluate in Phase 2 mit 50+ aktiven Konten.
 - **Theme-Paywall** ist der primäre Conversion-Hebel, kommt mit Theme-Expansion (Bullet 4 oben).
 - **Lösungen-Blatt bleibt für Free verfügbar** — table stakes für Eltern. Nicht hinter Paywall stecken.
 - **AI-Sachaufgaben** (gpt-4o-mini) sind Pro-only **wenn** sie kommen. Phase 2.
@@ -245,7 +253,7 @@ Pre-Launch-Posture: **wenig restrictivity, viel Daten sammeln**. Reasoning: ohne
 
 ### Phase 2 — Klasse 5–10 + weitere Fächer
 
-Sobald 1c stabil ist und ≥ 50 aktive Konten erreicht sind: Klasse 5–10 in Mathe + Deutsch, dann neue Fächer (Englisch, Sachunterricht, …).
+Sobald 1c stabil ist und ≥ 50 aktive Konten erreicht sind: Klasse 5–10 in Mathe + Deutsch + Englisch, dann neue Fächer (Sachunterricht, Musik, …).
 
 The agent must refuse scope additions außerhalb des aktuellen Phase-1b/1c-Plans, bis Phase 1b im Produktiv-Deploy ist (Task 14).
 
