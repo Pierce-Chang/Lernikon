@@ -29,13 +29,71 @@ const RANGE_LABEL: Record<DemoRange, string> = {
   "100": "1 bis 100",
 };
 
-// Width of the LHS-column, tuned per range so the "=" signs stay vertically
-// aligned. Responsive: narrower on mobile, wider on sm+ to match text-lg.
-const LHS_COL_CLASS: Record<DemoRange, string> = {
-  "10": "w-12 sm:w-20",
-  "20": "w-14 sm:w-24",
-  "100": "w-14 sm:w-24",
-};
+/**
+ * Founder-tweakable layout variables for the demo mockup.
+ * All values in pixels. `mobile` applies below 640 px, `desktop` at 640 px and
+ * above (Tailwind sm breakpoint). One file change here is enough — no Tailwind
+ * class hunting needed.
+ */
+const DEMO_LAYOUT = {
+  // Font size for the problem text (LHS operands + "= ___" RHS)
+  problemFontSize: { mobile: 14, desktop: 18 },
+
+  // Gold badge that carries the problem number
+  badgeSize:     { mobile: 16, desktop: 20 },
+  badgeFontSize: { mobile: 8,  desktop: 9 },
+
+  // Fixed width of the LHS column before "=" — tuned per range so "=" signs
+  // stay vertically aligned within each grid column
+  lhsWidth: {
+    "10":  { mobile: 48, desktop: 80 },
+    "20":  { mobile: 56, desktop: 96 },
+    "100": { mobile: 56, desktop: 96 },
+  } as Record<DemoRange, { mobile: number; desktop: number }>,
+
+  // Column gap and row gap inside the problem grid
+  gap: {
+    x: { mobile: 12, desktop: 28 },
+    y: { mobile: 8,  desktop: 12 },
+  },
+
+  // Vertical padding (top + bottom) of the problems body area
+  bodyPadding: { mobile: 24, desktop: 32 },
+
+  // Max width of the two-column problem grid
+  gridMaxWidth: { mobile: 280, desktop: 384 },
+} as const;
+
+/** CSS custom properties injected via a <style> tag so the layout constants
+ *  above drive every responsive measurement in a single place. */
+const DEMO_CSS = `
+.demo-mockup-tune {
+  --demo-fs: ${DEMO_LAYOUT.problemFontSize.mobile}px;
+  --demo-badge: ${DEMO_LAYOUT.badgeSize.mobile}px;
+  --demo-badge-fs: ${DEMO_LAYOUT.badgeFontSize.mobile}px;
+  --demo-lhs-10: ${DEMO_LAYOUT.lhsWidth["10"].mobile}px;
+  --demo-lhs-20: ${DEMO_LAYOUT.lhsWidth["20"].mobile}px;
+  --demo-lhs-100: ${DEMO_LAYOUT.lhsWidth["100"].mobile}px;
+  --demo-gap-x: ${DEMO_LAYOUT.gap.x.mobile}px;
+  --demo-gap-y: ${DEMO_LAYOUT.gap.y.mobile}px;
+  --demo-body-py: ${DEMO_LAYOUT.bodyPadding.mobile}px;
+  --demo-grid-max: ${DEMO_LAYOUT.gridMaxWidth.mobile}px;
+}
+@media (min-width: 640px) {
+  .demo-mockup-tune {
+    --demo-fs: ${DEMO_LAYOUT.problemFontSize.desktop}px;
+    --demo-badge: ${DEMO_LAYOUT.badgeSize.desktop}px;
+    --demo-badge-fs: ${DEMO_LAYOUT.badgeFontSize.desktop}px;
+    --demo-lhs-10: ${DEMO_LAYOUT.lhsWidth["10"].desktop}px;
+    --demo-lhs-20: ${DEMO_LAYOUT.lhsWidth["20"].desktop}px;
+    --demo-lhs-100: ${DEMO_LAYOUT.lhsWidth["100"].desktop}px;
+    --demo-gap-x: ${DEMO_LAYOUT.gap.x.desktop}px;
+    --demo-gap-y: ${DEMO_LAYOUT.gap.y.desktop}px;
+    --demo-body-py: ${DEMO_LAYOUT.bodyPadding.desktop}px;
+    --demo-grid-max: ${DEMO_LAYOUT.gridMaxWidth.desktop}px;
+  }
+}
+`;
 
 // Hardcoded problem strings per bucket. Each list has 10 unique problems
 // (matches the real "count: 10" option in the Lernikon math generator).
@@ -57,28 +115,28 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "7 + 2 = ___",
   ],
   "10-minus": [
-    "9 − 3 = ___",
-    "8 − 5 = ___",
-    "7 − 4 = ___",
-    "10 − 6 = ___",
-    "6 − 2 = ___",
-    "9 − 7 = ___",
-    "5 − 3 = ___",
-    "8 − 1 = ___",
-    "10 − 4 = ___",
-    "7 − 5 = ___",
+    "9 - 3 = ___",
+    "8 - 5 = ___",
+    "7 - 4 = ___",
+    "10 - 6 = ___",
+    "6 - 2 = ___",
+    "9 - 7 = ___",
+    "5 - 3 = ___",
+    "8 - 1 = ___",
+    "10 - 4 = ___",
+    "7 - 5 = ___",
   ],
   "10-gemischt": [
     "3 + 5 = ___",
     "1 + 8 = ___",
-    "9 − 4 = ___",
+    "9 - 4 = ___",
     "4 + 6 = ___",
-    "7 − 3 = ___",
-    "10 − 2 = ___",
+    "7 - 3 = ___",
+    "10 - 2 = ___",
     "2 + 7 = ___",
-    "8 − 5 = ___",
+    "8 - 5 = ___",
     "5 + 4 = ___",
-    "6 − 1 = ___",
+    "6 - 1 = ___",
   ],
   "20-plus": [
     "7 + 8 = ___",
@@ -93,28 +151,28 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "10 + 9 = ___",
   ],
   "20-minus": [
-    "17 − 8 = ___",
-    "14 − 6 = ___",
-    "19 − 11 = ___",
-    "12 − 5 = ___",
-    "20 − 7 = ___",
-    "15 − 9 = ___",
-    "18 − 4 = ___",
-    "11 − 3 = ___",
-    "16 − 8 = ___",
-    "13 − 7 = ___",
+    "17 - 8 = ___",
+    "14 - 6 = ___",
+    "19 - 11 = ___",
+    "12 - 5 = ___",
+    "20 - 7 = ___",
+    "15 - 9 = ___",
+    "18 - 4 = ___",
+    "11 - 3 = ___",
+    "16 - 8 = ___",
+    "13 - 7 = ___",
   ],
   "20-gemischt": [
-    "17 − 5 = ___",
+    "17 - 5 = ___",
     "8 + 9 = ___",
     "11 + 6 = ___",
-    "14 − 8 = ___",
-    "20 − 12 = ___",
+    "14 - 8 = ___",
+    "20 - 12 = ___",
     "5 + 13 = ___",
-    "16 − 7 = ___",
+    "16 - 7 = ___",
     "9 + 10 = ___",
     "7 + 12 = ___",
-    "18 − 9 = ___",
+    "18 - 9 = ___",
   ],
   "100-plus": [
     "23 + 45 = ___",
@@ -129,28 +187,28 @@ const MOCK_PROBLEMS: Record<`${DemoRange}-${DemoOperation}`, string[]> = {
     "72 + 23 = ___",
   ],
   "100-minus": [
-    "87 − 34 = ___",
-    "73 − 28 = ___",
-    "95 − 47 = ___",
-    "64 − 19 = ___",
-    "81 − 55 = ___",
-    "70 − 36 = ___",
-    "92 − 48 = ___",
-    "55 − 27 = ___",
-    "78 − 43 = ___",
-    "69 − 31 = ___",
+    "87 - 34 = ___",
+    "73 - 28 = ___",
+    "95 - 47 = ___",
+    "64 - 19 = ___",
+    "81 - 55 = ___",
+    "70 - 36 = ___",
+    "92 - 48 = ___",
+    "55 - 27 = ___",
+    "78 - 43 = ___",
+    "69 - 31 = ___",
   ],
   "100-gemischt": [
     "42 + 35 = ___",
-    "78 − 29 = ___",
+    "78 - 29 = ___",
     "61 + 24 = ___",
     "17 + 68 = ___",
-    "85 − 47 = ___",
+    "85 - 47 = ___",
     "55 + 39 = ___",
-    "93 − 38 = ___",
-    "72 − 54 = ___",
+    "93 - 38 = ___",
+    "72 - 54 = ___",
     "28 + 63 = ___",
-    "90 − 45 = ___",
+    "90 - 45 = ___",
   ],
 };
 
@@ -165,7 +223,9 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
   return (
     // A4 portrait aspect ratio (210:297) so the mockup never goes landscape
     // regardless of viewport width.
-    <div className="relative flex aspect-[210/297] w-full flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-lg">
+    <div className="demo-mockup-tune relative flex aspect-[210/297] w-full flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-lg">
+      <style>{DEMO_CSS}</style>
+
       {/* Top navy accent strip — matches the real PDF */}
       <div className="bg-brand h-1.5 w-full" />
 
@@ -203,7 +263,13 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
       {/* Problems grid with crossfade on key change. flex-1 so it absorbs
           the remaining height inside the A4-ratio card. justify-between
           distributes the 5 rows evenly across the full body height. */}
-      <div className="relative flex flex-1 flex-col justify-between px-5 py-6 sm:py-8">
+      <div
+        className="relative flex flex-1 flex-col justify-between px-5"
+        style={{
+          paddingTop: "var(--demo-body-py)",
+          paddingBottom: "var(--demo-body-py)",
+        }}
+      >
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={key}
@@ -211,7 +277,12 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mx-auto grid max-w-[280px] grid-cols-2 gap-x-3 gap-y-2 sm:max-w-sm sm:gap-x-7 sm:gap-y-3"
+            className="mx-auto grid grid-cols-2"
+            style={{
+              maxWidth: "var(--demo-grid-max)",
+              columnGap: "var(--demo-gap-x)",
+              rowGap: "var(--demo-gap-y)",
+            }}
           >
             {problems.map((problem, i) => {
               // Split each problem into "LHS" and "RHS" around the equals sign
@@ -220,17 +291,35 @@ export function DemoMockup({ range, operation }: DemoMockupProps) {
               // pushing the LHS away from the badge.
               const [lhs, rhs] = problem.split(" = ");
               return (
-                <div key={i} className="flex items-center gap-2">
+                <div
+                  key={i}
+                  className="flex items-center"
+                  style={{ gap: "var(--demo-gap-x)" }}
+                >
                   {/* Gold number badge */}
-                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-brand-accent text-[8px] font-bold text-brand sm:size-5 sm:text-[9px]">
+                  <span
+                    className="flex shrink-0 items-center justify-center rounded-full bg-brand-accent font-bold text-brand"
+                    style={{
+                      width: "var(--demo-badge)",
+                      height: "var(--demo-badge)",
+                      fontSize: "var(--demo-badge-fs)",
+                    }}
+                  >
                     {i + 1}
                   </span>
                   <span
-                    className={`${LHS_COL_CLASS[range]} font-playwrite text-right text-sm tabular-nums text-foreground sm:text-lg`}
+                    className="font-playwrite text-right tabular-nums text-foreground"
+                    style={{
+                      width: `var(--demo-lhs-${range})`,
+                      fontSize: "var(--demo-fs)",
+                    }}
                   >
                     {lhs}
                   </span>
-                  <span className="font-playwrite text-sm tabular-nums text-foreground sm:text-lg">
+                  <span
+                    className="font-playwrite tabular-nums text-foreground"
+                    style={{ fontSize: "var(--demo-fs)" }}
+                  >
                     = {rhs}
                   </span>
                 </div>
