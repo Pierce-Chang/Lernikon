@@ -8,6 +8,7 @@ import {
   Brain,
   Calculator,
   ChevronDown,
+  Globe,
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,6 +30,7 @@ import {
 const SUBJECT_ICON: Record<SubjectId, LucideIcon> = {
   mathe: Calculator,
   deutsch: Book,
+  englisch: Globe,
   denken: Brain,
 };
 
@@ -66,7 +68,7 @@ function ComingSoonCard({ topic }: { topic: TopicMeta }) {
 
 /** Group topics by subject, preserving the registry's intra-subject order. */
 const groupBySubject = (topics: TopicMeta[]): Record<SubjectId, TopicMeta[]> => {
-  const out: Record<SubjectId, TopicMeta[]> = { mathe: [], deutsch: [], denken: [] };
+  const out: Record<SubjectId, TopicMeta[]> = { mathe: [], deutsch: [], englisch: [], denken: [] };
   for (const t of topics) out[t.subject].push(t);
   return out;
 };

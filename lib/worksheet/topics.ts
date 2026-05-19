@@ -25,6 +25,8 @@
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
  *            |                    |                  | Diktat, Wortarten     |                            |                                  |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
+ * Englisch   | -                  | -                | -                     | Vokabeln abschreiben       | -                                |
+ * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Denken     | Muster fortsetzen, | -                | -                     | -                          | -                                |
  *            | Formen erkennen,   |                  |                       |                            |                                  |
  *            | Formen zuordnen    |                  |                       |                            |                                  |
@@ -36,6 +38,9 @@
  *   - Deutsch Klasse 3: Leseverstehen
  *   - Deutsch Klasse 4: Aufsatz-Bausteine, Wortbildung, Zeitformen, Wörtliche Rede
  *   - Denken Klasse 1-4: Zahlen-Reihen-Fortsetzung, Logik-Rätsel
+ *   - Englisch Klasse 3: Simple Sentences, Hoerverstehen-Vokabeln
+ *   - Englisch Klasse 4: Vokabel-Matching
+ *   - Englisch Klasse 1-2: Erste Vokabeln
  *
  * Wenn du ein Topic hinzufügst oder entfernst, MUSS diese Matrix manuell
  * mitgepflegt werden. Drift ist nicht akzeptabel.
@@ -64,12 +69,13 @@ export const TOPIC_IDS = [
 
 export type TopicId = (typeof TOPIC_IDS)[number];
 
-export const SUBJECT_IDS = ["mathe", "deutsch", "denken"] as const;
+export const SUBJECT_IDS = ["mathe", "deutsch", "englisch", "denken"] as const;
 export type SubjectId = (typeof SUBJECT_IDS)[number];
 
 export const SUBJECT_LABELS: Record<SubjectId, string> = {
   mathe: "Mathe",
   deutsch: "Deutsch",
+  englisch: "Englisch",
   denken: "Denken",
 };
 
@@ -81,11 +87,13 @@ export const SUBJECT_LABELS: Record<SubjectId, string> = {
  * each Bundesland / school often has its own Hefter-color convention.
  *
  * Reserved values for upcoming Phase 2 subjects (not yet in SUBJECT_IDS):
- *   englisch  -> #EAB308 (yellow-500)
+ *   sachunterricht -> TBD
+ *   musik          -> TBD
  */
 export const SUBJECT_COLOR_HEX: Record<SubjectId, string> = {
   mathe: "#1E4A7C", // Navy, matches Lernikon brand
   deutsch: "#DC2626", // Red, Tailwind red-600
+  englisch: "#EAB308", // Yellow-500 — distinct from brand-accent #F4B942 to avoid button/badge clash
   denken: "#9333EA", // Flieder / Lila, Tailwind purple-600
 };
 
@@ -688,7 +696,8 @@ export const topicsForGradeWithRoadmap = (grade: number): TopicMeta[] => {
   const subjectOrder: Record<SubjectId, number> = {
     mathe: 0,
     deutsch: 1,
-    denken: 2,
+    englisch: 2,
+    denken: 3,
   };
   return matches.sort((a, b) => {
     const bucketA = a.implemented ? 0 : 1,
