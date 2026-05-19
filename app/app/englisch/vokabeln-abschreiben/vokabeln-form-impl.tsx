@@ -114,7 +114,7 @@ export const VokabelnFormImpl = ({
           const text = await response.text();
           console.warn("generate failed:", response.status, text);
           setError(
-            "Konnte das Ubungsblatt nicht erstellen. Bitte erneut versuchen.",
+            "Konnte das Übungsblatt nicht erstellen. Bitte erneut versuchen.",
           );
         }
         return;
@@ -161,10 +161,10 @@ export const VokabelnFormImpl = ({
         </CardContent>
       </Card>
 
-      {/* Anzahl Worter */}
+      {/* Anzahl Wörter */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Anzahl Worter</CardTitle>
+          <CardTitle className="text-base">Anzahl Wörter</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
@@ -244,7 +244,7 @@ export const VokabelnFormImpl = ({
           <p className="text-muted-foreground text-sm">
             Heute noch{" "}
             <span className="text-foreground font-medium">{quota.remaining}</span>{" "}
-            von {quota.limit} Arbeitsblattern verfugbar.
+            von {quota.limit} Arbeitsblättern verfügbar.
           </p>
         )}
         {blocked ? (

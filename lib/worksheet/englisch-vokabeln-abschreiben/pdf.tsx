@@ -65,8 +65,7 @@ const COLOR = {
 const BAND_HEIGHT = 20, // pt per band
   ROW_HEIGHT = BAND_HEIGHT * 2, // 40pt total
   ROW_GAP = 8, // pt between rows inside one word block
-  WORD_GAP = 20, // pt between word blocks
-  GERMAN_LINE_HEIGHT = 16; // pt for the German translation line below the rows
+  WORD_GAP = 20; // pt between word blocks
 
 // Ghost word font sizing for each schrift option.
 // PlaywriteDEGrund uses the same values as in woerter-abschreiben.
@@ -285,7 +284,7 @@ const VokabelnDocument = ({
   const themeMeta = getTheme(theme);
   return (
     <Document
-      title={`Englisch Vokabeln fuer ${childName}`}
+      title={`Englisch Vokabeln für ${childName}`}
       author="Lernikon"
       creator="Lernikon"
       producer="Lernikon"

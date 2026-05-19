@@ -25,16 +25,16 @@ export default async function EnglischVokabelnPage() {
     <main className="mx-auto w-full max-w-2xl px-6 py-10">
       <div className="mb-4">
         <Button variant="ghost" size="sm" render={<Link href="/app" />}>
-          Zuruck zur Ubersicht
+          Zurück zur Übersicht
         </Button>
       </div>
       <h1 className="text-3xl font-bold tracking-tight">Englisch Vokabeln</h1>
       <p className="text-muted-foreground mt-1 text-sm">
-        Fur <span className="font-medium">{child.name}</span>{" "}
+        Für <span className="font-medium">{child.name}</span>{" "}
         {formatGradeShort(child.grade)}
       </p>
       <p className="text-muted-foreground mt-2 text-sm">
-        Klasse 3. Erste englische Vokabeln mit Ubersetzung in Lineatur abschreiben.
+        Klasse 3. Erste englische Vokabeln mit Übersetzung in Lineatur abschreiben.
       </p>
 
       <VokabelnForm
