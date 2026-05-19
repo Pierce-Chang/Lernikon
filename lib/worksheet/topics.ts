@@ -25,7 +25,7 @@
  *            |                    | Wörter abschr.   | Wörter abschreiben,   |                            |                                  |
  *            |                    |                  | Diktat, Wortarten     |                            |                                  |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
- * Englisch   | -                  | -                | -                     | Vokabeln abschreiben       | -                                |
+ * Englisch   | -                  | -                | -                     | Vokabeln abschreiben       | Simple Sentences                 |
  * -----------|--------------------|------------------|-----------------------|----------------------------|----------------------------------|
  * Denken     | Muster fortsetzen, | -                | -                     | -                          | -                                |
  *            | Formen erkennen,   |                  |                       |                            |                                  |
@@ -39,7 +39,7 @@
  *   - Deutsch Klasse 4: Aufsatz-Bausteine, Wortbildung, Zeitformen, Wörtliche Rede
  *   - Denken Klasse 1-4: Zahlen-Reihen-Fortsetzung, Logik-Rätsel
  *   - Englisch Klasse 3: Simple Sentences, Hoerverstehen-Vokabeln
- *   - Englisch Klasse 4: Vokabel-Matching
+ *   - Englisch Klasse 4: Vokabel-Matching (Simple Sentences ist jetzt implementiert)
  *   - Englisch Klasse 1-2: Erste Vokabeln
  *
  * Wenn du ein Topic hinzufügst oder entfernst, MUSS diese Matrix manuell
@@ -66,6 +66,7 @@ export const TOPIC_IDS = [
   "denken-formen-erkennen",
   "denken-formen-zuordnen",
   "englisch-vokabeln-abschreiben",
+  "englisch-simple-sentences",
 ] as const;
 
 export type TopicId = (typeof TOPIC_IDS)[number];
@@ -700,6 +701,38 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
       "Erste englische Vokabeln mit deutscher Übersetzung in Lineatur abschreiben.",
     href: "/app/englisch/vokabeln-abschreiben",
     grades: [3],
+    implemented: true,
+  },
+
+  /**
+   * Klasse 4 · Englisch · Lückentext mit dem Verb "to be" (am / is / are).
+   *
+   * Aufgabentyp: Zweispaltige Satzliste. Pro Satz eine Lücke an der Verb-Stelle
+   * (proportionale Unterstriche in PlaywriteDEGrund). Infinitiv-Hilfe "(to be)"
+   * in kleiner Helvetica-Oblique darunter — identisches Pattern wie die
+   * Fragewort-Hilfe in deutsch-faelle. Optionales Lösungsblatt auf Seite 2
+   * (ausgefüllter Satz in PlaywriteDEGrund Brand-Navy).
+   *
+   * Korpus (lib/worksheet/englisch-simple-sentences/corpus.ts): 28 Einträge,
+   * Klasse-4-Wortschatz verankert im englisch-vokabeln-abschreiben-Korpus.
+   * ASCII-only, WinAnsi-safe.
+   *
+   * Konfig-Achsen:
+   *   - Anzahl Sätze (10 / 15 / 20) — Default: 15
+   *   - Lösungsblatt (an / aus) — Default: an
+   *
+   * NICHT in scope (Folge-Tasks wenn Founder Multi-Struct will):
+   *   - to have / Present Simple / Possessive — corpus-discriminator "struct"
+   *     ist bereits in place; nur Korpus-Einträge + STRUCT_IDS erweitern.
+   *   - Klasse 3 Simple Sentences: existiert nicht (Klasse 4 zuerst)
+   */
+  "englisch-simple-sentences": {
+    id: "englisch-simple-sentences",
+    subject: "englisch",
+    label: "Simple Sentences",
+    description: "Luckentext mit am, is, are.",
+    href: "/app/englisch/simple-sentences",
+    grades: [4],
     implemented: true,
   },
 };
