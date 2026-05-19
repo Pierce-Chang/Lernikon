@@ -68,6 +68,13 @@ import { renderMarienkaeferPdf } from "@/lib/worksheet/marienkaefer/pdf";
 import { faelleConfigSchema, MODE_LABELS } from "@/lib/worksheet/faelle/config";
 import { generateFaelle } from "@/lib/worksheet/faelle/generate";
 import { renderFaellePdf } from "@/lib/worksheet/faelle/pdf";
+import {
+  vokabelnConfigSchema,
+  BUCKET_IDS,
+  BUCKET_LABELS,
+} from "@/lib/worksheet/englisch-vokabeln-abschreiben/config";
+import { generateVokabelnAbschreiben } from "@/lib/worksheet/englisch-vokabeln-abschreiben/generate";
+import { renderVokabelnPdf } from "@/lib/worksheet/englisch-vokabeln-abschreiben/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -682,6 +689,44 @@ const dispatchTopic = async (
         logSubject: "deutsch",
         logOperation: `faelle-${config.mode}`,
         logConfig: { mode: config.mode, count: config.count, showSolutions: config.showSolutions, seed: sheet.seed },
+      };
+    }
+    case "englisch-vokabeln-abschreiben": {
+      const parsed = vokabelnConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        // Server-side canonical bucket sort so stale client state cannot reorder picks.
+        canonicalBuckets = BUCKET_IDS.filter((id) =>
+          config.buckets.includes(id),
+        ),
+        sheet = generateVokabelnAbschreiben({
+          ...config,
+          buckets: canonicalBuckets,
+        }),
+        bucketLabelsList = canonicalBuckets.map((id) => BUCKET_LABELS[id]),
+        stream = await renderVokabelnPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          theme: ctx.theme,
+          schrift: config.schrift,
+          bucketLabels: bucketLabelsList,
+          showWatermark: !ctx.isPaid,
+        });
+      return {
+        stream,
+        filenameBase: `Lernikon - Englisch - Vokabeln abschreiben - ${bucketLabelsList.join(", ")}`,
+        logSubject: "englisch",
+        logOperation: null,
+        logConfig: {
+          buckets: canonicalBuckets,
+          count: config.count,
+          linesPerWord: config.linesPerWord,
+          schrift: config.schrift,
+          seed: sheet.seed,
+        },
       };
     }
     default:

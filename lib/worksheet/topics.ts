@@ -65,6 +65,7 @@ export const TOPIC_IDS = [
   "denken-muster",
   "denken-formen-erkennen",
   "denken-formen-zuordnen",
+  "englisch-vokabeln-abschreiben",
 ] as const;
 
 export type TopicId = (typeof TOPIC_IDS)[number];
@@ -670,6 +671,35 @@ export const TOPIC_REGISTRY: Record<TopicId, TopicMeta> = {
     description: "Farbige Formen mit ihren Silhouetten paaren",
     href: "/app/denken/formen-zuordnen",
     grades: [0],
+    implemented: true,
+  },
+
+  /**
+   * Klasse 3 · Englisch · Erste englische Vokabeln mit Lineatur abschreiben.
+   *
+   * Aufgabentyp: Pro Wort N Zeilen 3-Linien-Lineatur. Ghost-Wort in der ersten
+   * Zeile (Helvetica-Bold oder PlaywriteDEGrund), Rest leer zum Abschreiben.
+   * Deutsche Übersetzung klein darunter als Hilfe (Helvetica). Kein Lösungsblatt.
+   *
+   * Konfig-Achsen:
+   *   - Themen-Buckets (Familie / Tiere / Farben / Zahlen / Schule) — Default: alle an
+   *   - Anzahl Wörter (5 / 8 / 10) — Default: 8
+   *   - Zeilen pro Wort (1 / 2 / 3) — Default: 2
+   *   - Schrift (Helvetica / PlaywriteDEGrund) — Default: Helvetica
+   *
+   * NICHT in scope:
+   *   - Schreibschrift (englische Cursive nicht im Repo)
+   *   - Lösungsblatt (kein Lösungsblatt-Toggle)
+   *   - KI-generierte Beispielsätze: Phase 2
+   */
+  "englisch-vokabeln-abschreiben": {
+    id: "englisch-vokabeln-abschreiben",
+    subject: "englisch",
+    label: "Vokabeln abschreiben",
+    description:
+      "Erste englische Vokabeln mit deutscher Übersetzung in Lineatur abschreiben.",
+    href: "/app/englisch/vokabeln-abschreiben",
+    grades: [3],
     implemented: true,
   },
 };
