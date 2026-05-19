@@ -142,3 +142,16 @@
     @apply font-sans;
   }
 }
+
+/* Dotted math-paper grid — used as full-page landing background.
+   Navy dots at very low opacity give an educational feel without
+   looking like a school book. Dot size ~1.5 px, spacing 22 px. */
+.dotted-grid {
+  background-color: #fafaf7;
+  background-image: radial-gradient(
+    circle,
+    rgba(30, 74, 124, 0.07) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 22px 22px;
+}

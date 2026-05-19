@@ -9,6 +9,7 @@ const lexend = Lexend({
   variable: "--font-lexend",
   subsets: ["latin"],
   display: "swap",
+  weight: ["300", "400", "600", "700", "800"],
 });
 
 // German Grundschrift used by Vorschule / Klasse 1 kids when they first
