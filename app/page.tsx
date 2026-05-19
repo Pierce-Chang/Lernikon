@@ -140,14 +140,14 @@ export default async function LandingPage() {
                   style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
                 >
                   Lernen,{" "}
-                  <span className="text-[#F4B942]">das mitmacht.</span>
+                  <span className="text-[#F4B942]">mit viel Abwechsung.</span>
                 </h1>
               </FadeInItem>
 
               {/* Subhead */}
               <FadeInItem>
                 <p className="mx-auto mt-8 max-w-[560px] text-balance text-[1.25rem] font-normal leading-relaxed text-[#374151]">
-                  Druckfertige Übungsblätter für Vorschule bis Klasse 4.
+                  Druckfertige Übungsblätter für Vorschule bis zur 4. Klasse
                   Personalisiert, in 30 Sekunden, mit Lösungen.
                 </p>
               </FadeInItem>
@@ -186,7 +186,7 @@ export default async function LandingPage() {
               {/* Micro trust line */}
               <FadeInItem>
                 <p className="mt-5 text-[0.8rem] text-[#9CA3AF]">
-                  Keine Kreditkarte nötig · 3 Blätter täglich gratis · Jederzeit kündbar
+                  Einfache Zahlung · 3 Blätter täglich gratis · Jederzeit kündbar
                 </p>
               </FadeInItem>
             </FadeInStagger>
