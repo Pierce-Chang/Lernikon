@@ -75,6 +75,9 @@ import {
 } from "@/lib/worksheet/englisch-vokabeln-abschreiben/config";
 import { generateVokabelnAbschreiben } from "@/lib/worksheet/englisch-vokabeln-abschreiben/generate";
 import { renderVokabelnPdf } from "@/lib/worksheet/englisch-vokabeln-abschreiben/pdf";
+import { englischSimpleSentencesConfigSchema } from "@/lib/worksheet/englisch-simple-sentences/config";
+import { generateEnglischSimpleSentences } from "@/lib/worksheet/englisch-simple-sentences/generate";
+import { renderEnglischSimpleSentencesPdf } from "@/lib/worksheet/englisch-simple-sentences/pdf";
 import { TOPIC_IDS, type TopicId } from "@/lib/worksheet/topics";
 import { isThemeId } from "@/lib/themes";
 
@@ -727,6 +730,29 @@ const dispatchTopic = async (
           schrift: config.schrift,
           seed: sheet.seed,
         },
+      };
+    }
+    case "englisch-simple-sentences": {
+      const parsed = englischSimpleSentencesConfigSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new TopicError(400, "invalid_config", parsed.error.flatten());
+      }
+      const config = parsed.data,
+        sheet = generateEnglischSimpleSentences(config),
+        stream = await renderEnglischSimpleSentencesPdf({
+          childName: ctx.childName,
+          date: formatDate(),
+          sheet,
+          theme: ctx.theme,
+          showWatermark: !ctx.isPaid,
+          includeSolutions: config.includeSolutions,
+        });
+      return {
+        stream,
+        filenameBase: "Lernikon - Englisch - Simple Sentences",
+        logSubject: "englisch",
+        logOperation: null,
+        logConfig: { count: config.count, includeSolutions: config.includeSolutions, seed: sheet.seed },
       };
     }
     default:
