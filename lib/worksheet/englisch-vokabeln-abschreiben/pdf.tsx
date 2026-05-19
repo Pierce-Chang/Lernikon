@@ -65,8 +65,8 @@ const BAND_HEIGHT = 20, // pt per band
   ROW_GAP = 8, // pt between rows inside one word block
   WORD_GAP = 20; // pt between word blocks
 
-const GHOST_FONT_SIZE = 43.5,
-  GHOST_TOP = -17;
+const GHOST_FONT_SIZE = 40,
+  GHOST_TOP = -13;
 
 const styles = StyleSheet.create({
   page: {
